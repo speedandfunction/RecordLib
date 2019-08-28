@@ -200,7 +200,7 @@ def get_person(stree: etree) -> Person:
         a Person object
     """
     try:
-        name = stree.xpath("docket/header/caption/defendant_line")[0].text.strip()
+        name = stree.find("//defendant_line").text.strip()
         first_name, last_name = split_first_name(name)
     except IndexError:
         first_name = ""
