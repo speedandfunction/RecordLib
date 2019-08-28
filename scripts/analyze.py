@@ -16,12 +16,15 @@ from RecordLib.summary.pdf import parse_pdf as parse_pdf_summary
 import pytest
 import json
 
+@click.group()
+def cli():
+    return
 
-@click.command()
+@cli.command()
 @click.option("--pdf-summary", "-ps", type=click.Path(), required=True, default=None)
 @click.option("--tempdir", "-td", type=click.Path(), default="tests/data/tmp")
 @click.option("--redis-collect", "-rc", default=None, type=str, help="connection to redis, in the form [host]:[port]:[db number]:[environment name]. For example, 'localhost:6379:0:development'")
-def analyze(pdf_summary: str, tempdir: str, redis_collect: str) -> None:
+def doc(pdf_summary: str, tempdir: str, redis_collect: str) -> None:
     rec = CRecord()
     if pdf_summary is not None:
         rec.add_summary(parse_pdf_summary(pdf_summary, tempdir = tempdir))
