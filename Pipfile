@@ -14,9 +14,8 @@ hypothesis = "*"
 [packages]
 cerberus = "*"
 pyyaml = "*"
-parsimonious = "*"
 lxml = "*"
-recordlib = {path = ".",editable = true}
+recordlib = {path = ".", editable = true}
 requests = "*"
 e1839a8 = {path = ".",editable = true}
 black = "*"
@@ -25,6 +24,7 @@ redis = "*"
 django = "*"
 djangorestframework = "*"
 django-cors-headers = "*"
+parsimonious = "*"
 
 [requires]
 python_version = "3.7"
