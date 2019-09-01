@@ -90,5 +90,8 @@ def test_charge_get_section(example_charge):
 
 def test_charge_get_chapter(example_charge):
     example_charge.statute = "18 § 1234"
-    example_charge.get_statute_chapter() == 18
+    assert example_charge.get_statute_chapter() == 18
 
+def test_charge_get_statute_subsections(example_charge):
+    example_charge.statute = "75 § 3802 §§ A1*"
+    assert example_charge.get_statute_subsections() == "A1*"

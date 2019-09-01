@@ -155,7 +155,7 @@ class Charge:
 
 
     def get_statute_subsections(self) -> str:
-        patt = re.compile("^(?P<chapt>\d+)\s*§\s(?P<section>\d+\.?\d*)\s*(?P<subsections>[\(\)A-Za-z0-9\.]+).*")
+        patt = re.compile("^(?P<chapt>\d+)\s*§\s(?P<section>\d+\.?\d*)\s*§§\s*(?P<subsections>[\(\)A-Za-z0-9\.\*]+)\s*.*")
         match = patt.match(self.statute)
         if match:
             return match.group("subsections")
