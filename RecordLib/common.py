@@ -137,7 +137,7 @@ class Charge:
         else:
             return False
 
-    def get_statute_chapter(self) -> int:
+    def get_statute_chapter(self) -> float:
         patt = re.compile("^(?P<chapt>\d+)\s*§\s(?P<section>\d+).*")
         match = patt.match(self.statute)
         if match:
@@ -145,7 +145,7 @@ class Charge:
         else:
             return None
 
-    def get_statute_section(self) -> int:
+    def get_statute_section(self) -> float:
         patt = re.compile("^(?P<chapt>\d+)\s*§\s(?P<section>\d+\.?\d*).*")
         match = patt.match(self.statute)
         if match:
