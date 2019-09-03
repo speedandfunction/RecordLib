@@ -12,5 +12,5 @@ from RecordLib.common import Charge
 def test_guess_grade(statute, grade):
     dummy_charge = Charge(offense="", grade="", statute=statute, sentences=[], disposition="")
     guess_list = guess_grade(dummy_charge)
-    most_likely = sorted(guess_list, key=lambda i: i[1])[-1]
+    most_likely = guess_list[-1]
     assert most_likely[0] == grade

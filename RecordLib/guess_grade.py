@@ -50,6 +50,6 @@ def guess_grade(ch: Charge) -> List[Tuple[str, float]]:
         cur.execute(query, (chapter, section, ch.get_statute_subsections()))
     try:
         percents = [(g,percent_to_float(p)) for g, p in cur]
-        return percents
+        return sorted(percents, key=lambda i: i[1])
     except IndexError:
         return [("", 0)]
