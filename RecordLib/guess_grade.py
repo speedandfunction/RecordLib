@@ -1,4 +1,3 @@
-from RecordLib.common import Charge
 from typing import Tuple, Union, List
 import mysql.connector
 import os
@@ -23,7 +22,7 @@ def percent_to_float(s: str) -> float:
     except:
         return 0.0
 
-def guess_grade(ch: Charge) -> List[Tuple[str, float]]:
+def guess_grade(ch: "Charge") -> List[Tuple[str, float]]:
     """
     Guess the grade of a charge.
 
