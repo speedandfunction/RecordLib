@@ -22,6 +22,7 @@ class Person:
     first_name: str
     last_name: str
     date_of_birth: date
+    aliases: List[str]
     date_of_death: Optional[date] = None
 
     @staticmethod
@@ -32,7 +33,8 @@ class Person:
                 first_name = dct.get("first_name"),
                 last_name = dct.get("last_name"),
                 date_of_birth = dct.get("date_of_birth"), 
-                date_of_death = dct.get("date_of_death")
+                date_of_death = dct.get("date_of_death"),
+                aliases = dct.get("aliases") or []
             )
 
     def age(self) -> int:
@@ -55,6 +57,8 @@ class Person:
         else:
             return float("-Inf")
 
+    def full_name(self) -> str:
+        return " ".join([self.first_name, self.last_name])
 
 @dataclass
 class SentenceLength:

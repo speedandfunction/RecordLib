@@ -54,7 +54,6 @@ class PersonSerializer(S.Serializer):
     date_of_death = S.DateField(required=False)
 
 
-
 class CRecordSerializer(S.Serializer):
     person = PersonSerializer()
     cases = CaseSerializer(many=True)

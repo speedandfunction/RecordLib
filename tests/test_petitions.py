@@ -1,17 +1,33 @@
-
+import io
 
 from RecordLib.petitions import Petition, Expungement, Sealing
 
 
-def test_petition(example_person, example_case):
-    p = Petition(person=example_person, cases=[example_case])
+def test_petition(example_attorney, example_person, example_case):
+    p = Petition(attorney=example_attorney, client=example_person, cases=[example_case])
     assert p.cases[0] == example_case
 
-def test_expungement_petition(example_person, example_case):
-    p = Expungement(person=example_person, cases=[example_case])
+# EXPUNGEMENT PETITIONS
+def test_expungement_petition(example_attorney, example_person, example_case):
+    p = Expungement(attorney=example_attorney, client=example_person, cases=[example_case], 
+                    type=Expungement.FULL_EXPUNGEMENT,
+                    procedure=Expungement.NONSUMMARY_EXPUNGEMENT)
     assert p.cases[0] == example_case
-    
+    assert p.type == Expungement.FULL_EXPUNGEMENT
+    assert p.procedure == Expungement.NONSUMMARY_EXPUNGEMENT
 
+def test_render_expungement_petition(example_person, example_attorney, example_case): 
+    p = Expungement(attorney=example_attorney, client=example_person, cases=[example_case], 
+                    type=Expungement.FULL_EXPUNGEMENT)
+    with open("tests/templates/790ExpungementTemplate_usingpythonvars.docx", "rb") as doc:
+        p.set_template(doc)
+
+    doc = p.render()
+    breakpoint() 
+    assert isinstance(doc, io.BytesIO)
+
+
+# SEALING PETITIONS
 def test_sealing_petition(example_person, example_case):
-    p = Sealing(person=example_person, cases=[example_case])
+    p = Sealing(client=example_person, cases=[example_case])
     assert p.cases[0] == example_case

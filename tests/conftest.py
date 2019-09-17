@@ -2,6 +2,7 @@ import pytest
 from RecordLib.case import Case
 from RecordLib.common import Charge, Person, Sentence, SentenceLength
 from RecordLib.crecord import CRecord
+from RecordLib.attorney import Attorney
 from RecordLib.summary.pdf import parse_pdf as parse_summary_pdf
 from RecordLib.docket import Docket
 from datetime import date
@@ -10,6 +11,16 @@ from RecordLib.redis_helper import RedisHelper
 import os
 #from django.test import Client 
 from rest_framework.test import APIClient
+
+@pytest.fixture
+def example_attorney():
+        return Attorney(
+                organization = "Community Legal",
+                name = "John Smith",
+                organization_address = r"1234 Main St.\nBig City, NY 10002",
+                organization_phone = "555-555-5555",
+                bar_id = "123456",
+              )
 
 @pytest.fixture
 def example_summary():
@@ -27,6 +38,7 @@ def example_person():
     return Person(
         first_name="Jane",
         last_name="Smorp",
+        aliases=["JSmo", "SmorpyJJ"],
         date_of_birth=date(2010, 1, 1)
     )
 
