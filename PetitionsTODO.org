@@ -1,0 +1,20 @@
+* TODO list for the Create-Petitions branch
+** TODO Fields to add (add to core class, test cases, serializer and deserializer)
+*** TODO Person#Aliases
+*** TODO Person#Address
+*** TODO Person#SSN
+*** TODO Case#judge_address
+*** TODO Case#affiant
+*** TODO Case#arresting_agency
+*** TODO disposition_date should be on a charge, not a case
+*** TODO Case#total_fines
+*** TODO Case#fines_paid
+** TODO Service Agencies.  
+   - Note taken on [2019-09-19 Thu 10:14] \\
+     Service Agencies is a list of where service should go. I think its
+     based on counties, so we need a database entity to tell us what the
+     agencies are for each county.  Like a table called ServiceAgencies,
+     with two columns, County and Agency
+** TODO IFP messages
+   - Note taken on [2019-09-19 Thu 10:16] \\
+     Different counties (or is it Orgs?) require different IFP messages.
