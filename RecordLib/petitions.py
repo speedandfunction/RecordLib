@@ -5,7 +5,7 @@ TODO These are really just stubs for now while I'm working on what the Analysis 
 """
 from RecordLib.case import Case
 from RecordLib.attorney import Attorney
-from RecordLib.common import Person
+from RecordLib.person import Person
 from typing import Optional, List
 from docxtpl import DocxTemplate
 import io 

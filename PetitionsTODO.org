@@ -1,6 +1,8 @@
 * TODO list for the Create-Petitions branch
-** TODO Fields to add (add to core class, test cases, serializer and deserializer)
-*** TODO Person#Aliases
+** STARTED [0/9] Fields to add (add to core class, test cases, serializer and deserializer)
+   - State "STARTED"    from "TODO"       [2019-09-19 Thu 10:21]
+*** STARTED Person#Aliases
+    - State "STARTED"    from "TODO"       [2019-09-19 Thu 10:21]
 *** TODO Person#Address
 *** TODO Person#SSN
 *** TODO Case#judge_address

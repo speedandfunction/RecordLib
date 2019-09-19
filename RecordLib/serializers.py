@@ -1,5 +1,6 @@
 import functools
-from RecordLib.common import Charge, Person, Sentence, SentenceLength
+from RecordLib.common import Charge, Sentence, SentenceLength
+from RecordLib.person import Person
 from RecordLib.case import Case
 from RecordLib.analysis import Analysis
 from RecordLib.petitions import Expungement, Sealing

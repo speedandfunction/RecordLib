@@ -9,7 +9,8 @@ from typing import Dict, Tuple, List, Union, BinaryIO
 from lxml import etree
 from parsimonious.nodes import Node  # type: ignore
 from RecordLib.case import Case
-from RecordLib.common import Person, Charge, Sentence, SentenceLength
+from RecordLib.common import Charge, Sentence, SentenceLength
+from RecordLib.person import Person
 from RecordLib.CustomNodeVisitorFactory import CustomVisitorFactory
 from RecordLib.grammars.summary import (
     summary_page_terminals,

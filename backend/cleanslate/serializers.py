@@ -4,7 +4,8 @@ from RecordLib.crecord import (
     CRecord
 )
 from RecordLib.case import Case
-from RecordLib.common import (Person, Charge, Sentence, SentenceLength)
+from RecordLib.person import Person
+from RecordLib.common import (Charge, Sentence, SentenceLength)
 
 """
 These serializer classes are only for serializing and deserializing json/dict representations of these 
