@@ -12,6 +12,8 @@ These serializer classes are only for serializing and deserializing json/dict re
 classes. Use each class's `from_dict` static method to actually get the object. 
 """
 
+
+
 class SentenceLengthSerializer(S.Serializer):
     min_time = S.IntegerField(required=False)
     min_unit = S.CharField(required=False)
@@ -46,6 +48,12 @@ class CaseSerializer(S.Serializer):
     judge = S.CharField()
 
 
+class AttorneySerializer(S.Serializer):
+    organization = S.CharField(required=False)
+    name = S.CharField(required=False)
+    organization_address = S.CharField(required=False)
+    organization_phone = S.CharField(required=False)
+    bar_id = S.CharField(required=False)
 
 
 class PersonSerializer(S.Serializer):
@@ -58,4 +66,13 @@ class PersonSerializer(S.Serializer):
 class CRecordSerializer(S.Serializer):
     person = PersonSerializer()
     cases = CaseSerializer(many=True)
+
+class PetitionSerializer(S.Serializer):
+    attorney = AttorneySerializer()
+    client = PersonSerializer()
+    cases = CaseSerializer(many=True)
+    expungement_type = S.CharField(required=False)
+
+class DocumentRenderSerializer(S.Serializer):
+    petitions = PetitionSerializer(many=True)
 

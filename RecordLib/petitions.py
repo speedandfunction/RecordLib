@@ -25,6 +25,15 @@ class Petition:
     def add_case(self, case: Case) -> None:
         self.cases.append(case)
 
+    def file_name(self) -> str:
+        """
+        Return a file name for the rendered petition.
+        """
+        try:
+            docknum = cases[0].docket_number 
+        except:
+            docknum = "NoCases"
+        return f"GenericPetition_{self.client.last_name}_{self.cases[0].docket_number}.docx"
 
     def render(self) -> DocxTemplate:
         """
@@ -38,23 +47,27 @@ class Petition:
 class Expungement(Petition):
     # class-level constants for the type of the expungment. FULL/Partial is only relevant to 
     # helping the user understand what this expungement is.
-    FULL_EXPUNGEMENT = "Full Expungement"
-    PARTIAL_EXPUNGEMENT = "Partial Expungement"
+    class ExpungementTypes:
+        FULL_EXPUNGEMENT = "Full Expungement"
+        PARTIAL_EXPUNGEMENT = "Partial Expungement"
     
 
     # Class constants for the section of the PA Criminal Procedure rules, pursuant to which this
     # expungement is being filed. 
     # 490 is for expunging summary convictions,
     # 790 is for expunging everything else. 
-    SUMMARY_EXPUNGEMENT = "§ 490"
-    NONSUMMARY_EXPUNGEMENT = "§ 790"
+    class ExpungementProcedures:
+        SUMMARY_EXPUNGEMENT = "§ 490"
+        NONSUMMARY_EXPUNGEMENT = "§ 790"
+
+    petition_type="Expungement"
 
     def __init__(self, *args, **kwargs):
-        if "type" in kwargs.keys():
-            self.type = kwargs["type"]
-            kwargs.pop("type")
+        if "expungement_type" in kwargs.keys():
+            self.expungement_type = kwargs["expungement_type"]
+            kwargs.pop("expungement_type")
         else: 
-            self.type = ""
+            self.expungement_type = ""
 
 
         if "procedure" in kwargs.keys():
@@ -79,12 +92,14 @@ class Expungement(Petition):
             "client": self.client, 
             "cases": self.cases,
             "ifp_message": r"{{IFP MESSAGE NOT IMPLEMENTED YET}}",
-            "summary_extra": "EXTRA SUMMARY STUFF" if self.procedure == Expungement.SUMMARY_EXPUNGEMENT else "",
+            "summary_extra": "EXTRA SUMMARY STUFF" if self.procedure == Expungement.ExpungementProcedures.SUMMARY_EXPUNGEMENT else "",
             "service_agencies": []})
         return self._template
 
 
 class Sealing(Petition):
+
+    petition_type = "Sealing"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

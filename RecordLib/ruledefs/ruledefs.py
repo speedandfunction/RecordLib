@@ -24,7 +24,7 @@ Decision:
 
 """
 from RecordLib.crecord import CRecord
-from RecordLib.common import Person
+from RecordLib.person import Person
 from RecordLib.decision import Decision
 from RecordLib.petitions import Expungement, Sealing
 import pytest
@@ -74,9 +74,9 @@ def expunge_over_70(crecord: CRecord) -> Tuple[CRecord, Decision]:
     ) 
 
     if all(conclusion.reasoning):
-        exps = [Expungement(person=crecord.person, cases=[c]) for c in crecord.cases]
+        exps = [Expungement(client=crecord.person, cases=[c]) for c in crecord.cases]
         for e in exps:
-            e.type = Expungement.FULL_EXPUNGEMENT
+            e.type = Expungement.ExpungementTypes.FULL_EXPUNGEMENT
         conclusion.value = exps
         modified_record = CRecord(person=copy.deepcopy(crecord.person), cases=[])
     else:
@@ -104,7 +104,7 @@ def expunge_deceased(crecord: CRecord) -> Tuple[CRecord, Decision]:
     if all(conclusion.reasoning):
         exps = [Expungement(crecord.person, c) for c in crecord.cases]
         for e in exps:
-            e.type = Expungement.FULL_EXPUNGEMENT
+            e.type = Expungement.ExpungementTypes.FULL_EXPUNGEMENT
         conclusion.value = exps
         modified_record = CRecord(person=copy.deepcopy(crecord.person), cases=[])
     else:
@@ -181,11 +181,11 @@ def expunge_summary_convictions(
             # this whole record.
             if len(expungeable_case.charges) > 0:
                 case_d.value = True
-                exp = Expungement(person=crecord.person, cases=[expungeable_case])
+                exp = Expungement(client=crecord.person, cases=[expungeable_case])
                 if len(expungeable_case.charges) == len(case.charges):
-                    exp.type = Expungement.FULL_EXPUNGEMENT
+                    exp.type = Expungement.ExpungementTypes.FULL_EXPUNGEMENT
                 else:
-                    exp.type = Expungement.PARTIAL_EXPUNGEMENT
+                    exp.type = Expungement.ExpungementTypes.PARTIAL_EXPUNGEMENT
                 conclusion.value.append(exp)
             if len(not_expungeable_case.charges) > 0:
                 case_d.value = False
@@ -241,11 +241,11 @@ def expunge_nonconvictions(crecord: CRecord) -> Tuple[CRecord, dict]:
         # this whole record.
         if len(expungeable_case.charges) > 0:
             case_d.value = True
-            exp = Expungement(person=crecord.person, cases=[expungeable_case])
+            exp = Expungement(client=crecord.person, cases=[expungeable_case])
             if len(expungeable_case.charges) == len(case.charges):
-                exp.type = Expungement.FULL_EXPUNGEMENT
+                exp.type = Expungement.ExpungementTypes.FULL_EXPUNGEMENT
             else:
-                exp.type = Expungement.PARTIAL_EXPUNGEMENT
+                exp.type = Expungement.ExpungementTypes.PARTIAL_EXPUNGEMENT
             conclusion.value.append(exp)
         else:
             case_d.value = False

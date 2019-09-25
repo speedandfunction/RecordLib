@@ -70,27 +70,28 @@ def td_decision(dec):
 @to_serializable.register(Analysis)
 def td_analysis(an):
     return {
-        "analysis": an.decisions,
-        "remaining_record": an.modified_rec,
-        "original_record": an.rec
+        "decisions": to_serializable(an.decisions),
+        "remaining_record": to_serializable(an.modified_rec),
+        "original_record": to_serializable(an.rec)
     }
 
 
 @to_serializable.register(Sealing)
 def td_sealing(s):
     return {
-        "petition": "Sealing",
-        "person": s.person,
-        "cases": s.cases
+        "petition_type": to_serializable(s.petition_type),
+        "client": to_serializable(s.client),
+        "cases": to_serializable(s.cases)
     }
 
 @to_serializable.register(Expungement)
-def td_sealing(e):
+def td_expungement(e):
     return {
-        "petition": "Expungement",
-        "type": e.type,
-        "person": e.person,
-        "cases": e.cases
+        "petition_type": to_serializable(e.petition_type),
+        "expungement_type": to_serializable(e.expungement_type),
+        "procedure": to_serializable(e.procedure),
+        "client": to_serializable(e.client),
+        "cases": to_serializable(e.cases)
     }
 
 

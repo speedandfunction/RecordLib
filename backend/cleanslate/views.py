@@ -17,13 +17,13 @@ from RecordLib.ruledefs import (
     seal_convictions,
 )
 from .serializers import (
-    CRecordSerializer
+    CRecordSerializer, DocumentRenderSerializer
 )
 import json
 import os
 import os.path
 from datetime import *
-
+import zipfile
 
 class FileUploadView(APIView):
     # noinspection PyMethodMayBeStatic
@@ -85,3 +85,35 @@ class AnalyzeView(APIView):
         except Exception as e:
             logging.error(e)
             return Response("Something went wrong", status=status.HTTP_400_BAD_REQUEST)
+
+
+class RenderDocumentsView(APIView):
+    """ Create pettions and an Overview document from an Analysis. 
+    
+    POST should be a json-encoded object with an 'petitions' property that is a list of petitions to generate
+    """
+    def post(self, request, *args, **kwargs):
+        try:
+            breakpoint()
+            data = JSONParser().parse(request)
+            serializer = DocumentRenderSerializer(data=data)
+            if serializer.is_valid():
+                petitions = []
+                for petition in serializer.validated_data["petitions"]:
+                    if petition["petition_type"] == "Sealing":
+                        petitions.append(Sealing.from_dict(petition))
+                    else:
+                        petitions.append(Expungement.from_dict(petition))
+
+                with open("tests/templates/790ExpungementTemplate_usingpythonvars.docx", "rb") as doc:
+                    for petition in petitions:
+                        petition.set_template(doc)
+                        petition.render() 
+                petitions = [(p.file_name(), p) for p in petitions]
+                package = Compress(petitions)
+                package.save(f"ExpungementsFor{petitions[0].client.last_name}.zip")
+                return Response({"download":package.path()})
+        except:
+            return Response("Something went wrong", status=status.HTTP_400_BAD_REQUEST)
+
+
