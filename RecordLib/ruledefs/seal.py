@@ -675,14 +675,14 @@ def seal_convictions(crecord: CRecord) -> Tuple[CRecord, Decision]:
             if all([reason.value == "Sealable" for reason in case_decision.reasoning]):
                 # All the charges in the current case are sealable.
                 case_decision.value = "All charges sealable"
-                conclusion.value.append(Sealing(crecord.person, [sealable_parts_of_case]))
+                conclusion.value.append(Sealing(client=crecord.person, cases=[sealable_parts_of_case]))
             elif any(
                 [reason.value == "Sealable" for reason in case_decision.reasoning]
             ):
                 # At least one charge in the current case is sealable.
                 case_decision.value = "Some charges sealable"
                 mod_rec.cases.append(unsealable_parts_of_case)
-                conclusion.value.append(Sealing(crecord.person, [sealable_parts_of_case]))
+                conclusion.value.append(Sealing(client=crecord.person, cases=[sealable_parts_of_case]))
             else:
                 case_decision.value = "No charges sealable"
                 mod_rec.cases.append(unsealable_parts_of_case)
