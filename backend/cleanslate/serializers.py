@@ -72,6 +72,7 @@ class PetitionSerializer(S.Serializer):
     client = PersonSerializer()
     cases = CaseSerializer(many=True)
     expungement_type = S.CharField(required=False)
+    petition_type = S.CharField(required=True)
 
 class DocumentRenderSerializer(S.Serializer):
     petitions = PetitionSerializer(many=True)

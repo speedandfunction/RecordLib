@@ -76,7 +76,7 @@ def expunge_over_70(crecord: CRecord) -> Tuple[CRecord, Decision]:
     if all(conclusion.reasoning):
         exps = [Expungement(client=crecord.person, cases=[c]) for c in crecord.cases]
         for e in exps:
-            e.type = Expungement.ExpungementTypes.FULL_EXPUNGEMENT
+            e.expungement_type = Expungement.ExpungementTypes.FULL_EXPUNGEMENT
         conclusion.value = exps
         modified_record = CRecord(person=copy.deepcopy(crecord.person), cases=[])
     else:
@@ -104,7 +104,7 @@ def expunge_deceased(crecord: CRecord) -> Tuple[CRecord, Decision]:
     if all(conclusion.reasoning):
         exps = [Expungement(crecord.person, c) for c in crecord.cases]
         for e in exps:
-            e.type = Expungement.ExpungementTypes.FULL_EXPUNGEMENT
+            e.expungement_type = Expungement.ExpungementTypes.FULL_EXPUNGEMENT
         conclusion.value = exps
         modified_record = CRecord(person=copy.deepcopy(crecord.person), cases=[])
     else:
@@ -183,9 +183,9 @@ def expunge_summary_convictions(
                 case_d.value = True
                 exp = Expungement(client=crecord.person, cases=[expungeable_case])
                 if len(expungeable_case.charges) == len(case.charges):
-                    exp.type = Expungement.ExpungementTypes.FULL_EXPUNGEMENT
+                    exp.expungement_type = Expungement.ExpungementTypes.FULL_EXPUNGEMENT
                 else:
-                    exp.type = Expungement.ExpungementTypes.PARTIAL_EXPUNGEMENT
+                    exp.expungement_type = Expungement.ExpungementTypes.PARTIAL_EXPUNGEMENT
                 conclusion.value.append(exp)
             if len(not_expungeable_case.charges) > 0:
                 case_d.value = False
@@ -243,9 +243,9 @@ def expunge_nonconvictions(crecord: CRecord) -> Tuple[CRecord, dict]:
             case_d.value = True
             exp = Expungement(client=crecord.person, cases=[expungeable_case])
             if len(expungeable_case.charges) == len(case.charges):
-                exp.type = Expungement.ExpungementTypes.FULL_EXPUNGEMENT
+                exp.expungement_type = Expungement.ExpungementTypes.FULL_EXPUNGEMENT
             else:
-                exp.type = Expungement.ExpungementTypes.PARTIAL_EXPUNGEMENT
+                exp.expungement_type = Expungement.ExpungementTypes.PARTIAL_EXPUNGEMENT
             conclusion.value.append(exp)
         else:
             case_d.value = False

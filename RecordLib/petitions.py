@@ -3,6 +3,7 @@ Classes representing expungment or sealing petitions.
 
 TODO These are really just stubs for now while I'm working on what the Analysis and ruledef function signatures look like.
 """
+from __future__ import annotations
 from RecordLib.case import Case
 from RecordLib.attorney import Attorney
 from RecordLib.person import Person
@@ -12,6 +13,10 @@ import io
 from datetime import date
 
 class Petition:
+    @staticmethod
+    def from_dict(self) -> None:
+        raise NotImplementedError
+
 
     def __init__(self, attorney: Optional[Attorney] = None, client: Optional[Person] = None, cases: Optional[List[Case]] = None) -> None:
         self.attorney = attorney
@@ -40,9 +45,9 @@ class Petition:
         Return the filled-in template document.
         """
         raise NotImplementedError
-
+    
     def __repr__(self):
-        return (f"Petition(Client: {self.client}, Cases: {[c for c in self.cases]})")
+        return (f"Petition(Client: {self.client}, Cases: {[c for c in self.cases]}, Atty: {self.attorney})")
 
 class Expungement(Petition):
     # class-level constants for the type of the expungment. FULL/Partial is only relevant to 
@@ -60,9 +65,18 @@ class Expungement(Petition):
         SUMMARY_EXPUNGEMENT = "§ 490"
         NONSUMMARY_EXPUNGEMENT = "§ 790"
 
-    petition_type="Expungement"
+    @staticmethod
+    def from_dict(dct: dict) -> Expungement:
+        return Expungement(
+            expungement_type=dct["expungement_type"],
+            attorney=Attorney.from_dict(dct["attorney"]),
+            client=Person.from_dict(dct["client"]),
+            cases=[Case.from_dict(c) for c in dct["cases"]]
+        )
 
     def __init__(self, *args, **kwargs):
+        
+        self.petition_type="Expungement"
         if "expungement_type" in kwargs.keys():
             self.expungement_type = kwargs["expungement_type"]
             kwargs.pop("expungement_type")
@@ -78,7 +92,7 @@ class Expungement(Petition):
         super().__init__(*args, **kwargs)
 
     def __repr__(self):
-        return (f"Petition({self.type}, Client: {self.client}, Cases: {[c for c in self.cases]})")
+        return (f"Petition({self.expungement_type}, Client: {self.client}, Cases: {[c for c in self.cases]}, Atty: {self.attorney})")
 
     def render(self) -> DocxTemplate:
         """
@@ -99,7 +113,7 @@ class Expungement(Petition):
 
 class Sealing(Petition):
 
-    petition_type = "Sealing"
 
     def __init__(self, *args, **kwargs):
+        self.petition_type = "Sealing"
         super().__init__(*args, **kwargs)

@@ -6,6 +6,7 @@ from RecordLib.analysis import Analysis
 from RecordLib.petitions import Expungement, Sealing
 from RecordLib.decision import Decision
 from RecordLib.crecord import CRecord
+from RecordLib.attorney import Attorney
 from datetime import date, datetime, timedelta
 
 
@@ -81,19 +82,30 @@ def td_sealing(s):
     return {
         "petition_type": to_serializable(s.petition_type),
         "client": to_serializable(s.client),
-        "cases": to_serializable(s.cases)
+        "cases": to_serializable(s.cases),
+        "attorney": to_serializable(s.attorney),
     }
 
 @to_serializable.register(Expungement)
 def td_expungement(e):
     return {
         "petition_type": to_serializable(e.petition_type),
+        "attorney": to_serializable(e.attorney),
         "expungement_type": to_serializable(e.expungement_type),
         "procedure": to_serializable(e.procedure),
         "client": to_serializable(e.client),
         "cases": to_serializable(e.cases)
     }
 
+@to_serializable.register(Attorney)
+def td_attorney(atty):
+    return {
+        "organization": to_serializable(atty.organization),
+        "name": to_serializable(atty.name),
+        "organization_address": to_serializable(atty.organization_address),
+        "organization_phone": to_serializable(atty.organization_phone),
+        "bar_id": to_serializable(atty.bar_id) 
+    }
 
 @to_serializable.register(CRecord)
 def td_crecord(crec):

@@ -1,10 +1,12 @@
 import zipfile
-import BytesIO
-from typing import List
+import io 
+from typing import List, Tuple
 import secrets
 from RecordLib.petitions import Petition
 from docxtpl import DocxTemplate
 from contextlib import contextmanager
+import os 
+import string
 
 def random_temp_directory() -> str:
     """
@@ -14,20 +16,22 @@ def random_temp_directory() -> str:
     return ''.join(secrets.choice(alphabet) for i in range(30))
 
 
-class Compresser:
+class Compressor:
 
-    def __init__(self, files: List[Tuple[str, DocxTemplate]] = None):
-        self.__buffer__ = BytesIO.BytesIO()
-        self.archive = zipfile.ZipFile(self.__buffer__, mode='wb')
+    def __init__(self, archive_name: str, files: List[Tuple[str, DocxTemplate]] = None):
+        # self.__buffer__ = io.BytesIO()
         base = os.path.dirname(os.path.abspath(__file__))
         while True:
             # Make sure the new directory we're creating to temporarily 
             # store files does not exist.
             self.__rootdir__ = os.path.join(base, "tmp", random_temp_directory())
             if not os.path.exists(self.__rootdir__):
-                os.path.makedirs(self.__rootdir__)
+                os.makedirs(self.__rootdir__)
                 break
 
+        self.archive_name = archive_name
+        self.archive_path = os.path.join(self.__rootdir__, self.archive_name)
+        self.archive = zipfile.ZipFile(self.archive_path, mode='x')
         if files is not None:
             for fname, f in files:
                 self.append(fname, f)
@@ -39,21 +43,19 @@ class Compresser:
         
         TODO this should be done in membory somehow.
         """
+
         filepath = os.path.join(self.__rootdir__, filename)
         file.save(filepath)
-        self.archive.write(filepath)
+        self.archive.write(filepath, filename)
 
-    def delete_dir() -> None:
+    def delete_dir(self) -> None:
         """ Delete the directory where all the files were temporarily written
         """
         os.rmtree(self.__rootdir__)
 
-    def save(filename: str) -> str:
+    def save(self) -> str:
         """
         Save the archive to the temporary directory, and
         return the path to it.
         """
-        path = os.path.join(self.__rootdir__, filename)
-        with open(path, 'wb') as z:
-            z.write(self.__buffer__)
-        
+        self.archive.close()

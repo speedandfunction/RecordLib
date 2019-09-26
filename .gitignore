@@ -13,3 +13,4 @@ data/
 */templates/*
 *.docx#
 *~
+tmp

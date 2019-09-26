@@ -16,9 +16,13 @@ from RecordLib.ruledefs import (
     expunge_over_70,
     seal_convictions,
 )
+from RecordLib.petitions import (
+    Expungement, Sealing
+)
 from .serializers import (
     CRecordSerializer, DocumentRenderSerializer
 )
+from .helpers import Compressor
 import json
 import os
 import os.path
@@ -94,7 +98,6 @@ class RenderDocumentsView(APIView):
     """
     def post(self, request, *args, **kwargs):
         try:
-            breakpoint()
             data = JSONParser().parse(request)
             serializer = DocumentRenderSerializer(data=data)
             if serializer.is_valid():
@@ -104,15 +107,17 @@ class RenderDocumentsView(APIView):
                         petitions.append(Sealing.from_dict(petition))
                     else:
                         petitions.append(Expungement.from_dict(petition))
+                client_last = petitions[0].client.last_name
 
                 with open("tests/templates/790ExpungementTemplate_usingpythonvars.docx", "rb") as doc:
                     for petition in petitions:
                         petition.set_template(doc)
-                        petition.render() 
-                petitions = [(p.file_name(), p) for p in petitions]
-                package = Compress(petitions)
-                package.save(f"ExpungementsFor{petitions[0].client.last_name}.zip")
-                return Response({"download":package.path()})
+                petitions = [(p.file_name(), p.render()) for p in petitions]
+                package = Compressor(f"ExpungementsFor{client_last}.zip", petitions)
+                package.save()
+                return Response({"download":package.archive_path})
+            else:
+                raise ValueError
         except:
             return Response("Something went wrong", status=status.HTTP_400_BAD_REQUEST)
 

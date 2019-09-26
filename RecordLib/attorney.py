@@ -8,5 +8,9 @@ class Attorney:
     name: str
     organization_address: str
     organization_phone: str
-    bar_id: str 
+    bar_id: str
+
+    @staticmethod
+    def from_dict(dct):
+        return Attorney(**dct) 
     
