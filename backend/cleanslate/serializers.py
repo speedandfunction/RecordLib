@@ -46,7 +46,8 @@ class CaseSerializer(S.Serializer):
     arrest_date = S.DateField(required=False)
     disposition_date = S.DateField(required=False)
     judge = S.CharField()
-
+    affiant = S.CharField(required=False)
+    arresting_agency = S.CharField(required=False)
 
 class AttorneySerializer(S.Serializer):
     organization = S.CharField(required=False)

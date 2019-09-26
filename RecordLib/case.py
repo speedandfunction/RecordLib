@@ -39,7 +39,9 @@ class Case:
                 fines_and_costs = dct.get("fines_and_costs"),
                 arrest_date = dct.get("arrest_date"),
                 disposition_date = dct.get("disposition_date"),
-                judge = dct.get("judge")
+                judge = dct.get("judge"),
+                affiant = dct.get("affiant"),
+                arresting_agency = dct.get("arresting_agency"),
             )
         except:
             return None
@@ -56,6 +58,8 @@ class Case:
         arrest_date,
         disposition_date,
         judge,
+        affiant = None,
+        arresting_agency = None
     ) -> None:
         self.docket_number = docket_number
         self.otn = otn
@@ -67,6 +71,8 @@ class Case:
         self.disposition_date = disposition_date
         self.judge = judge
         self.dc = dc
+        self.affiant = affiant
+        self.arresting_agency = arresting_agency
 
     def years_passed_disposition(self) -> int:
         """ The number of years that have passed since the disposition date of this case."""
@@ -114,20 +120,6 @@ class Case:
         sentences = [s for c in self.charges for s in c.sentences]
         return max([s.sentence_date + s.sentence_length.max_time for s in sentences])
 
-    def to_dict(self) -> dict:
-        return {
-            "docket_number": self.docket_number,
-            "otn": self.otn,
-            "charges": [asdict(c) for c in self.charges],
-            "fines_and_costs": self.fines_and_costs,
-            "status": self.status,
-            "county": self.county,
-            "arrest_date": self.arrest_date,
-            "disposition_date": self.disposition_date,
-            "judge": self.judge,
-            "dc": self.dc
-        }
-
     def partialcopy(self) -> Case:
         """
         Return a new Case that contains all the static info of this case, but no Charges.
@@ -144,7 +136,9 @@ class Case:
             arrest_date = self.arrest_date,
             disposition_date = self.disposition_date,
             judge = self.judge,
-            dc = self.dc
+            dc = self.dc,
+            affiant = self.affiant,
+            arresting_agency = self.arresting_agency
         )
 
     @staticmethod

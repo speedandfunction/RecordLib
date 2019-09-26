@@ -1,5 +1,5 @@
 * TODO list for the Create-Petitions branch
-** STARTED [1/9] Fields to add (add to core class, test cases, serializer and deserializer)
+** STARTED [2/9] Fields to add (add to core class, test cases, serializer and deserializer)
    - State "STARTED"    from "TODO"       [2019-09-19 Thu 10:21]
 
 Add to test of model,
@@ -8,15 +8,21 @@ Add to model
 add to RecordLib/serializer
 add to backend/serializer
 change in petition to have it get populated there.
+parsers need to return the new field.
+   for summaries analyze -ps tests/data/summaries/CP-xxxx_summary.pdf --tempdir=tests/data/tmp
+   for dockets 
 
 *** DONE Person#Aliases
     - State "DONE"       from "STUCK"      [2019-09-26 Thu 16:11]
     - State "STARTED"    from "TODO"       [2019-09-19 Thu 10:21]
 *** TODO Person#Address
-*** TODO Person#SSN
+*** DONE Person#SSN
+    - State "DONE"       from "TODO"       [2019-09-26 Thu 16:31]
 *** TODO Case#judge_address
-*** TODO Case#affiant
-*** TODO Case#arresting_agency
+*** STARTED Case#affiant
+    - State "STARTED"    from "TODO"       [2019-09-26 Thu 16:45]
+*** STARTED Case#arresting_agency
+    - State "STARTED"    from "TODO"       [2019-09-26 Thu 16:45]
 *** TODO disposition_date should be on a charge, not a case
 *** TODO Case#total_fines
 *** TODO Case#fines_paid

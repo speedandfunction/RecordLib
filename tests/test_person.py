@@ -11,7 +11,7 @@ def test_person():
         date(2010, 1, 1), 
         date_of_death = date(2020, 1, 1), 
         aliases=["SmithGuy"],
-        ssn = "999-99-9999"
+        ssn = "999-99-9999",
     )
     assert per.first_name == "John"
     assert per.last_name == "Smeth"
@@ -35,14 +35,15 @@ def test_person_years_dead(example_person):
 
 
 def test_person_todict():
-    per = Person("John", "Smeth", date(2010, 1, 1), aliases=["JJ", "Smelly"], ssn="999-99-9999")
+    per = Person("John", "Smeth", date(2010, 1, 1), aliases=["JJ", "Smelly"], 
+                 ssn="999-99-9999")
     assert asdict(per) == {
         "first_name": "John",
         "last_name": "Smeth",
         "date_of_birth": date(2010, 1, 1),
         "date_of_death": None,
         "aliases": ["JJ", "Smelly"],
-        "ssn": "999-99-9999"
+        "ssn": "999-99-9999",
     }
 
 def test_serializing_person(example_person):

@@ -23,12 +23,15 @@ def test_case(example_sentence):
         fines_and_costs=200,
         judge="Smooth Operator",
         disposition_date=None,
-        arrest_date=None
+        arrest_date=None,
+        affiant="Sheriff Smelly",
+        arresting_agency="Upsidedown County"
     )
     assert case.status == "Open"
 
+
 def test_case_todict(example_case):
-    assert example_case.to_dict()["county"] == example_case.county
+    assert to_serializable(example_case)["county"] == example_case.county
 
 @pytest.mark.parametrize(
         "arrest, disp, last",
@@ -56,7 +59,9 @@ def test_order_cases_by_last_action(example_case):
         fines_and_costs=200,
         judge="Smooth Operator",
         disposition_date=date(2019,1,1),
-        arrest_date=None
+        arrest_date=None,
+        arresting_agency="Happy County",
+        affiant="Officer Happy"
     )
     s = sorted([example_case, case2], key=Case.order_cases_by_last_action)
     s[0] == case2
