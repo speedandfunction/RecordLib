@@ -176,7 +176,7 @@ generated from the Summary.
 	.rule(seal_convictions)
     )
 
-    remaining_charges = analysis_container.modified_record
+    remaining_charges = analysis_container.remaining_recordord
     analysis = analysis_container.analysis
 
 	analysis ==

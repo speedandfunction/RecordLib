@@ -72,8 +72,8 @@ def td_decision(dec):
 def td_analysis(an):
     return {
         "decisions": to_serializable(an.decisions),
-        "remaining_record": to_serializable(an.modified_rec),
-        "original_record": to_serializable(an.rec)
+        "remaining_record": to_serializable(an.remaining_record),
+        "record": to_serializable(an.record)
     }
 
 

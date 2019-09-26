@@ -1,5 +1,5 @@
 from RecordLib.docket import Docket
-from RecordLib.common import Person
+from RecordLib.person import Person
 from RecordLib.case import Case
 import pytest
 import os

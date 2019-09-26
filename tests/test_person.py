@@ -43,7 +43,6 @@ def test_serializing_person(example_person):
     assert ser["aliases"] == example_person.aliases
 
     deser = PersonSerializer(data=ser)
-    breakpoint()
     assert deser.is_valid(), deser.error_messages
     deser = deser.validated_data
     deser = Person.from_dict(deser)

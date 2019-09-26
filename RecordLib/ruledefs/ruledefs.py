@@ -78,12 +78,12 @@ def expunge_over_70(crecord: CRecord) -> Tuple[CRecord, Decision]:
         for e in exps:
             e.expungement_type = Expungement.ExpungementTypes.FULL_EXPUNGEMENT
         conclusion.value = exps
-        modified_record = CRecord(person=copy.deepcopy(crecord.person), cases=[])
+        remaining_recordord = CRecord(person=copy.deepcopy(crecord.person), cases=[])
     else:
         conclusion.value = []
-        modified_record = crecord
+        remaining_recordord = crecord
     
-    return modified_record, conclusion
+    return remaining_recordord, conclusion
 
 
 def expunge_deceased(crecord: CRecord) -> Tuple[CRecord, Decision]:
@@ -106,12 +106,12 @@ def expunge_deceased(crecord: CRecord) -> Tuple[CRecord, Decision]:
         for e in exps:
             e.expungement_type = Expungement.ExpungementTypes.FULL_EXPUNGEMENT
         conclusion.value = exps
-        modified_record = CRecord(person=copy.deepcopy(crecord.person), cases=[])
+        remaining_recordord = CRecord(person=copy.deepcopy(crecord.person), cases=[])
     else:
         conclusion.value = []
-        modified_record = crecord
+        remaining_recordord = crecord
 
-    return modified_record, conclusion
+    return remaining_recordord, conclusion
 
 
 def expunge_summary_convictions(
@@ -148,7 +148,7 @@ def expunge_summary_convictions(
     )
 
     # initialize a blank crecord to hold the cases and charges that can't be expunged under this rule.
-    modified_record = CRecord(person=crecord.person)
+    remaining_recordord = CRecord(person=crecord.person)
     if all(conclusion.reasoning):
         for case in crecord.cases:
             # Find expungeable charges in a case. Save a Decision explaining what's expungeable to 
@@ -190,14 +190,14 @@ def expunge_summary_convictions(
             if len(not_expungeable_case.charges) > 0:
                 case_d.value = False
         
-        modified_record.cases.append(not_expungeable_case)
+        remaining_recordord.cases.append(not_expungeable_case)
         conclusion.reasoning.append(case_d)
 
     else:
         # The global requirements for expunging anything on this record weren't met, so nothing can be 
         # expunged.
-        modified_record.cases = crecord.cases
-    return modified_record, conclusion 
+        remaining_recordord.cases = crecord.cases
+    return remaining_recordord, conclusion 
 
 
 def expunge_nonconvictions(crecord: CRecord) -> Tuple[CRecord, dict]:
@@ -216,7 +216,7 @@ def expunge_nonconvictions(crecord: CRecord) -> Tuple[CRecord, dict]:
         reasoning=[]
     )
 
-    modified_record = CRecord(person=crecord.person)
+    remaining_recordord = CRecord(person=crecord.person)
     for case in crecord.cases:
         case_d = Decision(
             name=f"Does {case.docket_number} have expungeable nonconvictions?",
@@ -251,8 +251,8 @@ def expunge_nonconvictions(crecord: CRecord) -> Tuple[CRecord, dict]:
             case_d.value = False
 
         if len(unexpungeable_case.charges) > 0:
-            modified_record.cases.append(unexpungeable_case)
+            remaining_recordord.cases.append(unexpungeable_case)
         conclusion.reasoning.append(case_d)
 
 
-    return modified_record, conclusion 
+    return remaining_recordord, conclusion 

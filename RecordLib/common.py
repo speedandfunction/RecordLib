@@ -34,7 +34,7 @@ class SentenceLength:
         * max_unit
         * max_time
         """
-        slength = SentenceLength(
+        slength = SentenceLength.from_tuples(
             (str(dct.get("min_time")), dct.get("min_unit")),
             (str(dct.get("max_time")), dct.get("max_unit")))
         return slength
