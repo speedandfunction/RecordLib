@@ -61,6 +61,7 @@ class PersonSerializer(S.Serializer):
     last_name = S.CharField(max_length=200)
     date_of_birth = S.DateField()
     date_of_death = S.DateField(required=False)
+    aliases = S.ListField(child=S.CharField(), required=False) 
 
 
 class CRecordSerializer(S.Serializer):
