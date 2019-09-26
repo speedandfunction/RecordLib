@@ -48,3 +48,8 @@ def test_serializing_person(example_person):
     deser = Person.from_dict(deser)
     assert isinstance(deser, Person)
     assert deser == example_person
+
+def test_person_from_dict(example_person):
+    ser = to_serializable(example_person)
+    per2 = Person.from_dict(ser)
+    assert example_person.last_name == per2.last_name

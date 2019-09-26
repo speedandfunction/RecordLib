@@ -82,7 +82,3 @@ def test_charge_get_grade(example_charge):
     assert example_charge.grade == "M1"
 
 
-def test_person_from_dict(example_person):
-    ser = to_serializable(example_person)
-    per2 = Person.from_dict(ser)
-    assert example_person.last_name == per2.last_name
