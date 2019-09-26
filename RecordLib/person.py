@@ -16,6 +16,7 @@ class Person:
     date_of_birth: date
     aliases: List[str] = None
     date_of_death: Optional[date] = None
+    ssn: Optional[str] = None
 
     @staticmethod
     def from_dict(dct: dict) -> Person:
@@ -26,7 +27,8 @@ class Person:
                 last_name = dct.get("last_name"),
                 date_of_birth = dct.get("date_of_birth"), 
                 date_of_death = dct.get("date_of_death"),
-                aliases = dct.get("aliases") or []
+                aliases = dct.get("aliases") or [],
+                ssn = dct.get("ssn"),
             )
 
     def age(self) -> int:

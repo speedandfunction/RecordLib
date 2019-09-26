@@ -40,7 +40,8 @@ def example_person():
         first_name="Jane",
         last_name="Smorp",
         aliases=["JSmo", "SmorpyJJ"],
-        date_of_birth=date(2010, 1, 1)
+        date_of_birth=date(2010, 1, 1),
+        ssn="999-99-9999",
     )
 
 @pytest.fixture

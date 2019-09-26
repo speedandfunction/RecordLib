@@ -1,7 +1,16 @@
 * TODO list for the Create-Petitions branch
-** STARTED [0/9] Fields to add (add to core class, test cases, serializer and deserializer)
+** STARTED [1/9] Fields to add (add to core class, test cases, serializer and deserializer)
    - State "STARTED"    from "TODO"       [2019-09-19 Thu 10:21]
-*** STARTED Person#Aliases
+
+Add to test of model,
+Add to conftest example model
+Add to model
+add to RecordLib/serializer
+add to backend/serializer
+change in petition to have it get populated there.
+
+*** DONE Person#Aliases
+    - State "DONE"       from "STUCK"      [2019-09-26 Thu 16:11]
     - State "STARTED"    from "TODO"       [2019-09-19 Thu 10:21]
 *** TODO Person#Address
 *** TODO Person#SSN
