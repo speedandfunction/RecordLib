@@ -180,6 +180,9 @@ def xpath_date_or_blank(tree: etree, xpath: str) -> Optional[datetime]:
     except (IndexError, ValueError) as e:
         return None
 
+def xpath_or_empty_list(tree: etree, xpath: str) -> List[str]:
+    """ Given an etree, find a list of strings, or return an empty list."""
+    return [el.text.strip() for el in tree.xpath("//alias")]
 
 def str_to_money(money: str) -> float:
     """ 
@@ -207,8 +210,11 @@ def get_person(stree: etree) -> Person:
         first_name = ""
         last_name = ""    
 
+    aliases = xpath_or_empty_list(stree, "//alias")
     date_of_birth = xpath_date_or_blank(stree, "//birth_date")
-    return Person(first_name = first_name, last_name = last_name, date_of_birth = date_of_birth)
+    return Person(first_name = first_name, last_name = last_name, 
+                  date_of_birth = date_of_birth,
+                  aliases = aliases)
     
 def get_sentences(stree: etree) -> List[Sentence]:
     """Find the sentences in a sequence (as an xml tree) from a disposition section of a docket.
@@ -298,6 +304,8 @@ def get_case(stree: etree) -> Case:
     otn = xpath_or_blank(stree, "//section[@name='section_case_info']//otn")
     dc = xpath_or_blank(stree, "//section[@name='section_case_info']//dc")
     judge = xpath_or_blank(stree, "//section[@name='section_case_info']//judge_assigned")
+    affiant = xpath_or_blank(stree, "//arresting_officer")
+    arresting_agency = xpath_or_blank(stree, "//arresting_agency")
     try: 
         arrest_date = xpath_or_blank(stree, "//section[@name='section_status_info']//arrest_date")
         arrest_date = datetime.strptime(arrest_date, r"%m/%d/%Y")
@@ -329,7 +337,7 @@ def get_case(stree: etree) -> Case:
         status=status, county=county, docket_number=docket_number, otn=otn, 
         dc=dc, charges=charges,fines_and_costs=fines_and_costs,
         arrest_date=arrest_date, disposition_date=disposition_date, 
-        judge=judge)
+        judge=judge, affiant=affiant, arresting_agency=arresting_agency)
 
 def parse_pdf(pdf: Union[BinaryIO, str], tempdir: str = "tmp") -> Tuple[Person, Case]:
     """

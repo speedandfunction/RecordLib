@@ -84,8 +84,13 @@ def example_case(example_charge):
         charges=[example_charge],
         fines_and_costs=200,
         arrest_date=None,
+        complaint_date=None,
         disposition_date=None,
-        judge="Judge Jimmy Hendrix"
+        judge="Judge Jimmy Hendrix",
+        judge_address="1234 Judge St.,",
+        affiant="Officer Bland",
+        arresting_agency_address="1234 Grey St.",
+        arresting_agency="Monochrome County PD."
     )
 
 

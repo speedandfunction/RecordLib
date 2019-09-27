@@ -1,5 +1,5 @@
 * TODO list for the Create-Petitions branch
-** STARTED [2/9] Fields to add (add to core class, test cases, serializer and deserializer)
+** STARTED [4/11] Fields to add (add to core class, test cases, serializer and deserializer)
    - State "STARTED"    from "TODO"       [2019-09-19 Thu 10:21]
 
 Add to test of model,
@@ -15,17 +15,24 @@ parsers need to return the new field.
 *** DONE Person#Aliases
     - State "DONE"       from "STUCK"      [2019-09-26 Thu 16:11]
     - State "STARTED"    from "TODO"       [2019-09-19 Thu 10:21]
-*** TODO Person#Address
 *** DONE Person#SSN
     - State "DONE"       from "TODO"       [2019-09-26 Thu 16:31]
-*** TODO Case#judge_address
-*** STARTED Case#affiant
+*** DONE Case#affiant
+    - State "DONE"       from "STARTED"    [2019-09-27 Fri 16:14]
     - State "STARTED"    from "TODO"       [2019-09-26 Thu 16:45]
-*** STARTED Case#arresting_agency
+*** DONE Case#arresting_agency
+    - State "DONE"       from "STARTED"    [2019-09-27 Fri 16:14] \\
+      f
     - State "STARTED"    from "TODO"       [2019-09-26 Thu 16:45]
+*** STARTED Case#judge_address
+    - State "STARTED"    from "TODO"       [2019-09-27 Fri 16:16]
+*** STARTED Case#arresting_agency_address
+*** STARTED Case#Complaint_date
+    - State "STARTED"    from "TODO"       [2019-09-27 Fri 16:16]
 *** TODO disposition_date should be on a charge, not a case
 *** TODO Case#total_fines
 *** TODO Case#fines_paid
+*** TODO Person#Address
 ** TODO Service Agencies.  
    - Note taken on [2019-09-19 Thu 10:14] \\
      Service Agencies is a list of where service should go. I think its

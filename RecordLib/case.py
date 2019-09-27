@@ -37,11 +37,14 @@ class Case:
                 dc = dct.get("dc"),
                 charges = [Charge.from_dict(c) for c in (dct.get("charges") or [])],
                 fines_and_costs = dct.get("fines_and_costs"),
+                complaint_date = dct.get("complaint_date"),
                 arrest_date = dct.get("arrest_date"),
                 disposition_date = dct.get("disposition_date"),
                 judge = dct.get("judge"),
+                judge_address = dct.get("judge_address"),
                 affiant = dct.get("affiant"),
                 arresting_agency = dct.get("arresting_agency"),
+                arresting_agency_address = dct.get("arresting_agency_address"),
             )
         except:
             return None
@@ -55,24 +58,33 @@ class Case:
         dc,
         charges,
         fines_and_costs,
-        arrest_date,
-        disposition_date,
-        judge,
+        arrest_date = None,
+        disposition_date = None,
+        judge = None,
+        judge_address = None,
         affiant = None,
-        arresting_agency = None
+        arresting_agency = None,
+        arresting_agency_address = None,
+        complaint_date = None,
     ) -> None:
         self.docket_number = docket_number
         self.otn = otn
+        self.dc = dc
         self.charges = charges
         self.fines_and_costs = fines_and_costs
         self.status = status
         self.county = county
+        
         self.arrest_date = arrest_date
+        self.complaint_date = complaint_date
         self.disposition_date = disposition_date
+
         self.judge = judge
-        self.dc = dc
+        self.judge_address = judge_address
         self.affiant = affiant
         self.arresting_agency = arresting_agency
+        self.arresting_agency_address = arresting_agency_address
+        
 
     def years_passed_disposition(self) -> int:
         """ The number of years that have passed since the disposition date of this case."""
@@ -133,12 +145,15 @@ class Case:
             fines_and_costs = self.fines_and_costs,
             status = self.status,
             county = self.county,
+            complaint_date = self.complaint_date,
             arrest_date = self.arrest_date,
             disposition_date = self.disposition_date,
             judge = self.judge,
+            judge_address = self.judge_address,
             dc = self.dc,
             affiant = self.affiant,
-            arresting_agency = self.arresting_agency
+            arresting_agency = self.arresting_agency,
+            arresting_agency_address = self.arresting_agency_address,
         )
 
     @staticmethod

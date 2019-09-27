@@ -267,6 +267,7 @@ def get_defendant(summary_xml: etree.Element) -> Person:
     full_name = summary_xml.find("caption/defendant_name").text
     last_first = [n.strip() for n in full_name.split(",")]
     def_dob = summary_xml.find("caption/def_dob").text.strip()
+    aliases = [el.text.strip() for el in summary_xml.xpath("//alias")]
     try:
         def_dob = datetime.strptime(def_dob, "%m/%d/%Y").date()
     except ValueError:

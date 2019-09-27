@@ -22,10 +22,13 @@ def test_case(example_sentence):
         charges=[char],
         fines_and_costs=200,
         judge="Smooth Operator",
+        judge_address="1234 Other St., PA",
         disposition_date=None,
         arrest_date=None,
+        complaint_date=None,
         affiant="Sheriff Smelly",
-        arresting_agency="Upsidedown County"
+        arresting_agency="Upsidedown County",
+        arresting_agency_address="1234 Main St., PA",
     )
     assert case.status == "Open"
 
@@ -58,9 +61,12 @@ def test_order_cases_by_last_action(example_case):
         charges=[example_case],
         fines_and_costs=200,
         judge="Smooth Operator",
+        judge_address="1234 Other st.",
         disposition_date=date(2019,1,1),
         arrest_date=None,
+        complaint_date=date(2018,2,1),
         arresting_agency="Happy County",
+        arresting_agency_address="1234 Main St.",
         affiant="Officer Happy"
     )
     s = sorted([example_case, case2], key=Case.order_cases_by_last_action)
