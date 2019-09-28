@@ -1,5 +1,5 @@
 * TODO list for the Create-Petitions branch
-** STARTED [4/11] Fields to add (add to core class, test cases, serializer and deserializer)
+** STARTED [9/11] Fields to add (add to core class, test cases, serializer and deserializer)
    - State "STARTED"    from "TODO"       [2019-09-19 Thu 10:21]
 
 Add to test of model,
@@ -24,16 +24,29 @@ parsers need to return the new field.
     - State "DONE"       from "STARTED"    [2019-09-27 Fri 16:14] \\
       f
     - State "STARTED"    from "TODO"       [2019-09-26 Thu 16:45]
-*** STARTED Case#judge_address
+*** DONE Case#judge_address
+    - State "DONE"       from "REJECTED"   [2019-09-28 Sat 13:02]
+    - State "REJECTED"   from "STARTED"    [2019-09-28 Sat 13:02]
     - State "STARTED"    from "TODO"       [2019-09-27 Fri 16:16]
-*** STARTED Case#arresting_agency_address
-*** STARTED Case#Complaint_date
+*** DONE Case#arresting_agency_address
+    - State "DONE"       from "REJECTED"   [2019-09-28 Sat 13:02]
+    - State "REJECTED"   from "STARTED"    [2019-09-28 Sat 13:02]
+*** DONE Case#Complaint_date
+    - State "DONE"       from "STARTED"    [2019-09-28 Sat 13:02]
     - State "STARTED"    from "TODO"       [2019-09-27 Fri 16:16]
+*** DONE Case#total_fines
+    - State "DONE"       from "STARTED"    [2019-09-28 Sat 13:35]
+    - State "STARTED"    from "STARTED"    [2019-09-28 Sat 13:35]
+    - State "STARTED"    from "TODO"       [2019-09-28 Sat 13:02]
+*** DONE Case#fines_paid
+    - State "DONE"       from "STARTED"    [2019-09-28 Sat 13:36]
+    - State "STARTED"    from "TODO"       [2019-09-28 Sat 13:03]
+*** STARTED Person#Address
+    - State "STARTED"    from "TODO"       [2019-09-28 Sat 13:40]
 *** TODO disposition_date should be on a charge, not a case
-*** TODO Case#total_fines
-*** TODO Case#fines_paid
-*** TODO Person#Address
 ** TODO Service Agencies.  
+   - Note taken on [2019-09-28 Sat 13:36] \\
+     I think it should be a property of a Petition. a [str].
    - Note taken on [2019-09-19 Thu 10:14] \\
      Service Agencies is a list of where service should go. I think its
      based on counties, so we need a database entity to tell us what the

@@ -12,6 +12,7 @@ def test_person():
         date_of_death = date(2020, 1, 1), 
         aliases=["SmithGuy"],
         ssn = "999-99-9999",
+        address = "1234 Main St.",
     )
     assert per.first_name == "John"
     assert per.last_name == "Smeth"
@@ -19,6 +20,7 @@ def test_person():
     assert per.date_of_death.year == 2020
     assert per.aliases == ["SmithGuy"]
     assert per.ssn == "999-99-9999"
+    assert per.address == "1234 Main St."
 
 def test_person_age():
     per = Person("John", "Smeth", date(2000, 1, 1))
@@ -36,14 +38,14 @@ def test_person_years_dead(example_person):
 
 def test_person_todict():
     per = Person("John", "Smeth", date(2010, 1, 1), aliases=["JJ", "Smelly"], 
-                 ssn="999-99-9999")
-    assert asdict(per) == {
+                 ssn="999-99-9999", address="1234 Main St")
+    assert to_serializable(per) == {
         "first_name": "John",
         "last_name": "Smeth",
-        "date_of_birth": date(2010, 1, 1),
-        "date_of_death": None,
+        "date_of_birth": date(2010, 1, 1).isoformat(),
         "aliases": ["JJ", "Smelly"],
         "ssn": "999-99-9999",
+        "address": "1234 Main St"
     }
 
 def test_serializing_person(example_person):
@@ -55,6 +57,7 @@ def test_serializing_person(example_person):
     assert deser.is_valid(), deser.error_messages
     deser = deser.validated_data
     deser = Person.from_dict(deser)
+    breakpoint()
     assert isinstance(deser, Person)
     assert deser == example_person
 
