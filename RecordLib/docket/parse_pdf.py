@@ -306,12 +306,8 @@ def get_case(stree: etree) -> Case:
     judge = xpath_or_blank(stree, "//section[@name='section_case_info']//judge_assigned")
     affiant = xpath_or_blank(stree, "//arresting_officer")
     arresting_agency = xpath_or_blank(stree, "//arresting_agency")
-    try: 
-        arrest_date = xpath_or_blank(stree, "//section[@name='section_status_info']//arrest_date")
-        arrest_date = datetime.strptime(arrest_date, r"%m/%d/%Y")
-    except ValueError:
-        #logging.error(f"arrest date {arrest_date} did not parse.")
-        arrest_date = None
+    complaint_date = xpath_date_or_blank(stree, "//section[@name='section_status_info']//complaint_date")
+    arrest_date = xpath_date_or_blank(stree, "//section[@name='section_status_info']//arrest_date")
     status = xpath_or_blank(stree, "//section[@name='section_status_info']//case_status")
 
     # If the case's status is Closed, find the disposition date by finding the last status event date.
@@ -337,7 +333,8 @@ def get_case(stree: etree) -> Case:
         status=status, county=county, docket_number=docket_number, otn=otn, 
         dc=dc, charges=charges,fines_and_costs=fines_and_costs,
         arrest_date=arrest_date, disposition_date=disposition_date, 
-        judge=judge, affiant=affiant, arresting_agency=arresting_agency)
+        judge=judge, affiant=affiant, arresting_agency=arresting_agency, 
+        complaint_date=complaint_date)
 
 def parse_pdf(pdf: Union[BinaryIO, str], tempdir: str = "tmp") -> Tuple[Person, Case]:
     """

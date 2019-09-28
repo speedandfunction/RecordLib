@@ -435,7 +435,7 @@ case_status = words+
 arrest_date = date+
 
 status_event = ws+ status_date ws+ status_type ws* (new_line status_event_cont)* 
-status_event_cont = (ws+ !date !complainet_date words)
+status_event_cont = (ws+ !date !complaint_date words)
 complaint_date = "Complaint Date:" ws+ date
 status_date = date+
 status_type = words+

@@ -11,6 +11,7 @@ RecordLib/guess_grade.py
 RecordLib/number_generator.py
 RecordLib/overflow.py
 RecordLib/parsingutilities.py
+RecordLib/person.py
 RecordLib/petitions.py
 RecordLib/redis_helper.py
 RecordLib/references.py
