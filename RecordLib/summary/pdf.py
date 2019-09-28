@@ -373,7 +373,8 @@ def get_cp_cases(summary_xml: etree.Element) -> List:
                 otn=text_or_blank(case.find("case_basics/otn_num")),
                 dc=text_or_blank(case.find("case_basics/dc_num")),
                 charges=closed_charges + open_charges,
-                fines_and_costs=None,  # a summary docket never has info about this.
+                total_fines=None,  # a summary docket never has info about this.
+                fines_paid=None,
                 arrest_date=date_or_none(
                     either(case.find("arrest_disp_actions/arrest_disp/arrest_date"),
                            case.find("arrest_disp_actions/arrest_trial/arrest_date"))
@@ -416,7 +417,8 @@ def get_md_cases(summary_xml: etree.Element) -> List:
                 otn=text_or_blank(case.find("case_basics/otn_num")),
                 dc=text_or_blank(case.find("case_basics/dc_num")),
                 charges=md_charges,
-                fines_and_costs=None,  # a summary docket never has info about this.
+                total_fines=None,  # a summary docket never has info about this.
+                fines_paid=None,
                 arrest_date=date_or_none(
                     case.find("arrest_disp_actions/arrest_disp/arrest_date")
                 ),

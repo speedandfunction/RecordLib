@@ -7,7 +7,7 @@ from datetime import date
 from RecordLib.petitions import Sealing, Petition
 
 def test_seal(example_crecord):
-    example_crecord.cases[0].fines_and_costs = 0
+    example_crecord.cases[0].total_fines = 0
     example_crecord.cases[0].disposition_date = date(1990, 1, 1)
     example_crecord.cases[0].charges[0] = Charge(
         offense="Being silly",
@@ -22,7 +22,7 @@ def test_seal(example_crecord):
     assert len(mod_rec.cases) == 0
 
 def test_partial_seal(example_crecord):
-    example_crecord.cases[0].fines_and_costs = 0
+    example_crecord.cases[0].total_fines = 0
     example_crecord.cases[0].disposition_date = date(1990, 1, 1)
     example_crecord.cases[0].charges[0] = Charge(
         offense="Being silly",
@@ -263,10 +263,15 @@ def test_no_firearms_offense(example_crecord, example_charge):
 
 
 def test_fines_and_costs_paid(example_crecord):
-    example_crecord.cases[0].fines_and_costs = 100
+    example_crecord.cases[0].total_fines = 100
+    example_crecord.cases[0].fines_paid = 0
     assert bool(fines_and_costs_paid(example_crecord)) is False
-    example_crecord.cases[0].fines_and_costs = 0
+    example_crecord.cases[0].total_fines = 0
     assert bool(fines_and_costs_paid(example_crecord)) is True
+    example_crecord.cases[0].total_fines = 100
+    example_crecord.cases[0].fines_paid = 100
+    assert bool(fines_and_costs_paid(example_crecord)) is True
+
 
 def test_is_misdemeanor_or_ungraded(example_charge):
     example_charge.grade = "M2"

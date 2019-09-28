@@ -189,7 +189,7 @@ def str_to_money(money: str) -> float:
     Turn a money string into a float.
     """
     if money.strip() == "": return 0
-    return float(money.replace("$", "").replace(",",""))
+    return float(money.replace("$", "").replace(",","").replace("(","").replace(")",""))
 
 def get_person(stree: etree) -> Person:
     """
@@ -293,11 +293,6 @@ def get_case(stree: etree) -> Case:
     Returns:
         a Cases object. 
     
-    TODO the values i must figure out:
-        charges,
-        fines_and_costs,
-        disposition_date,
-    
     """
     county = xpath_or_blank(stree, "/docket/header/court_name/county")
     docket_number = xpath_or_blank(stree, "/docket/header/docket_number")
@@ -325,13 +320,14 @@ def get_case(stree: etree) -> Case:
     
     
     # fines and costs
-    fines_and_costs = str_to_money(xpath_or_blank(stree, "//section[@name='section_case_financal_info']/case_financial_info/grand_toals/total"))
+    total_fines = str_to_money(xpath_or_blank(stree, "//section[@name='section_case_financal_info']/case_financial_info/grand_toals/assessed"))
+    fines_paid = str_to_money(xpath_or_blank(stree, "//section[@name='section_case_financial_info']/case_financial_info/grant_totals/payments"))
     # charges
     charges = get_charges(stree) 
 
     return Case(
         status=status, county=county, docket_number=docket_number, otn=otn, 
-        dc=dc, charges=charges,fines_and_costs=fines_and_costs,
+        dc=dc, charges=charges,total_fines=total_fines, fines_paid=fines_paid,
         arrest_date=arrest_date, disposition_date=disposition_date, 
         judge=judge, affiant=affiant, arresting_agency=arresting_agency, 
         complaint_date=complaint_date)

@@ -20,10 +20,16 @@ class Case:
     otn: str
     dc: str
     charges: List[Charge]
-    fines_and_costs: int
+    total_fines: int
+    fines_paid: int
+    complaint_date: date
     arrest_date: date
     disposition_date: date
     judge: str
+    judge_address: str
+    affiant: str
+    arresting_agency: str
+    arresting_agency_address: str
 
     @staticmethod
     def from_dict(dct: str) -> Optional[Case]:
@@ -36,7 +42,8 @@ class Case:
                 otn = dct.get("otn"),
                 dc = dct.get("dc"),
                 charges = [Charge.from_dict(c) for c in (dct.get("charges") or [])],
-                fines_and_costs = dct.get("fines_and_costs"),
+                total_fines = dct.get("total_fines"),
+                fines_paid = dct.get("fines_paid"),
                 complaint_date = dct.get("complaint_date"),
                 arrest_date = dct.get("arrest_date"),
                 disposition_date = dct.get("disposition_date"),
@@ -57,7 +64,8 @@ class Case:
         otn,
         dc,
         charges,
-        fines_and_costs,
+        total_fines = None,
+        fines_paid = None,
         arrest_date = None,
         disposition_date = None,
         judge = None,
@@ -71,7 +79,8 @@ class Case:
         self.otn = otn
         self.dc = dc
         self.charges = charges
-        self.fines_and_costs = fines_and_costs
+        self.total_fines = total_fines
+        self.fines_paid = fines_paid
         self.status = status
         self.county = county
         
@@ -142,7 +151,8 @@ class Case:
             docket_number = self.docket_number,
             otn = self.otn,
             charges = [],
-            fines_and_costs = self.fines_and_costs,
+            total_fines = self.total_fines,
+            fines_paid = self.fines_paid,
             status = self.status,
             county = self.county,
             complaint_date = self.complaint_date,
@@ -155,6 +165,16 @@ class Case:
             arresting_agency = self.arresting_agency,
             arresting_agency_address = self.arresting_agency_address,
         )
+
+    def fines_remaining(self) -> Optional[int]:
+        """ Return the value of the fines remaining on the case.
+
+        Return None if the fines on the case aren't defined.
+        """
+        try:
+            return self.total_fines - self.fines_paid
+        except:
+            return 0 if self.total_fines == 0 else None
 
     @staticmethod
     def order_cases_by_last_action(case):

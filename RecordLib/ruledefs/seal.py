@@ -97,12 +97,13 @@ def fines_and_costs_paid(crecord) -> Decision:
     decision = Decision(
         name="Fines and costs are all paid on the whole record?",
         reasoning=[
-            {"case": case.docket_number, "fines and costs": case.fines_and_costs}
+            {"case": case.docket_number, "total fines": case.total_fines, "fines paid": case.fines_paid}
             for case in crecord.cases
         ],
     )
     try:
-        decision.value = sum([case.fines_and_costs for case in crecord.cases]) == 0
+        # if the fines remaining for the record are less than 0, then this test passes.
+        decision.value = sum([(case.fines_remaining()) for case in crecord.cases]) <= 0
     except TypeError:
         # If fines_and_costs is unknown for a case, the test above will fail,
         # and  we'll conservatively assume the worst, that there are unpaid fines and costs.
