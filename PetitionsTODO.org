@@ -1,5 +1,5 @@
 * TODO list for the Create-Petitions branch
-** STARTED [10/11] Fields to add (add to core class, test cases, serializer and deserializer)
+** STARTED [11/11] Fields to add (add to core class, test cases, serializer and deserializer)
    - State "STARTED"    from "TODO"       [2019-09-19 Thu 10:21]
 
 Add to test of model,
@@ -44,8 +44,12 @@ parsers need to return the new field.
 *** DONE Person#Address
     - State "DONE"       from "STARTED"    [2019-09-30 Mon 10:43]
     - State "STARTED"    from "TODO"       [2019-09-28 Sat 13:40]
-*** TODO disposition_date should be on a charge, not a case
-** TODO Service Agencies.  
+*** DONE disposition_date should be on a charge, not a case
+    - State "DONE"       from "STARTED"    [2019-09-30 Mon 12:39]
+    - State "STARTED"    from "TODO"       [2019-09-30 Mon 12:12] \\
+      disposition_date is on BOTH case and charge.
+** DONE Service Agencies.  
+   - State "DONE"       from "TODO"       [2019-09-30 Mon 15:22]
    - Note taken on [2019-09-28 Sat 13:36] \\
      I think it should be a property of a Petition. a [str].
    - Note taken on [2019-09-19 Thu 10:14] \\
@@ -53,6 +57,7 @@ parsers need to return the new field.
      based on counties, so we need a database entity to tell us what the
      agencies are for each county.  Like a table called ServiceAgencies,
      with two columns, County and Agency
-** TODO IFP messages
+** DONE IFP messages
+   - State "DONE"       from "TODO"       [2019-09-30 Mon 15:22]
    - Note taken on [2019-09-19 Thu 10:16] \\
      Different counties (or is it Orgs?) require different IFP messages.
