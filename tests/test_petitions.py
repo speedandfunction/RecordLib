@@ -4,7 +4,8 @@ from RecordLib.petitions import Petition, Expungement, Sealing
 
 
 def test_petition(example_attorney, example_person, example_case):
-    p = Petition(attorney=example_attorney, client=example_person, cases=[example_case])
+    p = Petition(attorney=example_attorney, client=example_person, cases=[example_case], ifp_message="Howdy!", service_agencies=["Agency1", "Agency2"], 
+    include_crim_hist_report="Here's the criminal history report you require.")
     assert p.cases[0] == example_case
 
 def test_file_name(example_attorney, example_person, example_case):
@@ -27,7 +28,6 @@ def test_render_expungement_petition(example_person, example_attorney, example_c
         p.set_template(doc)
 
     doc = p.render()
-    # breakpoint()
     # use doc.save() to manually inspect the rendered petition.
     assert "docx" in doc.__dict__.keys()
 

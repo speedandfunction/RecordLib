@@ -84,6 +84,9 @@ def td_sealing(s):
         "client": to_serializable(s.client),
         "cases": to_serializable(s.cases),
         "attorney": to_serializable(s.attorney),
+        "summary_expungement_language": to_serializable(s.summary_expungement_language),
+        "include_crim_hist_report": to_serializable(s.include_crim_hist_report),
+        "ifp_message": to_serializable(s.ifp_message),
     }
 
 @to_serializable.register(Expungement)
@@ -94,7 +97,10 @@ def td_expungement(e):
         "expungement_type": to_serializable(e.expungement_type),
         "procedure": to_serializable(e.procedure),
         "client": to_serializable(e.client),
-        "cases": to_serializable(e.cases)
+        "cases": to_serializable(e.cases),
+        "summary_expungement_language": to_serializable(e.summary_expungement_language),
+        "include_crim_hist_report": to_serializable(e.include_crim_hist_report),
+        "ifp_message": to_serializable(e.ifp_message),
     }
 
 @to_serializable.register(Attorney)

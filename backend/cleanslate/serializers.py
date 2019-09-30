@@ -81,6 +81,10 @@ class PetitionSerializer(S.Serializer):
     cases = CaseSerializer(many=True)
     expungement_type = S.CharField(required=False)
     petition_type = S.CharField(required=True)
+    summary_expungement_language = S.CharField(required=False, allow_blank=True)
+    service_agencies = S.ListField(child=S.CharField(), required=False)
+    include_crim_hist_report = S.CharField(required=False, allow_blank=True)
+    ifp_message = S.CharField(required=False, allow_blank=True)
 
 class DocumentRenderSerializer(S.Serializer):
     petitions = PetitionSerializer(many=True)

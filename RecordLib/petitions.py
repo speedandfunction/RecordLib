@@ -18,10 +18,14 @@ class Petition:
         raise NotImplementedError
 
 
-    def __init__(self, attorney: Optional[Attorney] = None, client: Optional[Person] = None, cases: Optional[List[Case]] = None) -> None:
+    def __init__(self, attorney: Optional[Attorney] = None, client: Optional[Person] = None, cases: Optional[List[Case]] = None, ifp_message: str = "", 
+                 service_agencies: Optional[List[str]] = None, include_crim_hist_report: str = "") -> None:
         self.attorney = attorney
         self.cases = cases or []
         self.client = client
+        self.ifp_message = ifp_message
+        self.service_agencies = service_agencies or []
+        self.include_crim_hist_report = include_crim_hist_report
         self._template = None
 
     def set_template(self, template_file: io.BytesIO) -> None:
@@ -29,6 +33,20 @@ class Petition:
 
     def add_case(self, case: Case) -> None:
         self.cases.append(case)
+
+    def get_context(self) -> dct:
+        """
+        Return a dict to pass to render that describes the info in the petition.
+        """
+        return {
+            "date": date.today().strftime(r"%B %d, %Y"),
+            "attorney": self.attorney,
+            "cases": self.cases,
+            "client": self.client,
+            "ifp_message": self.ifp_message,
+            "service_agencies": self.service_agencies,
+            "disposition_list": ", ".join([ch.disposition for ch in self.cases[0].charges]),
+        }
 
     def file_name(self) -> str:
         """
@@ -44,8 +62,10 @@ class Petition:
         """
         Return the filled-in template document.
         """
-        raise NotImplementedError
-    
+        self._template.render(self.get_context())
+        return self._template
+
+
     def __repr__(self):
         return (f"Petition(Client: {self.client}, Cases: {[c for c in self.cases]}, Atty: {self.attorney})")
 
@@ -65,18 +85,20 @@ class Expungement(Petition):
         SUMMARY_EXPUNGEMENT = "§ 490"
         NONSUMMARY_EXPUNGEMENT = "§ 790"
 
+
     @staticmethod
     def from_dict(dct: dict) -> Expungement:
-        return Expungement(
-            expungement_type=dct["expungement_type"],
-            attorney=Attorney.from_dict(dct["attorney"]),
-            client=Person.from_dict(dct["client"]),
-            cases=[Case.from_dict(c) for c in dct["cases"]]
-        )
+        dct.update({
+            "attorney": Attorney.from_dict(dct["attorney"]),
+            "client": Person.from_dict(dct["client"]),
+            "cases": [Case.from_dict(c) for c in dct["cases"]],
+        })
+        return Expungement(**dct)
 
     def __init__(self, *args, **kwargs):
         
         self.petition_type="Expungement"
+        if "petition_type" in kwargs.keys(): kwargs.pop("petition_type")
         if "expungement_type" in kwargs.keys():
             self.expungement_type = kwargs["expungement_type"]
             kwargs.pop("expungement_type")
@@ -89,26 +111,26 @@ class Expungement(Petition):
             kwargs.pop("procedure")
         else:
             self.procedure = ""
+
+        if "summary_expungement_language" in kwargs.keys():
+            self.summary_expungement_language = kwargs["summary_expungement_language"]
+            kwargs.pop("summary_expungement_language")
+        else:
+            self.summary_expungement_language = ""
         super().__init__(*args, **kwargs)
 
-    def __repr__(self):
-        return (f"Petition({self.expungement_type}, Client: {self.client}, Cases: {[c for c in self.cases]}, Atty: {self.attorney})")
 
-    def render(self) -> DocxTemplate:
-        """
-        Return the filled-in template document.
-        """
-        self._template.render({
-            "date": date.today().strftime(r"%B %d, %Y"),
+    def get_context(self):
+        ctx = super().get_context()
+        ctx.update({
             "petition_type": "Expungement",
             "petition_procedure": self.procedure,
-            "attorney": self.attorney, 
-            "client": self.client, 
-            "cases": self.cases,
-            "ifp_message": r"{{IFP MESSAGE NOT IMPLEMENTED YET}}",
             "summary_extra": "EXTRA SUMMARY STUFF" if self.procedure == Expungement.ExpungementProcedures.SUMMARY_EXPUNGEMENT else "",
-            "service_agencies": []})
-        return self._template
+        })
+        return ctx
+
+    def __repr__(self):
+        return (f"{self.petition_type}({self.expungement_type}, Client: {self.client}, Cases: {[c for c in self.cases]}, Atty: {self.attorney})")
 
 
 class Sealing(Petition):
@@ -117,3 +139,8 @@ class Sealing(Petition):
     def __init__(self, *args, **kwargs):
         self.petition_type = "Sealing"
         super().__init__(*args, **kwargs)
+
+
+    def __repr__(self):
+        return (f"{self.petition_type}(Client: {self.client}, Cases: {[c for c in self.cases]}, Atty: {self.attorney})")
+

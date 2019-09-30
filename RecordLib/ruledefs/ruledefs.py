@@ -74,7 +74,8 @@ def expunge_over_70(crecord: CRecord) -> Tuple[CRecord, Decision]:
     ) 
 
     if all(conclusion.reasoning):
-        exps = [Expungement(client=crecord.person, cases=[c]) for c in crecord.cases]
+        exps = [Expungement(client=crecord.person, cases=[c], 
+                            summary_expungement_language="and the Petitioner is over 70 years old has been free of arrest or prosecution for ten years following from completion the sentence") for c in crecord.cases]
         for e in exps:
             e.expungement_type = Expungement.ExpungementTypes.FULL_EXPUNGEMENT
         conclusion.value = exps
@@ -181,7 +182,8 @@ def expunge_summary_convictions(
             # this whole record.
             if len(expungeable_case.charges) > 0:
                 case_d.value = True
-                exp = Expungement(client=crecord.person, cases=[expungeable_case])
+                exp = Expungement(client=crecord.person, cases=[expungeable_case], 
+                                  summary_expungement_language=".  The petitioner has been arrest free for more than five years since this summary conviction")
                 if len(expungeable_case.charges) == len(case.charges):
                     exp.expungement_type = Expungement.ExpungementTypes.FULL_EXPUNGEMENT
                 else:
