@@ -213,7 +213,7 @@ disposition_section_terminals = ["date", "fraction", "grade", "no_further_penalt
 "single_content_char", "number","forward_slash","single_content_char_no_comma","single_content_char_no_ws",
 "single_content_char","single_letter_no_ws", "comma", "ws"]
 disposition_section_nonterminals = ["disposition_section", "disposition_subsection", "disposition_type", "disposition_details", 
-"case_event", "case_event_desc", "code_section", "case_event_desc_and_date", "is_final", "sequences", 
+"case_event", "case_event_desc", "code_section", "case_event_desc_and_date", "case_event_date", "is_final", "sequences", 
 "sequence", "sequence_number", "sequence_description", "offense_disposition", "sequence_description_continued", 
 "judge_action", "sentence_info", "program", "length_of_sentence", "program_length_start",
 "extra_sentence_details", "heading", "footer", "time_served", "action_date"]
@@ -232,8 +232,9 @@ disposition_details = ws ws+ !start_of_footer case_event+
 
 case_event = new_line? case_event_desc_and_date sequences? new_line?
 
-case_event_desc_and_date = ws* case_event_desc ws ws+ date ws ws ws+ is_final (new_line / end_of_input)
+case_event_desc_and_date = ws* case_event_desc ws ws+ case_event_date ws ws ws+ is_final (new_line / end_of_input)
 case_event_desc = (word ws)+
+case_event_date = date+
 
 date = number forward_slash number forward_slash number
 is_final = (word ws word) / word

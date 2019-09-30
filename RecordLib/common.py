@@ -119,7 +119,8 @@ class Charge:
     grade: str
     statute: str
     disposition: str
-    sentences: List[Sentence]
+    disposition_date: Optional[date] = None
+    sentences: Optional[List[Sentence]] = None
 
     @staticmethod
     def from_dict(dct: dict) -> Charge:

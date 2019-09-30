@@ -28,6 +28,7 @@ def test_partial_seal(example_crecord):
         offense="Being silly",
         grade="M1",
         disposition="Guilty",
+        disposition_date=date(2010,1,1),
         statute="14 s 123",
         sentences=[],
     )

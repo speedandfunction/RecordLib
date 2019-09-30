@@ -29,9 +29,10 @@ class SentenceSerializer(S.Serializer):
 
 class ChargeSerializer(S.Serializer):
     offense = S.CharField()
-    grade = S.CharField()
-    statute = S.CharField()
-    disposition = S.CharField()
+    grade = S.CharField(required=False)
+    statute = S.CharField(required=False)
+    disposition = S.CharField(required=False)
+    disposition_date = S.DateField(required=False)
     sentences = SentenceSerializer(many=True)
 
 

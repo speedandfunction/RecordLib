@@ -36,6 +36,7 @@ def test_charge():
         grade="M2",
         statute="24 &sect; 102",
         disposition="Guilty Plea",
+        disposition_date=date(2010,1,1),
         sentences=[])
     assert char.offense == "Eating w/ mouth open"
     assert char.grade == "M2"

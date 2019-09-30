@@ -182,7 +182,7 @@ def xpath_date_or_blank(tree: etree, xpath: str) -> Optional[datetime]:
 
 def xpath_or_empty_list(tree: etree, xpath: str) -> List[str]:
     """ Given an etree, find a list of strings, or return an empty list."""
-    return [el.text.strip() for el in tree.xpath("//alias")]
+    return [el.text.strip() for el in tree.xpath(xpath)]
 
 def str_to_money(money: str) -> float:
     """ 
@@ -256,11 +256,24 @@ def get_charges(stree: etree) -> List[Charge]:
                 grade = xpath_or_blank(charge, "./grade"),
                 statute = xpath_or_blank(charge, "./statute"),
                 disposition = "Unknown",
+                disposition_date = None,
                 sentences = [],
             )
         )
         for charge in charges
     ]
+    # figure out the disposition dates by looking for a final disposition date that matches a charge.
+    final_disposition_events = stree.xpath("//section[@name='section_disposition_sentencing']//case_event[case_event_desc_and_date/is_final[contains(text(),'Final Disposition')]]")
+    for final_disp_event in final_disposition_events:
+        final_disp_date = xpath_date_or_blank(final_disp_event, ".//case_event_date")
+        applies_to_sequences = xpath_or_empty_list(final_disp_event, ".//sequence_number")
+        for seq_num in applies_to_sequences:    
+            # set the final_disp date for the charge with sequence number seq_num
+            for sn, charge in charges:
+                if sn == seq_num:
+                    charge.disposition_date = final_disp_date
+
+
     # Figure out the disposition of each charge from the disposition section.
     #   Do this by finding the last sequence in the disposition section for 
     #   the sequence with seq_num. The disposition of the charge is that 

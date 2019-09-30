@@ -57,7 +57,6 @@ def test_serializing_person(example_person):
     assert deser.is_valid(), deser.error_messages
     deser = deser.validated_data
     deser = Person.from_dict(deser)
-    breakpoint()
     assert isinstance(deser, Person)
     assert deser == example_person
 

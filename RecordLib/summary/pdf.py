@@ -294,6 +294,7 @@ def get_cp_cases(summary_xml: etree.Element) -> List:
                 statute=text_or_blank(seq.find("statute")),
                 grade=text_or_blank(seq.find("grade")),
                 disposition=text_or_blank(seq.find("sequence_disposition")),
+                disposition_date=None,
                 sentences=[],
             )
             for sentence in seq.xpath(".//sentencing_info"):
@@ -334,6 +335,7 @@ def get_cp_cases(summary_xml: etree.Element) -> List:
                 statute=text_or_blank(seq.find("statute")),
                 grade=text_or_blank(seq.find("grade")),
                 disposition=text_or_blank(seq.find("sequence_disposition")),
+                disposition_date=None,
                 sentences=[],
             )
             for sentence in seq.xpath(".//sentencing_info"):
@@ -365,8 +367,7 @@ def get_cp_cases(summary_xml: etree.Element) -> List:
                     )
                 )
             open_charges.append(charge)
-        cases.append(
-            Case(
+        new_case = Case(
                 status=text_or_blank(case.getparent().getparent()),
                 county=text_or_blank(case.getparent().find("county")),
                 docket_number=text_or_blank(case.find("case_basics/docket_num")),
@@ -384,7 +385,13 @@ def get_cp_cases(summary_xml: etree.Element) -> List:
                 ),
                 judge=text_or_blank(case.find("arrest_disp_actions/arrest_disp/disp_judge")),
             )
-        )
+        # In Summaries, the Disposition Date is set on a Case, but it is set on a Charge in Dockets. 
+        # So when processing a Summary sheet, if there is a date on the Case, the Charges should
+        # inherit the date on the case.
+        for charge in new_case.charges:
+            if new_case.disposition_date is not None:
+                charge.disposition_date = new_case.disposition_date
+        cases.append(new_case)
     return cases
 
 

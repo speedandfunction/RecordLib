@@ -72,6 +72,7 @@ def example_charge(example_sentence):
         "M2",
         "14 section 23",
         "Guilty Plea",
+        disposition_date=date(2010,1,1),
         sentences=[example_sentence])
 
 @pytest.fixture

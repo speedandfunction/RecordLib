@@ -30,7 +30,7 @@ class Person:
                 date_of_death = dct.get("date_of_death"),
                 aliases = dct.get("aliases") or [],
                 ssn = dct.get("ssn"),
-                address = dct.get("ssn")
+                address = dct.get("address")
             )
 
     def age(self) -> int:
