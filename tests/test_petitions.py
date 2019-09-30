@@ -10,7 +10,7 @@ def test_petition(example_attorney, example_person, example_case):
 
 def test_file_name(example_attorney, example_person, example_case):
     p = Petition(attorney=example_attorney, client=example_person, cases=[example_case])
-    assert p.file_name() == "GenericPetition_" + example_person.last_name + "_" + example_case.docket_number + ".docx"
+    assert p.file_name() == "Generic Petition_" + example_person.last_name + "_" + example_case.docket_number + ".docx"
 
 # EXPUNGEMENT PETITIONS
 def test_expungement_petition(example_attorney, example_person, example_case):

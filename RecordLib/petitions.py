@@ -138,7 +138,7 @@ class Sealing(Petition):
 
 
     def __init__(self, *args, **kwargs):
-        if petition_type in kwargs.keys(): kwargs.pop("petition_type")
+        if "petition_type" in kwargs.keys(): kwargs.pop("petition_type")
         super().__init__(*args, **kwargs)
         self.petition_type = "Sealing"
 
