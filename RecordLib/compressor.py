@@ -18,13 +18,14 @@ def random_temp_directory() -> str:
 
 class Compressor:
 
-    def __init__(self, archive_name: str, files: List[Tuple[str, DocxTemplate]] = None):
+    def __init__(self, archive_name: str, files: List[Tuple[str, DocxTemplate]] = None, tempdir = None):
         # self.__buffer__ = io.BytesIO()
-        base = os.path.dirname(os.path.abspath(__file__))
+        if tempdir is None:
+            tempdir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tmp")
         while True:
             # Make sure the new directory we're creating to temporarily 
             # store files does not exist.
-            self.__rootdir__ = os.path.join(base, "tmp", random_temp_directory())
+            self.__rootdir__ = os.path.join(tempdir, random_temp_directory())
             if not os.path.exists(self.__rootdir__):
                 os.makedirs(self.__rootdir__)
                 break

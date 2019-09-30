@@ -20,6 +20,7 @@ class Petition:
 
     def __init__(self, attorney: Optional[Attorney] = None, client: Optional[Person] = None, cases: Optional[List[Case]] = None, ifp_message: str = "", 
                  service_agencies: Optional[List[str]] = None, include_crim_hist_report: str = "") -> None:
+        self.petition_type = "Generic Petition"
         self.attorney = attorney
         self.cases = cases or []
         self.client = client
@@ -56,7 +57,7 @@ class Petition:
             docknum = cases[0].docket_number 
         except:
             docknum = "NoCases"
-        return f"GenericPetition_{self.client.last_name}_{self.cases[0].docket_number}.docx"
+        return f"{self.petition_type}_{self.client.last_name}_{self.cases[0].docket_number}.docx"
 
     def render(self) -> DocxTemplate:
         """
@@ -97,7 +98,6 @@ class Expungement(Petition):
 
     def __init__(self, *args, **kwargs):
         
-        self.petition_type="Expungement"
         if "petition_type" in kwargs.keys(): kwargs.pop("petition_type")
         if "expungement_type" in kwargs.keys():
             self.expungement_type = kwargs["expungement_type"]
@@ -118,6 +118,7 @@ class Expungement(Petition):
         else:
             self.summary_expungement_language = ""
         super().__init__(*args, **kwargs)
+        self.petition_type="Expungement"
 
 
     def get_context(self):
@@ -137,8 +138,9 @@ class Sealing(Petition):
 
 
     def __init__(self, *args, **kwargs):
-        self.petition_type = "Sealing"
+        if petition_type in kwargs.keys(): kwargs.pop("petition_type")
         super().__init__(*args, **kwargs)
+        self.petition_type = "Sealing"
 
 
     def __repr__(self):

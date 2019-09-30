@@ -22,7 +22,7 @@ from RecordLib.petitions import (
 from .serializers import (
     CRecordSerializer, DocumentRenderSerializer
 )
-from .helpers import Compressor
+from RecordLib.compressor import Compressor
 import json
 import os
 import os.path
