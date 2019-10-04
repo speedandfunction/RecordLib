@@ -16,7 +16,7 @@ RUN pip install pipenv && pipenv install --system && apt update && \
 #COPY ./frontend/build /var/www/html
 
 
-#USER gunicorn
+USER gunicorn
 
 EXPOSE 8000
 
