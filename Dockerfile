@@ -2,7 +2,7 @@ FROM python:3.7-stretch
 
 COPY setup.py Pipfile Pipfile.lock /srv/
 
-COPY nginx.conf /etc/nginx
+#COPY nginx.conf /etc/nginx
 
 WORKDIR /srv
 
@@ -23,5 +23,3 @@ EXPOSE 8000
 COPY ./entrypoint.sh /
 
 ENTRYPOINT ["/entrypoint.sh"]
-
-#ENTRYPOINT ["/usr/local/bin/gunicorn", "-w", "4", "-b", "0.0.0.0:8000", "--access-logfile", "wsgi:application"]
