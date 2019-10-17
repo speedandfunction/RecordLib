@@ -8,6 +8,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import MenuIcon from '@material-ui/icons/Menu';
 import { Link as RouterLink } from 'react-router-dom';
 import Link from '@material-ui/core/Link'
+import { fetchUserName } from '../api'
 
 // The use of React.forwardRef will no longer be required for react-router-dom v6.
 // See https://github.com/ReactTraining/react-router/issues/6056
@@ -19,6 +20,9 @@ const LinkToHome = React.forwardRef((props, ref) => (
     <RouterLink innerRef={ref} to="/" {...props}/>
 ))
 
+const getUserNameTest = (e) => {
+    fetchUserName()
+}
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -43,7 +47,7 @@ function Navbar () {
         <div className={classes.root}>
             <AppBar position="static">
                 <Toolbar>
-                    <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu">
+                    <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu" onClick={getUserNameTest}>
                         <MenuIcon />
                     </IconButton>
                     <Link className={classes.title} component={LinkToHome} to="/">

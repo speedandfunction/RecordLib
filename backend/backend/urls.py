@@ -15,9 +15,26 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic.base import TemplateView
+
+### MOVE THIS STUFF IF THIS EXPERIMENT IS KEPT
+from rest_framework.views import APIView
+from rest_framework.response import Response 
+
+class UserView(APIView):
+
+    def get(self, request):
+        if request.user.is_authenticated:
+            return Response({"username": request.user.username})
+        else: 
+            return Response({"username": "Anonymous"})
+
+###
 
 urlpatterns = [
     path('admin/', admin.site.urls), 
     path('accounts/', include('django.contrib.auth.urls')),
-    path('record/', include('cleanslate.urls'))
+    path('accounts/profile/', TemplateView.as_view(template_name="registration/profile.html"), name="profile"),
+    path('record/', include('cleanslate.urls')),
+    path('api/users/', UserView.as_view())
 ]

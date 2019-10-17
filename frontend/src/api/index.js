@@ -44,3 +44,11 @@ export function fetchPetitions(petitions, attorney) {
                 {petitions: petitions}
         )
 }
+
+export function fetchUserName() {
+        client.get("/api/users/")
+        .then((response) => {
+                console.log("response from server (does cookie auth work?")
+                console.log(response.data)
+        })
+}
