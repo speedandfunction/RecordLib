@@ -4,8 +4,8 @@ from cleanslate.models import PetitionTemplate
 
 class PetitionTemplateTestCase(TestCase):
     def setUp(self):
-        with open("tests/templates/790ExpungementTemplate_usingythongvars.docx", 'rb') as tp:
-            expungementTemplate.create(name="Expungement Petition Template", data=tb.read(), doctype="docx")
+        with open("tests/templates/790ExpungementTemplate_usingpythonvars.docx", 'rb') as tp:
+            PetitionTemplate.objects.create(name="Expungement Petition Template", data=tp.read(), doctype="docx")
 
     def test_petition_template(self):
         """  A petition template has a doctype"""
