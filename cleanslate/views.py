@@ -22,6 +22,7 @@ from RecordLib.petitions import (
 from .serializers import (
     CRecordSerializer, DocumentRenderSerializer, FileUploadSerializer
 )
+from .models import PetitionTemplate
 from RecordLib.compressor import Compressor
 import json
 import os
@@ -113,16 +114,29 @@ class RenderDocumentsView(APIView):
             serializer = DocumentRenderSerializer(data=data)
             if serializer.is_valid():
                 petitions = []
-                for petition in serializer.validated_data["petitions"]:
-                    if petition["petition_type"] == "Sealing":
-                        petitions.append(Sealing.from_dict(petition))
+                for petition_data in serializer.validated_data["petitions"]:
+                    if petition_data["petition_type"] == "Sealing":
+                        new_petition = Sealing.from_dict(petition_data)
+                        # this could be done earlier, if needed, to avoid querying db over and over.
+                        # but we'd need to test what types of templates are actually needed.
+                        try:
+                            new_petition.set_template(
+                                PetitionTemplate.objects.get(name="791SealingTemplate.docx").data_as_bytesio()
+                            )
+                            petitions.append(new_petition)
+                        except:
+                            logging.error("No template named '791SealingTemplate.docx'")
+                            continue
                     else:
-                        petitions.append(Expungement.from_dict(petition))
+                        new_petition = Expungement.from_dict(petition_data)
+                        try: 
+                            new_petition.set_template(
+                                PetitionTemplate.objects.get(name="790ExpungementTemplate.docx").data_as_bytesio()
+                            )
+                            petitions.append(new_petition)
+                        except:
+                            logging.error("No template named '790ExpungementTemplate.docx'")
                 client_last = petitions[0].client.last_name
-
-                with open("../tests/templates/790ExpungementTemplate_usingpythonvars.docx", "rb") as doc:
-                    for petition in petitions:
-                        petition.set_template(doc)
                 petitions = [(p.file_name(), p.render()) for p in petitions]
                 package = Compressor(f"ExpungementsFor{client_last}.zip", petitions)
                 package.save()
