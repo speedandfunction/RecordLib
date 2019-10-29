@@ -1,6 +1,7 @@
 from rest_framework.response import Response 
 from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 from rest_framework.views import APIView
+from rest_framework import permissions
 from rest_framework import status
 import logging
 from RecordLib.crecord import CRecord
@@ -83,7 +84,6 @@ class AnalyzeView(APIView):
 
         """
         try: 
-            #data = JSONParser().parse(request)
             serializer = CRecordSerializer(data=request.data)
             if serializer.is_valid():
                 rec = CRecord.from_dict(serializer.validated_data) 
@@ -108,10 +108,11 @@ class RenderDocumentsView(APIView):
     
     POST should be a json-encoded object with an 'petitions' property that is a list of petitions to generate
     """
+    permission_classes = [permissions.IsAuthenticated]
+
     def post(self, request, *args, **kwargs):
         try:
-            data = JSONParser().parse(request)
-            serializer = DocumentRenderSerializer(data=data)
+            serializer = DocumentRenderSerializer(data=request.data)
             if serializer.is_valid():
                 petitions = []
                 for petition_data in serializer.validated_data["petitions"]:
@@ -121,21 +122,21 @@ class RenderDocumentsView(APIView):
                         # but we'd need to test what types of templates are actually needed.
                         try:
                             new_petition.set_template(
-                                PetitionTemplate.objects.get(name="791SealingTemplate.docx").data_as_bytesio()
+                                request.user.userprofile.sealing_petition_template.data_as_bytesio()
                             )
                             petitions.append(new_petition)
                         except:
-                            logging.error("No template named '791SealingTemplate.docx'")
+                            logging.error("User has not set a sealing petition template.")
                             continue
                     else:
                         new_petition = Expungement.from_dict(petition_data)
                         try: 
                             new_petition.set_template(
-                                PetitionTemplate.objects.get(name="790ExpungementTemplate.docx").data_as_bytesio()
+                                request.user.userprofile.expungement_petition_template.data_as_bytesio()
                             )
                             petitions.append(new_petition)
                         except:
-                            logging.error("No template named '790ExpungementTemplate.docx'")
+                            logging.error("User has not set an expungement petition template.")
                 client_last = petitions[0].client.last_name
                 petitions = [(p.file_name(), p.render()) for p in petitions]
                 package = Compressor(f"ExpungementsFor{client_last}.zip", petitions)

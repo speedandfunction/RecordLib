@@ -128,6 +128,7 @@ def redis_helper():
         redis_helper.r.delete(key)
 
 
+
 @pytest.fixture
 def dclient():
     """ Django test client """
