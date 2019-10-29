@@ -84,6 +84,7 @@ class AnalyzeView(APIView):
 
         """
         try: 
+            breakpoint()
             serializer = CRecordSerializer(data=request.data)
             if serializer.is_valid():
                 rec = CRecord.from_dict(serializer.validated_data) 
