@@ -75,19 +75,22 @@ class MDJFirstCoupleLinesOverflow(OverflowFilter):
 
     For example:
 
-    [prev section]
-    Inactive
-       Erie
+    .. code-block:: 
 
-
-    <EOF>
-
-    [next section]
-    Statewide
-    Inactive
+        [prev section]
+        Inactive
         Erie
-        MJ-<...>
+
+
+        <EOF>
+
+        [next section]
+        Statewide
+        Inactive
+            Erie
+            MJ-<...>
     """
+
     def condition(prev: List[str], next: List[str]) -> bool:
         """ True or false, depending on whether this class's condition is satisfied.
 

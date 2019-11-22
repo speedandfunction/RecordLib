@@ -11,6 +11,8 @@ click = "==7.0"
 pytest-django = "==3.7.0"
 pytest-pythonpath = "==0.7.3"
 pyyaml = "==5.1.2"
+sphinx = "*"
+sphinx-js = "*"
 
 [packages]
 mysql-connector-python = "==8.0.18"

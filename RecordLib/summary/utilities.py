@@ -11,7 +11,10 @@ def visit_sentence_length(self, node, vc):
     """
     Custom node visitor for parsing a setence in a conviction.
 
-    returns an xml tree along the lines of
+    Returns an xml tree along the lines of
+    
+    .. code-block:: xml 
+
         <sentence_length>
             <min_length> <time> __ </time> <unit> __ </unit> </min_length>
             <max_length> <time> __ </time> <unit> __ </unit> </max_length>

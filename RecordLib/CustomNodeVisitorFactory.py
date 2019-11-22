@@ -28,8 +28,11 @@ class CustomVisitorFactory:
 
     def create_subclass(self, subclass_name="CustomVisitor"):
         """
-        Input: Optionally, a name for the subclass
-        Output: A subclass of NodeVisitor with certain default terminal and
+        Create a subclass of NodeVisitorFactory for handling the node tree from a grammar.
+        
+        Args: Optionally, a name for the subclass
+        Return:
+            A subclass of NodeVisitor with certain default terminal and
                 non-terminal methods.
         """
         custom_methods = dict()
@@ -56,10 +59,16 @@ class CustomVisitorFactory:
 
     def create_instance(self, class_name="CustomVisitor"):
         """
-       Input: an optional name for the custom class to be created.
-       Output: an instance of the subclass of NodeVisitor. Uses the instance
+        Create an instance of the custom nodevisitor class created with this factory.
+        
+        Args:
+            an optional name for the custom class to be created.
+        
+        
+        Returns:
+            an instance of the subclass of NodeVisitor. Uses the instance
                method NodeVisitor#create_subclass()
-       """
+        """
         CustomVisitor = self.create_subclass(class_name)
         return CustomVisitor()
 

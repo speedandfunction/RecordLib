@@ -18,17 +18,21 @@ from datetime import datetime, date
 def text_to_pages(txt: str) -> str:
     """ Convert raw text of a docket to an xml-string, where the nodes are the pages and sections of the docket.
     
-    i.e. 
-    <docket>
-        <page>
-            <section> 
-            </section
-        </page>
-        <page>
-            <section_continued>
-            </section_continued>
-        </page>
-    </docket>"""
+    i.e.
+
+    .. code-block:: 
+
+        <docket>
+            <page>
+                <section> 
+                </section
+            </page>
+            <page>
+                <section_continued>
+                </section_continued>
+            </page>
+        </docket>
+    """
     grammar = Grammar(docket_sections)
     try:
         nodes = grammar.parse(txt)
@@ -91,22 +95,28 @@ def sections_from_pages(ptree: etree) -> etree:
     and get rid of the `page` level of the `ptree` entirely
     
     From 
-    <docket>
-        <page>
-            <section> 
-            </section
-        </page>
-        <page>
-            <section_continued>
-            </section_continued>
-        </page>
-    </docket>
+
+    .. code-block:: 
+
+        <docket>
+            <page>
+                <section> 
+                </section
+            </page>
+            <page>
+                <section_continued>
+                </section_continued>
+            </page>
+        </docket>
     
     To
-    <docket>
-        <section>
-        </section>
-    </docket>
+    
+    .. code-block:: 
+
+        <docket>
+            <section>
+            </section>
+        </docket>
     """
     # create an empty tree to add all the other sections onto.
     stitched_xml = etree.Element("docket")
