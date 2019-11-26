@@ -3,7 +3,7 @@ import requests
 import logging
 from datetime import date
 from typing import Optional, Dict
-from UJSSearch import UJSSearch
+from .UJSSearch import UJSSearch
 logger = logging.getLogger(__name__)
 
 def search_by_name(first_name: str, last_name: str, dob: Optional[date] = None, court="both") -> Dict:

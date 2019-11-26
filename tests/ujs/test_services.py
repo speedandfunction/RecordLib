@@ -1,12 +1,15 @@
 import pytest
 from ujs.models import SourceRecord
 from ujs.services import download
-from ujs.services.UJSSearch import UJSSearch,CPSearch
+from ujs.services.searchujs.UJSSearch import UJSSearch,CPSearch
 from datetime import datetime, date
 import logging
 import time
 import requests
 import os
+
+logger = logging.getLogger(__name__)
+
 
 def test_cp_search(monkeypatch):
 
@@ -24,11 +27,15 @@ def test_cp_search(monkeypatch):
         ]
 
     if os.environ.get("REAL_NETWORK_TESTS") != "TRUE":
+        logger.info("Monkeypatching network calls.")
         monkeypatch.setattr(CPSearch,"search_name", get_results)
-    
+    else:
+        logger.warning("Making network calls in tests.")
+
     first_name = os.environ.get("UJS_SEARCH_TEST_FNAME") or "Joe"
     last_name = os.environ.get("UJS_SEARCH_TEST_LNAME") or "Normal"
-    dob = datetime.strptime(os.environ.get("UJS_SEARCH_TEST_DBO"), r"%Y-%m-%d") ) or date(2001, 1, 1))
+    dob = datetime.strptime(os.environ.get("UJS_SEARCH_TEST_DOB"), r"%Y-%m-%d") if \
+        os.environ.get("UJS_SEARCH_TEST_DOB") else date(2001, 1, 1)
 
     cp_searcher = UJSSearch.use_court("CP")
     results = cp_searcher.search_name(
@@ -48,7 +55,11 @@ def test_cp_search_no_results(monkeypatch):
         return []
 
     if os.environ.get("REAL_NETWORK_TESTS") != "TRUE":
+        logger.info("Monkeypatching network calls")
         monkeypatch.setattr(CPSearch, "search_name", get_results)
+    else:
+        logger.warning("Making real network calls in tests.")
+
     cp_searcher = UJSSearch.use_court("CP")
     results = cp_searcher.search_name(
         first_name="Ferocity", last_name="Wimbledybear") 
@@ -56,16 +67,51 @@ def test_cp_search_no_results(monkeypatch):
 
 
 def test_mdj_search():
-    md_searcher = UJSSearch.use_court("MDJ")
-    results = cp_searcher.search_name(
-        last_name="Kane", first_name="Kathleen", 
-        dob=date(year=1966, month=6, day=14))
-    assert len(results) == 2
+    mdj_searcher = UJSSearch.use_court("MDJ")
+
+    if os.environ.get("REAL_NETWORK_TESTS") != "TRUE":
+        logger.info("Monkeypatching network calls.")
+        monkeypatch.setattr(CPSearch,"search_name", get_results)
+    else:
+        logger.warning("Making network calls in tests.")
+
+    first_name = os.environ.get("UJS_SEARCH_TEST_FNAME") or "Joe"
+    last_name = os.environ.get("UJS_SEARCH_TEST_LNAME") or "Normal"
+    dob = datetime.strptime(os.environ.get("UJS_SEARCH_TEST_DOB"), r"%Y-%m-%d") if \
+        os.environ.get("UJS_SEARCH_TEST_DOB") else date(2001, 1, 1)
+
+ 
+
+    results = mdj_searcher.search_name(
+        last_name=last_name, 
+        first_name=first_name, 
+        dob=dob)
+    assert len(results) > 0
     try:
         for r in results:
             r["docket_number"]
     except KeyError:
         pytest.raises("Search Results missing docket number.")
+
+
+def test_mdj_search_no_results():
+    mdj_searcher = UJSSearch.use_court("MDJ")
+
+    if os.environ.get("REAL_NETWORK_TESTS") != "TRUE":
+        logger.info("Monkeypatching network calls.")
+        monkeypatch.setattr(CPSearch,"search_name", get_results)
+    else:
+        logger.warning("Making network calls in tests.")
+
+    first_name = "Joe"
+    last_name = "NotARealPerson"
+    dob = date(2001, 1, 1)
+
+    results = mdj_searcher.search_name(
+        last_name=last_name, 
+        first_name=first_name, 
+        dob=dob)
+    assert len(results) == 0
 
 
 
@@ -103,4 +149,4 @@ def test_download_source_records(admin_user, monkeypatch):
     time_spent = after - before
     assert rec.file.name is not None
     # use pytest --log-cli-level info to see this.
-    logging.info(f"downloading {len(recs)} document took {time_spent.total_seconds()} seconds.")
+    logger.info(f"downloading {len(recs)} document took {time_spent.total_seconds()} seconds.")
