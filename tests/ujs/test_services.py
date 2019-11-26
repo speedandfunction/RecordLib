@@ -1,7 +1,8 @@
 import pytest
 from ujs.models import SourceRecord
 from ujs.services import download
-from ujs.services.searchujs.UJSSearch import UJSSearch,CPSearch
+from ujs.services.searchujs.UJSSearchFactory import UJSSearchFactory
+from ujs.services.searchujs.CPSearch import CPSearch
 from datetime import datetime, date
 import logging
 import time
@@ -37,7 +38,7 @@ def test_cp_search(monkeypatch):
     dob = datetime.strptime(os.environ.get("UJS_SEARCH_TEST_DOB"), r"%Y-%m-%d") if \
         os.environ.get("UJS_SEARCH_TEST_DOB") else date(2001, 1, 1)
 
-    cp_searcher = UJSSearch.use_court("CP")
+    cp_searcher = UJSSearchFactory.use_court("CP")
     results = cp_searcher.search_name(
         last_name=last_name, first_name=first_name, 
         dob=dob)
@@ -60,14 +61,14 @@ def test_cp_search_no_results(monkeypatch):
     else:
         logger.warning("Making real network calls in tests.")
 
-    cp_searcher = UJSSearch.use_court("CP")
+    cp_searcher = UJSSearchFactory.use_court("CP")
     results = cp_searcher.search_name(
         first_name="Ferocity", last_name="Wimbledybear") 
     assert len(results) == 0 
 
 
 def test_mdj_search():
-    mdj_searcher = UJSSearch.use_court("MDJ")
+    mdj_searcher = UJSSearchFactory.use_court("MDJ")
 
     if os.environ.get("REAL_NETWORK_TESTS") != "TRUE":
         logger.info("Monkeypatching network calls.")
@@ -95,7 +96,7 @@ def test_mdj_search():
 
 
 def test_mdj_search_no_results():
-    mdj_searcher = UJSSearch.use_court("MDJ")
+    mdj_searcher = UJSSearchFactory.use_court("MDJ")
 
     if os.environ.get("REAL_NETWORK_TESTS") != "TRUE":
         logger.info("Monkeypatching network calls.")
