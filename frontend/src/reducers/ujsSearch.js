@@ -19,13 +19,13 @@ function ujsSearchStatusReducer(state = null, action) {
 function ujsCasesFoundReducer(state={result: [], entities: {}}, action) {
     switch (action.type) {
         case SEARCH_UJS_BY_NAME_SUCCESS:
-            const mdjDockets = action.payload.MDJ.dockets.map(d => {
+            const mdjDockets = action.payload.MDJ.map(d => {
                 d["court"] = "MDJ"
                 d["docketSelected"] = true
                 d["summarySelected"] = false
                 return(d)
             })
-            const cpDockets = action.payload.CP.dockets.map(d => {
+            const cpDockets = action.payload.CP.map(d => {
                 d["court"] = "CP"
                 d["docketSelected"] = true
                 d["summarySelected"] = false

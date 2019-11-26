@@ -21,6 +21,8 @@ function searchUSJByNameStatus(newStatus) {
 }
 
 function searchUSJByNameSuccess({ searchResults }) {
+        console.log("ujs search succeeded")
+        console.log(searchResults)
         return({
                 type: SEARCH_UJS_BY_NAME_SUCCESS,
                 payload: searchResults
