@@ -133,9 +133,6 @@ class CPSearch(UJSSearch):
         return dt
 
 
-    def __init__(self):
-        super()
-
     def search_name(self, first_name: str, last_name: str, dob: Optional[date] = None) -> dict:
         """
         Search CP by name. 
