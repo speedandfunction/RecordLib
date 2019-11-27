@@ -31,6 +31,7 @@ recordlib = {path = ".",editable = true}
 django-webpack-loader = "==0.6.0"
 django-csp = "==3.5"
 uritemplate = "==3.0.0"
+django-docketsearch = {git = "https://github.com/clsphila/django-docketsearch.git",editable = true}
 
 [requires]
 python_version = "3.7"

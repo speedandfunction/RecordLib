@@ -58,7 +58,7 @@ INSTALLED_APPS = [
     'webpack_loader',
     'rest_framework',
     'cleanslate',
-    'ujs',
+    'ujs_search',
 ]
 
 # Setting for ujs app, url for the docket scraper api.
