@@ -1,5 +1,5 @@
 from datetime import datetime
-from ujs.models import SourceRecord
+from cleanslate.models import SourceRecord
 from typing import List
 import requests
 from django.core.files.base import ContentFile

@@ -5,9 +5,8 @@ from rest_framework import permissions
 from rest_framework import status
 import logging
 from django.conf import settings
-from .serializers import NameSearchSerializer, DownloadDocsSerializer
-from .services import searchujs, download
-from .models import SourceRecord
+from .serializers import NameSearchSerializer
+from .services import searchujs
 
 
 logger = logging.getLogger(__name__)
@@ -35,30 +34,3 @@ class SearchName(APIView):
                 "errors": [str(ex)]
             })
 
-class DownloadDocs(APIView):
-
-    permission_classes = [permissions.IsAuthenticated]
-
-    def post(self, request, *args, **kwargs):
-        """
-        API endpoint that takes a list of info about documents with urls, downloads them, 
-        and returns the info with ids that correspond to the documents' ids in the database.
-        """
-        try:
-            posted_data = DownloadDocsSerializer(data=request.data)
-            if posted_data.is_valid():
-                records = posted_data.save(owner=request.user)
-                download.source_records(records)
-                return Response(
-                    DownloadDocsSerializer({"source_records": records}).data,
-                )
-                
-            else:
-                breakpoint()
-                return Response({
-                    "errors": posted_data.errors
-                })
-        except Exception as e:
-            return Response({
-                "errors": [str(e)]
-            })

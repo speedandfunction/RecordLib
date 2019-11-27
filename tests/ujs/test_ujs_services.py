@@ -1,6 +1,4 @@
 import pytest
-from ujs.models import SourceRecord
-from ujs.services import download
 from ujs.services.searchujs.UJSSearchFactory import UJSSearchFactory
 from ujs.services.searchujs.CPSearch import CPSearch
 from datetime import datetime, date
@@ -11,21 +9,27 @@ import os
 
 logger = logging.getLogger(__name__)
 
+def get_results(*args, **kwargs):
+    """
+    the monkeypatched version a response from the service. 
+
+    Used to prevent tests from making network calls.
+    """
+    return [
+        {
+            'docket_number': 'CP-11-CR-0001111-2015', 
+            'docket_sheet_url': 'CPReport.ashx?docketNumber=xxx', 
+            'summary_url': 'CourtSummaryReport.ashx?docketNumber=yyy',
+            'caption': 'Comm. v. Normal', 
+            'case_status': 'Closed',
+            'otn': 'Txxxx', 
+            'dob': '1/11/1940'
+        }, 
+    ]
 
 def test_cp_search(monkeypatch):
 
-    def get_results(*args, **kwargs):
-        return [
-            {
-                'docket_number': 'CP-11-CR-0001111-2015', 
-                'docket_sheet_url': 'CPReport.ashx?docketNumber=xxx', 
-                'summary_url': 'CourtSummaryReport.ashx?docketNumber=yyy',
-                'caption': 'Comm. v. Normal', 
-                'case_status': 'Closed',
-                'otn': 'Txxxx', 
-                'dob': '1/11/1940'
-            }, 
-        ]
+
 
     if os.environ.get("REAL_NETWORK_TESTS") != "TRUE":
         logger.info("Monkeypatching network calls.")
@@ -67,7 +71,7 @@ def test_cp_search_no_results(monkeypatch):
     assert len(results) == 0 
 
 
-def test_mdj_search():
+def test_mdj_search(monkeypatch):
     mdj_searcher = UJSSearchFactory.use_court("MDJ")
 
     if os.environ.get("REAL_NETWORK_TESTS") != "TRUE":
@@ -95,7 +99,7 @@ def test_mdj_search():
         pytest.raises("Search Results missing docket number.")
 
 
-def test_mdj_search_no_results():
+def test_mdj_search_no_results(monkeypatch):
     mdj_searcher = UJSSearchFactory.use_court("MDJ")
 
     if os.environ.get("REAL_NETWORK_TESTS") != "TRUE":
@@ -116,38 +120,3 @@ def test_mdj_search_no_results():
 
 
 
-class FakeResponse:
-
-    def __init__(self):
-        self.content = b'some bytes content'
-        self.status_code = 200
-
-
-def test_download_source_records(admin_user, monkeypatch):
-
-    def slow_get(*args, **kwargs):
-        time.sleep(3)
-        return FakeResponse()
-
-    monkeypatch.setattr(requests, 'get', slow_get)
-
-    rec = SourceRecord.objects.create(
-        caption="Test v Test",
-        docket_num="CP-1234",
-        court=SourceRecord.Courts.CP,
-        url="https://some.slow.url",
-        record_type=SourceRecord.RecTypes.SUMMARY_PDF,
-        owner=admin_user,
-    )
-    rec.save()
-    assert rec.file.name is None
-    before = datetime.now()
-    recs = [
-        rec, rec, rec
-    ]
-    download.source_records(recs)
-    after = datetime.now()
-    time_spent = after - before
-    assert rec.file.name is not None
-    # use pytest --log-cli-level info to see this.
-    logger.info(f"downloading {len(recs)} document took {time_spent.total_seconds()} seconds.")
