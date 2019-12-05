@@ -1,6 +1,6 @@
 
 from rest_framework import serializers as S
-from cleanslate.models import UserProfile
+from cleanslate.models import UserProfile, SourceRecord
 from django.contrib.auth.models import User
 from RecordLib.crecord import (
     CRecord
@@ -8,7 +8,6 @@ from RecordLib.crecord import (
 from RecordLib.case import Case
 from RecordLib.person import Person
 from RecordLib.common import (Charge, Sentence, SentenceLength)
-from ujs.serializers import SourceRecordSerializer
 
 class UserSerializer(S.ModelSerializer):
     class Meta:
@@ -106,7 +105,32 @@ class PetitionSerializer(S.Serializer):
 class DocumentRenderSerializer(S.Serializer):
     petitions = PetitionSerializer(many=True)
 
+class SourceRecordSerializer(S.ModelSerializer):
+    """ 
+    Validate json that represents a criminal record source document, e.g., a summary pdf or docket pdf.
+    """
+    class Meta:
+        model = SourceRecord
+        exclude = [
+            "owner", # only the database knows who owns what files
+            "file"]  # the file itself isn't sent back and forth as a SourceRecord. The SourceRecord is a pointer to a file in the server.
+    id = S.UUIDField(format='hex_verbose', required=False)
+
 
 class IntegrateSourcesSerializer(S.Serializer):
     crecord = CRecordSerializer()
     source_records = SourceRecordSerializer(many=True, allow_empty=True)
+
+
+
+
+
+class DownloadDocsSerializer(S.Serializer):
+    """
+    Validate json of a POST that contains source records (a collection of objects validated by SourceRecordSerializer)
+    """
+    source_records = SourceRecordSerializer(many=True)
+
+    def create(self, validated_data):
+        owner = validated_data.pop("owner")
+        return [SourceRecord.objects.create(**rec, owner=owner) for rec in validated_data["source_records"]]

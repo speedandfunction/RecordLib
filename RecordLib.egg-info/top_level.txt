@@ -2,4 +2,3 @@ RecordLib
 backend
 cleanslate
 scripts
-ujs

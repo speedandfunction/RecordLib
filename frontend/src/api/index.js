@@ -114,7 +114,7 @@ export function searchUJSByName(first_name, last_name, date_of_birth) {
 
 export function uploadUJSDocs(source_records) {
         return client.post(
-                "/ujs/download/", {source_records: source_records}
+                "/record/download/", {source_records: source_records}
         )
 }
 

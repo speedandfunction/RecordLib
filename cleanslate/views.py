@@ -23,10 +23,12 @@ from RecordLib.petitions import (
 )
 from .serializers import (
     CRecordSerializer, DocumentRenderSerializer, FileUploadSerializer, 
-    UserProfileSerializer, UserSerializer, IntegrateSourcesSerializer, SourceRecordSerializer
+    UserProfileSerializer, UserSerializer, IntegrateSourcesSerializer, 
+    SourceRecordSerializer, DownloadDocsSerializer
 )
-from cleanslate.compressor import Compressor
-from ujs.models import SourceRecord
+from .compressor import Compressor
+from .services import download
+from .models import SourceRecord
 import json
 import os
 import os.path
@@ -195,3 +197,31 @@ class IntegrateCRecordWithSources(APIView):
             return Response({
                 "errors": [str(err)]
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class SourceRecordsView(APIView):
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        """
+        API endpoint that takes a list of info about documents with urls, downloads them, 
+        and returns the info with ids that correspond to the documents' ids in the database.
+        """
+        try:
+            posted_data = DownloadDocsSerializer(data=request.data)
+            if posted_data.is_valid():
+                records = posted_data.save(owner=request.user)
+                download.source_records(records)
+                return Response(
+                    DownloadDocsSerializer({"source_records": records}).data,
+                )
+                
+            else:
+                return Response({
+                    "errors": posted_data.errors
+                })
+        except Exception as e:
+            return Response({
+                "errors": [str(e)]
+            })

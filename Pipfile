@@ -13,6 +13,7 @@ pytest-pythonpath = "==0.7.3"
 pyyaml = "==5.1.2"
 sphinx = "*"
 sphinx-js = "*"
+recordlib = {path = ".",editable = true}
 
 [packages]
 mysql-connector-python = "==8.0.18"
@@ -20,17 +21,17 @@ lxml = "==4.4.1"
 requests = "==2.22.0"
 python-dateutil = "==2.8.1"
 redis = "==3.3.11"
-django = "==2.2.6"
+django = "==2.2.8"
 djangorestframework = "==3.10.3"
 django-cors-headers = "==3.2.0"
 parsimonious = "==0.8.1"
 docxtpl = "==0.6.3"
 gunicorn = "==20.0.0"
 psycopg2 = "==2.8.4"
-recordlib = {path = ".",editable = true}
 django-webpack-loader = "==0.6.0"
 django-csp = "==3.5"
 uritemplate = "==3.0.0"
+django-docketsearch = {git = "https://github.com/clsphila/django-docketsearch.git",ref = "fd4bab004920ce69e3bd763ccdb68589fdee0e27", editable = true}
 
 [requires]
 python_version = "3.7"

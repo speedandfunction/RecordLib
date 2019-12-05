@@ -1,10 +1,11 @@
-import pytest
-from ujs.models import SourceRecord
-from ujs.services import download
-from datetime import datetime
-import logging
-import time
+from cleanslate.models import SourceRecord
+from cleanslate.services import download
 import requests
+from datetime import datetime
+import time
+import logging
+
+logger = logging.getLogger(__name__)
 
 class FakeResponse:
 
@@ -40,4 +41,4 @@ def test_download_source_records(admin_user, monkeypatch):
     time_spent = after - before
     assert rec.file.name is not None
     # use pytest --log-cli-level info to see this.
-    logging.info(f"downloading {len(recs)} document took {time_spent.total_seconds()} seconds.")
+    logger.info(f"downloading {len(recs)} document took {time_spent.total_seconds()} seconds.")

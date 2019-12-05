@@ -7,4 +7,5 @@ urlpatterns = [
     path('petitions/', RenderDocumentsView.as_view()),
     path('profile/', UserProfileView.as_view()),
     path('sources/', IntegrateCRecordWithSources.as_view()),
+    path("download/", SourceRecordsView.as_view()),
 ]

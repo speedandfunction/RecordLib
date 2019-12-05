@@ -23,5 +23,5 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
     path('loginSuccess', LoginSuccessView.as_view(), name="loginSuccess"),
     path('record/', include('cleanslate.urls')),
-    path('ujs/', include('ujs.urls')),
+    path('ujs/', include('ujs_search.urls')),
 ]

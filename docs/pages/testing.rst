@@ -5,6 +5,24 @@ Testing
 
 Run automated tests of the whole app with ``pytest``.
 
+environment
+=============
+
+
+There are some environment variables you might
+want for testing. 
+
+These are env vars so you can test with real names
+
+.. code-block: bash
+
+    # only really test network calls when necessary.
+    REAL_NETWORK_TESTS=FALSE # TRUE
+    # you can test searches with a real name this way.
+    UJS_SEARCH_TEST_FNAME=Joe
+    UJS_SEARCH_TEST_LNAME=Normal
+    UJS_SEARCH_TEST_DOB=2000-01-01
+
 
 Grammars
 =========
