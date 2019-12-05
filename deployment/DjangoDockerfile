@@ -12,7 +12,6 @@ COPY ./backend /srv/backend
 COPY ./cleanslate /srv/cleanslate
 COPY ./RecordLib /srv/RecordLib
 COPY ./templates /srv/templates
-COPY ./ujs /srv/ujs
 COPY ./frontend/bundles /srv/frontend/bundles
 COPY ./webpack-stats.json /srv
 COPY ./manage.py /srv
