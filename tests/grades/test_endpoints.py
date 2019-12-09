@@ -1,7 +1,7 @@
 import pytest
 import copy
 from grades.models import ChargeRecord
-
+from grades.services import grade_probability
 
 @pytest.mark.django_db
 def test_create_chargerecords(admin_client):
@@ -62,4 +62,6 @@ def test_guess_grade_no_subsection(admin_client, example_charge_record):
     assert list(filter(lambda i: i[0] == "M1", predictions))[0][1] == 1
     assert predictions == [('M1', 1)]
     assert predictions[0][0] ==  "M1"
+    assert grade_probability('M1', predictions) == 1
+    assert grade_probability('F2', predictions) == 0
 
