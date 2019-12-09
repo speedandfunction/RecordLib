@@ -2,7 +2,7 @@ import React, { useState }  from "react";
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import { addAlias } from "../actions";
+import { addAlias } from "../actions/applicant.js";
 
 function AddAlias(props) {
     const { adder } = props;
@@ -14,10 +14,18 @@ function AddAlias(props) {
         setName("");
     }
 
+    const handleKeyDown = event => {
+        if (event.keyCode === 13) {
+            event.preventDefault();
+            event.stopPropagation();
+            handleClick();
+        }
+    }
+
     return (
         <div className="addAlias" >
            <span style={{marginLeft: "20px"}}>Alias: </span>
-           <input type="text" value={name} onChange={handleChange} />
+           <input type="text" value={name} onChange={handleChange} onKeyDown={handleKeyDown}/>
            <button type="button" style={{marginLeft: "20px"}} onClick={handleClick}>Add Alias</button>
         </div>
     );

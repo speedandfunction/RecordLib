@@ -2,21 +2,6 @@ import * as api from '../api';
 import { normalizeCRecord, CRECORD_ID  } from '../normalize';
 import { generateId } from "./helpers"
 
-
-//function addDefendant(defendant) {
-//    const aliasObject = {};
-//    const uniqueAliases = [...new Set(defendant.aliases)];
-//    uniqueAliases.forEach( name => {
-//         const id = generateId();
-//         aliasObject[id] = name;
-//     });
-//     defendant.aliases = uniqueAliases;
-//     return {
-//         type: 'ADD_DEFENDANT',
-//         payload: defendant
-//     };
-// }
-
 /**
  * a generic action creator for editing a field of
  * an entity in the store
@@ -150,7 +135,10 @@ export function addAttorney(full_name) {
     const attorney = {
         id: full_name,
         full_name,
-        organization_address: '',
+        organization_address: {
+            line_one: '',
+            city_state_zip: ''
+        },
         organization_phone: '',
         bar_id: '',
         organization: '',
@@ -173,10 +161,9 @@ export function toggleEditingAttorney() {
 export function editAttorney(field, value) {
         return {
                 type: 'EDIT_ATTORNEY',
-                payload: {field, value }
+                payload: { field, value }
         };
 };
-
 
 
 export function createNewServiceAgency(serviceAgency) {

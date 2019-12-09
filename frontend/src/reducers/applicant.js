@@ -7,7 +7,7 @@ const initialApplicant = {
     date_of_birth: '',
     date_of_death: '',
     ssn: '',
-    address: '',
+    address: { line_one: '', city_state_zip: '' },
     aliases: [],
     editing: true
  };
@@ -36,27 +36,13 @@ function aliasReducer(state = {}, action) {
                 }).reduce(callback, {})
             )
         }
-        case EDIT_ALIAS: {
+        case EDIT_ALIAS:
+        case ADD_ALIAS:
+        {
             const { id, value } = action.payload;
             
             const newState = Object.assign({}, state, {
-                aliases: Object.assign({}, state.aliases, {
-                    [id]: value
-                })
-            });
-            
-            return newState;
-        }
-        case ADD_ALIAS: {
-            const { id, value } = action.payload;
-            
-            const newState = Object.assign({}, state, {
-                applicant: Object.assign({}, state.applicant, {
-                    aliases: state.applicant.aliases.concat([id])
-                }),
-                aliases: Object.assign({}, state.aliases, {
-                    [id]: value
-                })
+                [id]: value
             });
             
             return newState;
@@ -71,9 +57,22 @@ function applicantReducer(state = initialApplicant, action) {
         case EDIT_APPLICANT: {
             const { field, value } = action.payload;
 
-            const newState = Object.assign({}, state, {
-                [field]: value
-            });
+            let newState;
+            if (field.substring(0, 7) == 'address') {
+                const subfield = field.substring(8);
+                newState = Object.assign({}, state, {
+                    address: Object.assign({}, state.address, {
+                        [subfield]: value
+                    })
+                });
+            }
+
+            else {
+                newState =  Object.assign({}, state, {
+                    [field]: value
+                });
+
+            }
 
             return newState;
         }
@@ -108,6 +107,15 @@ function applicantReducer(state = initialApplicant, action) {
             if (state.date_of_birth ) {
                 newState.date_of_birth = state.date_of_birth;
             }
+
+            return newState;
+        }
+        case ADD_ALIAS: {
+            const { id, value } = action.payload;
+
+            const newState = Object.assign({}, state, {
+                aliases: state.aliases.concat(id)
+            });
 
             return newState;
         }
