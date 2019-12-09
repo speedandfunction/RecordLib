@@ -36,11 +36,10 @@ def test_guess_grade(admin_client, example_charge_record):
 
     assert resp.status_code == 200
     predictions = resp.data
-    assert predictions["M"] == 0.5
-    assert predictions["F2"] == 0
-    assert predictions["M1"] == 0.5
+    assert list(filter(lambda i: i[0] == "M", predictions))[0][1] == 0.5
+    assert list(filter(lambda i: i[0] == "M1", predictions))[0][1] == 0.5    
 
-    
+
 def test_guess_grade_no_subsection(admin_client, example_charge_record):
     cr1 = copy.copy(example_charge_record)
     cr1.subsection = "iii"
@@ -60,7 +59,7 @@ def test_guess_grade_no_subsection(admin_client, example_charge_record):
 
     assert resp.status_code == 200
     predictions = resp.data
-    assert predictions["M"] == 0
-    assert predictions["F2"] == 0
-    assert predictions["M1"] == 1
+    assert list(filter(lambda i: i[0] == "M1", predictions))[0][1] == 1
+    assert predictions == [('M1', 1)]
+    assert predictions[0][0] ==  "M1"
 

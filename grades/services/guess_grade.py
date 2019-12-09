@@ -1,5 +1,5 @@
 from grades.models import ChargeRecord
-from typing import Dict, List
+from typing import Dict, List, Tuple
 from collections import defaultdict
 
 def match(a: ChargeRecord, b: ChargeRecord) -> bool:
@@ -7,7 +7,7 @@ def match(a: ChargeRecord, b: ChargeRecord) -> bool:
         return True
     return False
 
-def guess_grade(target: ChargeRecord, records: List[ChargeRecord]) -> Dict:
+def guess_grade(target: ChargeRecord, records: List[ChargeRecord]) -> Tuple[str,float]:
     """
     Guess the grade of an offense.
 
@@ -19,8 +19,8 @@ def guess_grade(target: ChargeRecord, records: List[ChargeRecord]) -> Dict:
         if match(target, rec):
             weights[rec.grade] += rec.weight
     total_weight = sum([w for g,w in weights.items()])
-    probabilities = defaultdict(lambda: 0, {
-        g:(w / total_weight)
+    probabilities = sorted([
+        (g, (w / total_weight))
         for g,w in weights.items()
-    })
+    ], key=lambda i: i[1])
     return probabilities
