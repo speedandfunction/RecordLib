@@ -199,6 +199,8 @@ class Charge:
             return False
 
     def get_statute_chapter(self) -> Optional[float]:
+        """ Get the Chapter in the PA Code that this charge is related to. 
+        """
         patt = re.compile("^(?P<chapt>\d+)\s*§\s(?P<section>\d+).*")
         match = patt.match(self.statute)
         if match:
@@ -207,6 +209,8 @@ class Charge:
             return None
 
     def get_statute_section(self) -> Optional[float]:
+        """ Get the Statute section of the PA code, to which this charge is related.
+        """
         patt = re.compile("^(?P<chapt>\d+)\s*§\s(?P<section>\d+\.?\d*).*")
         match = patt.match(self.statute)
         if match:
@@ -215,6 +219,8 @@ class Charge:
             return None
 
     def get_statute_subsections(self) -> str:
+        """ Get the subsection, if any, to which this charge relates
+        """
         patt = re.compile("^(?P<chapt>\d+)\s*§\s(?P<section>\d+\.?\d*)\s*§§\s*(?P<subsections>[\(\)A-Za-z0-9\.\*]+)\s*.*")
         match = patt.match(self.statute)
         if match:
