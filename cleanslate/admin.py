@@ -6,13 +6,6 @@ from cleanslate.models import (
 from django import forms
 from django.db import models
 
-# this doesn't work. the file input widget seems to expect to encode or decode the file
-# but the binaryfield wants the actual binary.
-#class PetitionTemplateAdmin(admin.ModelAdmin):
-#    formfield_overrides = {
-#        models.BinaryField: {'widget': forms.ClearableFileInput()}
-#    }
-#admin.site.register(PetitionTemplate, PetitionTemplateAdmin)
 admin.site.register(ExpungementPetitionTemplate)
 admin.site.register(SealingPetitionTemplate)
 

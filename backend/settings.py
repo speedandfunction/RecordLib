@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'webpack_loader',
     'rest_framework',
     'cleanslate',
+    'grades',
     'ujs_search',
 ]
 
