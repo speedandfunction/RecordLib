@@ -125,9 +125,8 @@ class RenderDocumentsView(APIView):
                             )
                             petitions.append(new_petition)
                         except Exception as e:
-                            print(e)
-                            logging.error("User has not set a sealing petition template, or ")
-                            logging.error(str(e))
+                            logger.error("User has not set a sealing petition template, or ")
+                            logger.error(str(e))
                             continue
                     else:
                         new_petition = Expungement.from_dict(petition_data)
@@ -137,9 +136,8 @@ class RenderDocumentsView(APIView):
                             )
                             petitions.append(new_petition)
                         except Exception as e:
-                            print(e)
-                            logging.error("User has not set an expungement petition template, or ")
-                            logging.error(str(e))
+                            logger.error("User has not set an expungement petition template, or ")
+                            logger.error(str(e))
                             continue
                 client_last = petitions[0].client.last_name
                 petitions = [(p.file_name(), p.render()) for p in petitions]
