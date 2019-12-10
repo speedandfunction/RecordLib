@@ -1,8 +1,18 @@
 import React from "react"
+import Tooltip from "@material-ui/core/Tooltip"
 import Button from "@material-ui/core/Button"
-
+import { makeStyles } from "@material-ui/core/styles"
 import { connect } from "react-redux"
 import { guessGrade } from "../actions/grades"
+
+
+const useStyles = makeStyles(theme => ({
+    button: {
+        borderRadius: "100%",
+        minWidth: 0,
+    },
+
+}))
 
 /**
  * Extract the components of a statute's string into an object with props title, section, subsection.
@@ -24,6 +34,7 @@ function getStatuteComponents(statute) {
  * 
 */
 function PredictGradeButton(props) {
+    const classes = useStyles()
 
     const {id, offense, statute, guessGrade } = props
 
@@ -38,11 +49,18 @@ function PredictGradeButton(props) {
     }
 
     return(
-        <Button 
-            disabled={!isAvailable}
-            onClick={clickHandler(id, offense, components)}> 
-            Predict Grade 
-        </Button>
+        <Tooltip title="Predict Grades">
+            <span>
+                <Button 
+                    size="small"
+                    className={classes.button}
+                    variant="outlined"    
+                    disabled={!isAvailable}
+                    onClick={clickHandler(id, offense, components)}> 
+                    P 
+                </Button>
+            </span>
+        </Tooltip>
     ) 
 }
 

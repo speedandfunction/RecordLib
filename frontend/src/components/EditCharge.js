@@ -1,5 +1,7 @@
 import React from "react";
 import PropTypes from 'prop-types';
+import Grid from "@material-ui/core/Grid"
+import FormGroup from "@material-ui/core/FormGroup"
 import { makeStyles } from '@material-ui/core/styles';
 
 import EditField from "./EditField";
@@ -8,10 +10,19 @@ import PredictGradeButton from "./PredictGradeButton";
 
 
 const useStyles = makeStyles(theme => ({
+    root: {
+        flexGrow: 1,
+        marginRight: "2rem",
+        marginLeft: "2rem",
+    },
     toolButton: {
         position: "absolute",
         left: 0,
-    }
+    },
+    row: {
+        flexDirection: "row",
+        alignItems: "center",
+    },
 }))
 
 /**
@@ -20,8 +31,8 @@ const useStyles = makeStyles(theme => ({
 function EditCharge(props) {
     const classes = useStyles()
 
-    const { id, offense, grade, statute, disposition, disposition_date, sentences, modifier } = props;
-    const chargeStyle = { display: 'grid', gridTemplateColumns: '450px 350px', margin: '15px', border: '1px solid black', borderRadius: '10px', padding: '10px', width: '820px' };
+    const { charge, gradePredictions, modifier} = props;
+    const { id, offense, grade, statute, disposition, disposition_date, sentences } = charge;
 
     /**
      * This function starts with the modifier function, which expects a key,value pair
@@ -32,15 +43,40 @@ function EditCharge(props) {
     }
 
     return (
-        <div className="editCharge" id={id} style={chargeStyle}>
-            <PredictGradeButton class={classes.toolButton} {...props} />
-            <EditField item={offense} label="Offense: " modifier={getPropertyModifier('offense')} />
-            <EditField item={grade} label="Grade: " modifier={getPropertyModifier('grade')} />
-            <EditField item={statute} label="Statute: " modifier={getPropertyModifier('statute')} />
-            <EditField item={disposition} label="Disposition: " modifier={getPropertyModifier('disposition')} />
-            <EditField item={disposition_date} label="Disposition Date: " modifier={getPropertyModifier('disposition_date')} />
-            <Sentences sentences={sentences} chargeId={id} editing={true}/>
-        </div>
+        <Grid container spacing={1} className={classes.root} id={id}>
+            <Grid item xs={6}>
+                <EditField item={offense} label="Offense" modifier={getPropertyModifier('offense')} />
+            </Grid>
+            <Grid item xs={6}>
+                <EditField item={statute} label="Statute" modifier={getPropertyModifier('statute')} />
+            </Grid>
+            <Grid item xs={6}>
+                <EditField item={disposition} label="Disposition" 
+                    modifier={getPropertyModifier('disposition')} />
+            </Grid>    
+            <Grid item xs={6}>
+                <EditField type="date" 
+                    item={disposition_date} label="Disposition Date" 
+                    modifier={getPropertyModifier('disposition_date')} />
+            </Grid>
+            <Grid item xs={6}>
+                <FormGroup row className={classes.row}>
+                    <EditField item={grade} label="Grade" modifier={getPropertyModifier('grade')} />
+                    <PredictGradeButton class={classes.toolButton} {...charge} />
+                </FormGroup>
+            </Grid>
+            <Grid container alignItems="flex-end" item xs={6}>
+                {gradePredictions ? 
+                    gradePredictions.map(([grade, prob]) => {
+                        return(<Grid item xs={1}>{grade}:{prob}</Grid>)
+                }) : "No predictions made yet" 
+                }
+            </Grid>
+
+            <Grid container item xs={12}>
+                <Sentences sentences={sentences} chargeId={id} editing={true}/>
+            </Grid>
+        </Grid>
     );
 }
 

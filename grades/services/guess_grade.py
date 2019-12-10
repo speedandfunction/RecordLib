@@ -24,9 +24,9 @@ def guess_grade(target: ChargeRecord, records: List[ChargeRecord]) -> Tuple[str,
             weights[rec.grade] += rec.weight
     total_weight = sum([w for g,w in weights.items()])
     probabilities = sorted([
-        (g, (w / total_weight))
+        (g, round(w / total_weight, 2))
         for g,w in weights.items()
-    ], key=lambda i: i[1])
+    ], key=lambda i: i[1], reverse=True)
     return sorted(probabilities, key=lambda g: g[1])
 
 

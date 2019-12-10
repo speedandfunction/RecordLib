@@ -4,7 +4,9 @@ import PropTypes from 'prop-types';
 import Sentences from "./Sentences";
 
 function Charge(props) {
-    const { id, offense, grade, statute, disposition, disposition_date, sentences } = props;
+    const { charge, gradePredictions } = props;
+
+    const { id, offense, grade, statute, disposition, disposition_date, sentences } = charge;
     const chargeStyle = { display: 'grid', gridTemplateColumns: '450px 350px', margin: '15px', border: '1px solid black', borderRadius: '10px', padding: '10px', width: '820px' };
 
     return (
