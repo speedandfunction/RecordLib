@@ -124,3 +124,17 @@ export function integrateDocsWithRecord(crecord, sourceRecords) {
                 { crecord, source_records: sourceRecords}
         )
 }
+
+
+export function guessGrade(offense, statuteComponents) {
+        console.log("saerching for ")
+        console.log(offense)
+        console.log(statuteComponents)
+        console.log({offense, ...statuteComponents})
+        return client.get(
+                "/grades/guess/",
+                {
+                        params: {offense, ...statuteComponents }
+                }
+        )
+}

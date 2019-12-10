@@ -1,13 +1,25 @@
 import React from "react";
 import PropTypes from 'prop-types';
+import { makeStyles } from '@material-ui/core/styles';
 
 import EditField from "./EditField";
 import Sentences from "./Sentences";
+import PredictGradeButton from "./PredictGradeButton";
+
+
+const useStyles = makeStyles(theme => ({
+    toolButton: {
+        position: "absolute",
+        left: 0,
+    }
+}))
 
 /**
  * Component to edit a charge, including supplying values to a newly-created charge.
  */
 function EditCharge(props) {
+    const classes = useStyles()
+
     const { id, offense, grade, statute, disposition, disposition_date, sentences, modifier } = props;
     const chargeStyle = { display: 'grid', gridTemplateColumns: '450px 350px', margin: '15px', border: '1px solid black', borderRadius: '10px', padding: '10px', width: '820px' };
 
@@ -21,6 +33,7 @@ function EditCharge(props) {
 
     return (
         <div className="editCharge" id={id} style={chargeStyle}>
+            <PredictGradeButton class={classes.toolButton} {...props} />
             <EditField item={offense} label="Offense: " modifier={getPropertyModifier('offense')} />
             <EditField item={grade} label="Grade: " modifier={getPropertyModifier('grade')} />
             <EditField item={statute} label="Statute: " modifier={getPropertyModifier('statute')} />

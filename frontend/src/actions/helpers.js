@@ -9,4 +9,3 @@ export function generateId() {
                 s4() + '-' + s4() + s4() + s4()
         ;
 }
-

@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from 'prop-types';
+import TextField from '@material-ui/core/TextField'
 
-import { editSentenceLength } from "../actions";
 
 function EditAddress(props) {
     const { header, address, modifier } = props;
@@ -15,10 +15,15 @@ function EditAddress(props) {
         <div className="editAddress" style={addressStyle}>
             <div>{header}</div>
             <div className="editLine">
-                <input type="text" size="60" value={address.line_one}onChange={getPropertyModifier('address.line_one')}/>
+                <TextField 
+                    label="Address line one"
+                    type="text" size="60" value={address.line_one} 
+                    onChange={getPropertyModifier('address.line_one')}/>
             </div>
             <div className="editLine">
-                 <input type="text" size="60" value={address.city_state_zip} onChange={getPropertyModifier('address.city_state_zip')}/>
+                 <TextField type="text" size="60" 
+                    label="Address line two"
+                    value={address.city_state_zip} onChange={getPropertyModifier('address.city_state_zip')}/>
             </div>
         </div>
     );

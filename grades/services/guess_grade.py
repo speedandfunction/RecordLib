@@ -6,7 +6,8 @@ from collections import defaultdict
 logger = logging.getLogger(__name__)
 
 def match(a: ChargeRecord, b: ChargeRecord) -> bool:
-    if a.offense == b.offense and a.section == b.section and a.subsection == b.subsection:
+    if a.title == b.title and a.section == b.section and a.subsection == b.subsection:
+
         return True
     return False
 

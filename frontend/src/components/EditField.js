@@ -1,5 +1,6 @@
 import React from "react";
 import PropTypes from 'prop-types';
+import TextField from '@material-ui/core/TextField'
 
 /**
  * This component wraps a single field and allows
@@ -12,9 +13,16 @@ function EditField(props) {
 
         const handleChange = event => modifier(event.target.value);
 
+
         return (
                 <div className="editField">
-                     {label}  <input type={fieldType || "text"} value={item} onChange={handleChange}/>
+                        <TextField 
+                                id={label}
+                                label={label} 
+                                value={item} 
+                                type={fieldType || "text"}
+                                InputLabelProps={{shrink: fieldType === "date" ? true : undefined}}
+                                onChange={handleChange}/>
                 </div>
         );
 }

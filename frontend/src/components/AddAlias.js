@@ -1,7 +1,9 @@
 import React, { useState }  from "react";
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-
+import TextField from '@material-ui/core/TextField'
+import IconButton from '@material-ui/core/IconButton';
+import AddIcon from "@material-ui/icons/Add";
 import { addAlias } from "../actions/applicant.js";
 
 function AddAlias(props) {
@@ -24,9 +26,12 @@ function AddAlias(props) {
 
     return (
         <div className="addAlias" >
-           <span style={{marginLeft: "20px"}}>Alias: </span>
-           <input type="text" value={name} onChange={handleChange} onKeyDown={handleKeyDown}/>
-           <button type="button" style={{marginLeft: "20px"}} onClick={handleClick}>Add Alias</button>
+            <TextField label="Alias" type="text" value={name} onChange={handleChange} onKeyDown={handleKeyDown}/>
+            <IconButton size="small" type="button" style={{marginLeft: "20px"}} 
+                onClick={handleClick}
+                aria-label="add">
+                <AddIcon/>
+            </IconButton>
         </div>
     );
 }
