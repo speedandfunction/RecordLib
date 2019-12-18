@@ -7,7 +7,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import EditField from "./EditField";
 import Sentences from "./Sentences";
 import PredictGradeButton from "./PredictGradeButton";
-
+import GradeTable from "./GradeTable";
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -65,14 +65,12 @@ function EditCharge(props) {
                     <PredictGradeButton class={classes.toolButton} {...charge} />
                 </FormGroup>
             </Grid>
-            <Grid container alignItems="flex-end" item xs={6}>
                 {gradePredictions ? 
-                    gradePredictions.map(([grade, prob]) => {
-                        return(<Grid item xs={1}>{grade}:{prob}</Grid>)
-                }) : "No predictions made yet" 
+                    <GradeTable gradePredictions={gradePredictions} modifier={getPropertyModifier('grade')}/>
+                 : <Grid item xs={6}>
+                        "No predictions made yet"
+                   </Grid>
                 }
-            </Grid>
-
             <Grid container item xs={12}>
                 <Sentences sentences={sentences} chargeId={id} editing={true}/>
             </Grid>
@@ -87,7 +85,7 @@ EditCharge.propTypes = {
     statute: PropTypes.string,
     disposition: PropTypes.string,
     disposition_date: PropTypes.string,
-    sentences: PropTypes.array.isRequired,
+    sentences: PropTypes.array,
     modifier: PropTypes.func
 }
 

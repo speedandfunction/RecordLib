@@ -6,7 +6,7 @@
 import * as api from "../api"
 
 export const GUESS_GRADE_SUCCEEDED = "GUESS_GRADE_SUCCEEDED"
-
+export const UPDATE_GRADE = "UPDATE_GRADE"
 
 function guessGradeSucceeded(chargeId, gradeProbabilities) {
     return({
@@ -26,4 +26,16 @@ export function guessGrade(chargeId, offense, statute) {
                console.log(err)
            })
     }
+}
+
+/**
+ * 
+ * @param {*} chargeId The id of the charge that needs to be updated.
+ * @param {*} grade The grade that charge chargeId should get.
+ */
+export function updateGrade(chargeId, grade) {
+    return({
+        type: UPDATE_GRADE,
+        payload: {chargeId, grade}
+    })
 }
