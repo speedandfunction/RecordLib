@@ -19,8 +19,11 @@ const useStyles = makeStyles(theme => ({
  * @param {} statute 
  */
 function getStatuteComponents(statute) {
-    const parts = statute.split(' ')
-
+    const parts = statute.replace(/§/g, ' ').split(' ').filter(w => w !== "")
+    console.log("statute")
+    console.log(statute)
+    console.log("components")
+    console.log(parts)
     const components = {
         title: parts[0],
         section: parts[1],

@@ -127,7 +127,7 @@ export function integrateDocsWithRecord(crecord, sourceRecords) {
 
 
 export function guessGrade(offense, statuteComponents) {
-        console.log("saerching for ")
+        console.log("searching for ")
         console.log(offense)
         console.log(statuteComponents)
         console.log({offense, ...statuteComponents})

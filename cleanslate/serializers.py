@@ -71,8 +71,8 @@ class CaseSerializer(S.Serializer):
     arresting_agency_address = S.CharField(required=False, allow_blank=True, default="", allow_null=True)
 
 class AddressSerializer(S.Serializer):
-    line_one = S.CharField()
-    city_state_zip = S.CharField()
+    line_one = S.CharField(allow_blank=True)
+    city_state_zip = S.CharField(allow_blank=True)
 
 class AttorneySerializer(S.Serializer):
     organization = S.CharField(required=False)

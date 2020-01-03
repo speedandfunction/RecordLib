@@ -28,7 +28,7 @@ function GradeTableItem(props) {
                 className={classes.item} 
                 item 
                 onClick={createClickHandler(grade)}
-                {...props}> {grade}: {prob*100}%</Button>)
+                {...props}> {grade}: {Math.round(prob*100)}%</Button>)
 }
 
 
