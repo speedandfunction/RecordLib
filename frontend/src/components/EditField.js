@@ -35,7 +35,7 @@ EditField.propTypes = {
     /**
      * The value which can be edited.
      */
-    item: PropTypes.string.isRequired,
+    item: PropTypes.string,
     /**
      * The callback which registers the change.
      */
