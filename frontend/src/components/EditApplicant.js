@@ -28,7 +28,7 @@ function EditApplicant(props) {
             </div>
             <button type="button" style={buttonStyle} onClick={toggleEditing}>Done Editing</button>
             <EditField item={date_of_birth} fieldType="date" label="DOB: " modifier={getPropertyModifier('date_of_birth')} />
-            <EditField item={date_of_death} label="Deceased Date: " modifier={getPropertyModifier('date_of_death')} />
+            <EditField item={date_of_death} fieldType="date" label="Deceased Date: " modifier={getPropertyModifier('date_of_death')} />
             <EditField item={ssn} label="Social Security Number: " modifier={getPropertyModifier('ssn')} />
             <div></div>
             <div><EditAddress address={address} header='Address:' modifier={modifier}/></div>

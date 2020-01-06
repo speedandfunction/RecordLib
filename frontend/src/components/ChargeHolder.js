@@ -25,7 +25,10 @@ function ChargeHolder(props) {
 };
 
 function mapStateToProps(state, ownProps) {
-    return state.crecord.charges[ownProps.chargeId];
+    return {
+        charge: state.crecord.charges[ownProps.chargeId],
+        gradePredictions: state.gradePredictions[ownProps.chargeId],
+    }
 };
 
 /**

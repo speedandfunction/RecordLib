@@ -1,7 +1,7 @@
 import React, { useState }  from "react";
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-
+import TextField from "@material-ui/core/TextField"
 import { addCase } from "../actions";
 
 /**
@@ -31,8 +31,7 @@ function AddCase(props) {
 
     return (
         <div className="addCase" >
-           <span style={{marginLeft: "20px"}}>Docket Number: </span>
-           <input type="text" value={docketNumber} onChange={handleChange} onKeyDown={handleKeyDown}/>
+           <TextField label="Docket Number" type="text" value={docketNumber} onChange={handleChange} onKeyDown={handleKeyDown}/>
            <button type="button" style={{marginLeft: "20px"}} onClick={handleClick}>Add Case</button>
         </div>
     );

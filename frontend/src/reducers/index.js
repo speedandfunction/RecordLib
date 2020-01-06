@@ -10,7 +10,7 @@ import userReducer from "./user"
 import applicantReducer from "./applicant"
 import analysisReducer from "./analysis"
 import petitionsReducer from "./petitions"
-
+import gradePredictionReducer from "./grades"
 
 const rootReducer = combineReducers({
     user: userReducer,  // the current user.
@@ -22,6 +22,7 @@ const rootReducer = combineReducers({
     petitionPackage: petitionsReducer,
     serviceAgencies: serviceAgencyReducer, // petitions can include a list of agencies that will receive service
     ujsSearchResults: ujsSearchReducer, //  results from searching the public ujs portal.
+    gradePredictions: gradePredictionReducer, // results from guessing grades of charges
 });
 
 export default rootReducer
