@@ -1,42 +1,64 @@
-import React from "react"
+import React, { useState } from "react"
 import { connect } from "react-redux"
 import Button from "@material-ui/core/Button"
 import Grid from "@material-ui/core/Grid"
 import { searchUJSByName, uploadUJSDocs } from "../actions/ujs"
+import { Redirect } from "react-router-dom";
 
 import UJSSearchResultsContainer from "./UJSSearchResult"
 
 
 function NameSearch(props) {
-    const { applicant, ujsSearchResults, searchUJSByName, uploadUJSDocs } = props
+    const { applicant, ujsSearchResults, searchUJSByName, uploadUJSDocs} = props
     const missingSearchFields = applicant.first_name === "" || applicant.last_name === ""
+
+    const [redirectTo, setRedirectTo] = useState(null)
 
     const searchClickHandler = () => {
         searchUJSByName(applicant)
     }
 
-    const uploadUJSDocsClickHandler = () => {
-        console.log("uploading the selected cases to the server.")
-        uploadUJSDocs()
+    const uploadUJSDocsClickHandler = (redirect_to) => {
+        return (
+            () => {
+                console.log("uploading the selected cases to the server.")
+                setRedirectTo(redirect_to); 
+                uploadUJSDocs()
+            }
+        )
     }
 
     const anySearchedCasesSelected = ujsSearchResults.casesFound.result.length > 0
+
+    if (redirectTo !== null) {
+        return(
+            <Redirect to={redirectTo}/>
+        )
+    }
+
     return(
         <div>
-            <Grid container direction="row" alignItems="center" alignContent="center" justify="space-around">
-                <Grid item xs={3}>
+            <Grid container direction="row" alignItems="flex-start" alignContent="center" justify="space-around">
+                <Grid item xs={2}>
                     <Button 
                         variant="contained" 
                         color="primary" 
                         disabled={missingSearchFields}
-                        onClick={searchClickHandler}> Search ujs (optional and slow) </Button>
+                        onClick={searchClickHandler}> Search UJS </Button>
                 </Grid>
-                <Grid item xs={3}>
+                <Grid item xs={2}>
                     <Button 
                         variant="contained"
                         color="primary"
                         disabled={!anySearchedCasesSelected}
-                        onClick={uploadUJSDocsClickHandler}> Process selected cases </Button>
+                        onClick={uploadUJSDocsClickHandler("/criminalrecord")}> Process selected cases, and review results </Button>
+                </Grid>
+                <Grid item xs={2}>
+                    <Button 
+                        variant="contained"
+                        color="primary"
+                        disabled={!anySearchedCasesSelected}
+                        onClick={uploadUJSDocsClickHandler("/petitions")}> Process selected cases, and download petitions right away </Button>
                 </Grid>
             </Grid>
             <Grid container direction="row" alignItems="center" alignContent="center" justify="space-around">

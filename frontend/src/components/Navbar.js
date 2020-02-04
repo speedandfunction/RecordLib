@@ -36,6 +36,9 @@ const useStyles = makeStyles(theme => ({
   },
   buttonText: {
       color: "#dee2e6",
+  },
+  secondMenu: {
+      backgroundColor: "#dee2e6",
   }
 }));
 
@@ -102,6 +105,28 @@ function Navbar () {
                     </Button>
                 </Toolbar>
             </AppBar>
+
+            <AppBar position="static" color="inherit">
+                <Toolbar>
+                    <Button color="primary" className={classes.buttonText} component={RouterLink} to="/applicant"> 
+                        <Typography color="textSecondary"> Applicant </Typography> 
+                    </Button>
+                    <Button color="primary" className={classes.buttonText} component={RouterLink} to="/sourcerecords"> 
+                        <Typography color="textSecondary"> Sources (Dockets) </Typography>
+                    </Button>
+                    <Button color="primary" className={classes.buttonText} component={RouterLink} to="/criminalrecord"> 
+                        <Typography color="textSecondary"> Cases </Typography>
+                    </Button>
+                    <Button color="primary" className={classes.buttonText} component={RouterLink} to="/analysis"> 
+                        <Typography color="textSecondary"> Analysis </Typography>
+                    </Button>
+                    <Button color="primary" className={classes.buttonText} component={RouterLink} to="/petitions"> 
+                        <Typography color="textSecondary"> Petitions </Typography> 
+                    </Button>
+                </Toolbar>
+            </AppBar>
+
+
         </div>
     )
 }

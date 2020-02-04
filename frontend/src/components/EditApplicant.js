@@ -1,14 +1,21 @@
 import React from "react";
 import PropTypes from 'prop-types';
-
+import Button from "@material-ui/core/Button";
 import Aliases from "./Aliases";
 import EditField from "./EditField";
 import EditAddress from "./EditAddress";
 
 function EditApplicant(props) {
     const { first_name, last_name, date_of_birth, date_of_death, aliases, ssn, address, modifier } = props;
-    const applicantStyle = { display: 'grid', gridTemplateColumns: '400px 300px', margin: '15px', border: '1px solid black', borderRadius: '5px', padding: '10px', width: '720px' };
-    const buttonStyle = { width: "150px", height: "28px", justifySelf: "right", marginRight: "20px" };
+    const applicantStyle = { 
+        display: 'grid', 
+        gridTemplateColumns: '50% 50%', 
+        margin: '15px', 
+        border: '1px solid black', 
+        borderRadius: '5px', 
+        padding: '10px', 
+        width: '90%' };
+    const buttonStyle = { justifySelf: "right", marginRight: "20px" };
 
     /**
      * This function starts with the modifier function, which expects a key,value pair
@@ -26,7 +33,7 @@ function EditApplicant(props) {
                 <EditField item={first_name} label="First Name: " modifier={getPropertyModifier('first_name')} />
                 <EditField item={last_name} label="Last Name: " modifier={getPropertyModifier('last_name')} />
             </div>
-            <button type="button" style={buttonStyle} onClick={toggleEditing}>Done Editing</button>
+            <Button variant="contained" type="button" style={buttonStyle} onClick={toggleEditing}>Done Editing</Button>
             <EditField item={date_of_birth} fieldType="date" label="DOB: " modifier={getPropertyModifier('date_of_birth')} />
             <EditField item={date_of_death} fieldType="date" label="Deceased Date: " modifier={getPropertyModifier('date_of_death')} />
             <EditField item={ssn} label="Social Security Number: " modifier={getPropertyModifier('ssn')} />

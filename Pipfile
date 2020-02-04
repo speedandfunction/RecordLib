@@ -21,7 +21,7 @@ lxml = "==4.4.1"
 requests = "==2.22.0"
 python-dateutil = "==2.8.1"
 redis = "==3.3.11"
-django = "==2.2.8"
+django = "==2.2.9"
 djangorestframework = "==3.10.3"
 django-cors-headers = "==3.2.0"
 parsimonious = "==0.8.1"
@@ -31,7 +31,8 @@ psycopg2 = "==2.8.4"
 django-webpack-loader = "==0.6.0"
 django-csp = "==3.5"
 uritemplate = "==3.0.0"
-django-docketsearch = {git = "https://github.com/clsphila/django-docketsearch.git",ref = "fd4bab004920ce69e3bd763ccdb68589fdee0e27", editable = true}
+django-docketsearch = {git = "https://github.com/clsphila/django-docketsearch.git",ref = "4c1ebac907b7b8ebcd6ff404a0342897314f9dc1",editable = true}
+aiohttp = "*" 
 
 [requires]
 python_version = "3.7"

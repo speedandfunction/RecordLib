@@ -39,7 +39,7 @@ export function uploadRecords(files) {
         files.forEach((file) => data.append('files', file))
 
         return client.post(
-                "/record/upload/", data, 
+                "/api/record/upload/", data, 
                 {headers: {'Content-Type': 'multipart/form-data'}});
 }
 
@@ -48,7 +48,7 @@ export function uploadRecords(files) {
  */
 export function analyzeCRecord(data) {
         return client.post(
-                "/record/analyze/",
+                "/api/record/analyze/",
                 removeNullValues(data)
         )
 }
@@ -65,7 +65,7 @@ export function fetchPetitions(petitions, attorney) {
         }
 
         return client.post(
-                "/record/petitions/",
+                "/api/record/petitions/",
                 {petitions: petitions},
                 config,
         )
@@ -76,7 +76,7 @@ export function login(username, password) {
         data.append('username', username)
         data.append('password', password)
         client.post(
-                "/accounts/login/",
+                "/api/accounts/login/",
                 data,
                 {headers: {'Content-Type': 'multipart/form-data'}},
         ).then(response => {
@@ -91,19 +91,19 @@ export function login(username, password) {
 }
 
 export function logout() {
-        client.get("/accounts/logout/");
+        client.get("/api/accounts/logout/");
         window.location = '/accounts/login';
         document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
 }
 
 
 export function fetchUserProfileData() {
-        return client.get("/record/profile/") // TODO thats a bad api endpoint for a user profile.
+        return client.get("/api/record/profile/") // TODO thats a bad api endpoint for a user profile.
 }
 
 export function searchUJSByName(first_name, last_name, date_of_birth) {
         return client.post(
-                "/ujs/search/name/", 
+                "/api/ujs/search/name/", 
                 {
                         first_name: first_name,
                         last_name: last_name,
@@ -114,13 +114,13 @@ export function searchUJSByName(first_name, last_name, date_of_birth) {
 
 export function uploadUJSDocs(source_records) {
         return client.post(
-                "/record/download/", {source_records: source_records}
+                "/api/record/download/", {source_records: source_records}
         )
 }
 
 export function integrateDocsWithRecord(crecord, sourceRecords) {
         return client.put(
-                "/record/sources/",
+                "/api/record/sources/",
                 { crecord, source_records: sourceRecords}
         )
 }
@@ -132,7 +132,7 @@ export function guessGrade(offense, statuteComponents) {
         console.log(statuteComponents)
         console.log({offense, ...statuteComponents})
         return client.get(
-                "/grades/guess/",
+                "/api/grades/guess/",
                 {
                         params: {offense, ...statuteComponents }
                 }

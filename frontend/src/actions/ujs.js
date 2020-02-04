@@ -22,7 +22,6 @@ function searchUSJByNameStatus(newStatus) {
 
 function searchUSJByNameSuccess({ searchResults }) {
         console.log("ujs search succeeded")
-        console.log(searchResults)
         return({
                 type: SEARCH_UJS_BY_NAME_SUCCESS,
                 payload: searchResults
@@ -80,6 +79,7 @@ export function uploadUJSDocs() {
         /**
          * send the selected documents to the server, 
          * 
+         * 
          * We'll receive objects that will get added to the SourceRecords store. 
          * 
          * Then we'll also send the action to update the current crecord with the server and the 
@@ -109,6 +109,8 @@ export function uploadUJSDocs() {
                                 return null
                         }
                 }).filter(i => i !== null)
+                console.log("sending dockets:")
+                console.log(docketsToSend)
                 const summariesToSend = cases.result.map(cId => {
                         const c = cases.entities[cId]
                         if (c.summarySelected) {

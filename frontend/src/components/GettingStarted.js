@@ -16,11 +16,10 @@ import ApplicantHolderWrapper from "./ApplicantHolder";
 import NameSearch from "./NameSearch"
 function GettingStarted(props) {
     const classes = useStyles()
-    const gettingStartedStyle = { margin: '15px', border: '1px solid black', borderRadius: '25px', padding: '10px', width: '950px' };
     return (
         <Container>
             <Paper className={classes.paper}>
-                <div className="gettingStarted" style={gettingStartedStyle}>
+                <div className="gettingStarted" >
                     <div style={{color: 'red'}}>Please enter the applicant's address, social security  number, and any
                     other information which will not be provided by uploaded files.</div>
                     <ApplicantHolderWrapper />

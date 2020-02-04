@@ -171,25 +171,35 @@ class IntegrateCRecordWithSources(APIView):
 
     def put(self, request, *args, **kwargs):    
         """
-        Accept a CRecord and a set of SourceRecords. Incorporate the information that the SourceRecords contain into the CRecord.
+        Accept a CRecord and a set of SourceRecords. 
+        
+        Parse the SourceRecords, and incorporate the information that the SourceRecords contain into the CRecord.
 
         TODO this should replace FileUpload view. 
         """
         try:
             serializer = IntegrateSourcesSerializer(data=request.data)
             if serializer.is_valid():
+                nonfatal_errors = []
                 crecord = CRecord.from_dict(serializer.validated_data["crecord"])
                 for source_record_data in serializer.validated_data["source_records"]:
                     source_record = SourceRecord.objects.get(id=source_record_data["id"])
                     if source_record.record_type == SourceRecord.RecTypes.SUMMARY_PDF:
-                        summary = parse_pdf(source_record.file.path)
-                        crecord.add_summary(summary, case_merge_strategy="overwrite_old", override_person=True)
+                        try:
+                            summary = parse_pdf(source_record.file.path)
+                            crecord.add_summary(summary, case_merge_strategy="overwrite_old", override_person=True)
+                        except:
+                            nonfatal_errors.append(f"Could not parse {source_record.docket_num} ({source_record.record_type})")
                     elif source_record.record_type == SourceRecord.RecTypes.DOCKET_PDF:
-                        docket, errs = Docket.from_pdf(source_record.file.path)
-                        crecord.add_docket(docket)
+                        try:
+                            docket, errs = Docket.from_pdf(source_record.file.path)
+                            crecord.add_docket(docket)
+                        except:
+                            nonfatal_errors.append(f"Could not parse {source_record.docket_num} ({source_record.record_type})")
                     else:
                         logger.error(f"Cannot parse a source record with type {source_record.record_type}")
-                return Response({'crecord': CRecordSerializer(crecord).data}, status=status.HTTP_200_OK) 
+                        nonfatal_errors.append(f"Cannot parse a source record with type {source_record.record_type}")
+                return Response({'crecord': CRecordSerializer(crecord).data, 'errors': nonfatal_errors}, status=status.HTTP_200_OK) 
             else:
                 return Response({
                     "errors": serializer.errors

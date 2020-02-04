@@ -5,7 +5,12 @@ import About from "./components/About";
 import UserProfile from "./components/UserProfile";
 import NotFound from "./components/NotFound";
 import PetitionProcess from "./components/PetitionProcess"
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-dom";
+import GettingStarted from "./components/GettingStarted";
+import RecordUploader from "./components/RecordUploader";
+import RecordEdit from "./components/RecordEdit";
+import DownloadPetitions from "./components/DownloadPetitions";
+import Analysis from "./components/Analysis";
 
 function App() {
     return (<main className="content" style={{ margin: '0px'}}>
@@ -20,8 +25,26 @@ function App() {
                     <Route path="/profile">
                         <UserProfile/>
                     </Route>
+                    <Route path="/applicant">
+                        <GettingStarted/>
+                    </Route>
+                    <Route path="/sourcerecords">
+                        <RecordUploader/>
+                    </Route>
+                    <Route path="/criminalrecord">
+                        <RecordEdit/>
+                    </Route>
+                    <Route path="/analysis">
+                        <Analysis/>    
+                    </Route>
+                    <Route path="/petitions">
+                        <DownloadPetitions/>
+                    </Route>
                     <Route path="/">
-                        <PetitionProcess/>
+                        <Redirect to="/applicant"/>
+                    </Route>
+                    <Route path="">
+                        <Redirect to="/applicant"/>
                     </Route>
                     <Route>
                         <NotFound/>

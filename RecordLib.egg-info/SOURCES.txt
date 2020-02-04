@@ -8,7 +8,6 @@ RecordLib/common.py
 RecordLib/compressor.py
 RecordLib/crecord.py
 RecordLib/decision.py
-RecordLib/guess_grade.py
 RecordLib/number_generator.py
 RecordLib/overflow.py
 RecordLib/parsingutilities.py
@@ -61,6 +60,18 @@ cleanslate/migrations/0006_sourcerecord.py
 cleanslate/migrations/__init__.py
 cleanslate/services/__init__.py
 cleanslate/services/download.py
+grades/__init__.py
+grades/admin.py
+grades/apps.py
+grades/models.py
+grades/serializers.py
+grades/tests.py
+grades/urls.py
+grades/views.py
+grades/migrations/0001_initial.py
+grades/migrations/__init__.py
+grades/services/__init__.py
+grades/services/guess_grade.py
 scripts/__init__.py
 scripts/analyze.py
 scripts/download_dockets.py

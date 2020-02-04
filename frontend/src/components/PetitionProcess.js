@@ -8,6 +8,7 @@ import Analysis from "./Analysis"
 import DownloadPetitions from "./DownloadPetitions"
 import GettingStarted from "./GettingStarted"
 
+
 const steps = [
     {
         "label": "Enter applicant information",
@@ -44,6 +45,8 @@ export default function (props) {
     
     const [activeStepIndex, setActiveStepIndex] = useState(0)
    
+    // <!-- DEPRECATED -->
+    // TODO remove the PetitionProcess component.
 
     return (
         <Box>
