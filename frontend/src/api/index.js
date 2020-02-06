@@ -39,7 +39,7 @@ export function uploadRecords(files) {
         files.forEach((file) => data.append('files', file))
 
         return client.post(
-                "/api/record/upload/", data, 
+                "/api/record/sourcerecords/upload/", data, 
                 {headers: {'Content-Type': 'multipart/form-data'}});
 }
 
@@ -48,7 +48,7 @@ export function uploadRecords(files) {
  */
 export function analyzeCRecord(data) {
         return client.post(
-                "/api/record/analyze/",
+                "/api/record/analysis/",
                 removeNullValues(data)
         )
 }
@@ -114,13 +114,13 @@ export function searchUJSByName(first_name, last_name, date_of_birth) {
 
 export function uploadUJSDocs(source_records) {
         return client.post(
-                "/api/record/download/", {source_records: source_records}
+                "/api/record/sourcerecords/fetch/", {source_records: source_records}
         )
 }
 
 export function integrateDocsWithRecord(crecord, sourceRecords) {
         return client.put(
-                "/api/record/sources/",
+                "/api/record/cases/",
                 { crecord, source_records: sourceRecords}
         )
 }

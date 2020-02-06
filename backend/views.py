@@ -5,7 +5,7 @@ from rest_framework.response import Response
 
 
 class FrontendView(LoginRequiredMixin, TemplateView):
-    login_url = "/accounts/login/"
+    login_url = "/api/accounts/login/"
     template_name = "backend/index.html"
 
 

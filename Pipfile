@@ -31,8 +31,9 @@ psycopg2 = "==2.8.4"
 django-webpack-loader = "==0.6.0"
 django-csp = "==3.5"
 uritemplate = "==3.0.0"
-django-docketsearch = {git = "https://github.com/clsphila/django-docketsearch.git",ref = "4c1ebac907b7b8ebcd6ff404a0342897314f9dc1",editable = true}
+django-docketsearch = {git = "https://github.com/clsphila/django-docketsearch.git",ref = "759e6f1f0f3c5e71a76a6dc53adf83b6275fdf02",editable = true}
 aiohttp = "*" 
+yarl = "==1.4.2"
 
 [requires]
 python_version = "3.7"
