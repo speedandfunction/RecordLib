@@ -22,8 +22,8 @@ function NameSearch(props) {
         return (
             () => {
                 console.log("uploading the selected cases to the server.")
-                setRedirectTo(redirect_to); 
                 uploadUJSDocs()
+                setRedirectTo(redirect_to); 
             }
         )
     }

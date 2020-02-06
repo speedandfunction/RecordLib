@@ -1,13 +1,20 @@
 import React, { useState } from "react";
 import { connect } from "react-redux"
+import Paper from "@material-ui/core/Paper"
 import Container from "@material-ui/core/Container"
 import List from '@material-ui/core/List';
 import Button from "@material-ui/core/Button"
 import { makeStyles } from '@material-ui/core/styles';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from "@material-ui/core/ListItemText";
-
+import Typography from "@material-ui/core/Typography";
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
 import { uploadRecords } from "../actions/localFiles";
+import SourceRecordRow from "./SourceRecordRow";
 /*
 *   Step in the Petition analysis and generation process for uploading files for processing.
 *
@@ -18,10 +25,11 @@ import { uploadRecords } from "../actions/localFiles";
 const useStyles = makeStyles(theme => ({
     root: {
         flexGrow: 1,
-        maxWidth: 752,
+        marginTop: "2rem",
     },
-    demo: {
-        backgroundColor: theme.palette.background.paper,
+    paper: {
+        padding: "2rem",
+        marginBottom: "2rem"
     },
     title: {
         margin: theme.spacing(4, 0, 2),
@@ -52,12 +60,12 @@ function FileList(props) {
 
 
 // Component to select files and dispatch api call to upload them.
-function RecordUploader(props) {
+function RecordUploader(props) {    
     const classes=useStyles()
 
     const [selectedFiles, setSelectedFiles] = useState([]);
 
-    const { uploadRecords } = props;
+    const { uploadRecords, sourceRecords } = props;
 
     const onChangeHandler = event => {
         setSelectedFiles([...event.target.files]);
@@ -65,22 +73,55 @@ function RecordUploader(props) {
 
     const onClickHandler = (e) => {
         e.preventDefault();
-        console.log("Uploading " + selectedFiles.length + " files")
         setSelectedFiles([])
         uploadRecords(selectedFiles);
     };
 
 
     return(
-        <Container className={classes.root}> 
-            <h1> Upload files </h1>
-            <p> Select the summary and docket files you wish to analyze.</p>
-            <FileList selectedFiles={selectedFiles}/>
-            <form encType="multipart/form-data" onSubmit={onClickHandler}>
-                <input multiple type="file" name="file" onChange={onChangeHandler}/>
-                <Button type="submit"> Upload </Button>
-            </form>
-            {/*<div>Here is the information which you need to proceed.</div>*/}
+        <Container className={classes.root}>
+            <Paper className={classes.paper}>
+                <Typography variant="h3">Source Records</Typography>
+                <Typography variant="body1">
+                    Documents, such as docket sheets, that are already used to compile the current criminal record.
+                </Typography>    
+                { 
+                    sourceRecords.allIds.length === 0? 
+                    <Typography>No records processed yet.</Typography> :
+                    <Table aria-label="processed source records">
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>Caption</TableCell>
+                                <TableCell>Docket Number</TableCell>
+                                <TableCell>Court</TableCell>
+                                <TableCell>URL</TableCell>
+                                <TableCell>Record Type</TableCell>
+                                <TableCell>Fetch Status</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {sourceRecords.allIds.map((srID) => {
+                                return(
+                                    <SourceRecordRow 
+                                        key={srID} 
+                                        record={sourceRecords.allSourceRecords[srID]}
+                                    ></SourceRecordRow>
+                                )
+                            })}
+                        </TableBody>
+
+                    </Table>
+                }
+            </Paper> 
+            <Paper className={classes.paper}>
+                <Typography variant="h3"> Upload files </Typography>
+                <p> Select the summary and docket files you wish to analyze.</p>
+                <FileList selectedFiles={selectedFiles}/>
+                <form encType="multipart/form-data" onSubmit={onClickHandler}>
+                    <input multiple type="file" name="file" onChange={onChangeHandler}/>
+                    <Button type="submit"> Upload </Button>
+                </form>
+            </Paper>
         </Container>
     )
 }
@@ -91,9 +132,16 @@ function RecordUploader(props) {
 //};
 
 function mapDispatchToProps(dispatch) {
-    return { uploadRecords: files => dispatch(uploadRecords(files)) };
+    return { 
+        uploadRecords: files => dispatch(uploadRecords(files)) 
+    };
 };
 
+function mapStateToProps(state) {
+    return {
+        sourceRecords: state.sourceRecords
+    }
+}
 
 
-export default connect(null, mapDispatchToProps)(RecordUploader)
+export default connect(mapStateToProps, mapDispatchToProps)(RecordUploader)

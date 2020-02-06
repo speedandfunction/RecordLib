@@ -77,10 +77,11 @@ function uploadUJSDocsFinished() {
 
 export function uploadUJSDocs() {
         /**
-         * send the selected documents to the server, 
+         * send the information about selected case records to the server, 
          * 
+         * The server will attempt to fetch and store them.
          * 
-         * We'll receive objects that will get added to the SourceRecords store. 
+         * We'll receive SourceRecord objects that will get added to the SourceRecords store. 
          * 
          * Then we'll also send the action to update the current crecord with the server and the 
          * current set of sourcerecords. 
