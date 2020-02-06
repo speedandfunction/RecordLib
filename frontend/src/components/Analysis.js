@@ -4,38 +4,31 @@
 import React from "react"
 import { connect } from "react-redux"
 import Container from "@material-ui/core/Container"
+import { Link as RouterLink } from "react-router-dom"
 import Button from "@material-ui/core/Button"
 import PetitionDecision from "./PetitionDecision"
 import { getPetitions } from "../actions"
 
 function Analysis(props) {
-    const { analysis, activeStepIndex, setActiveStepIndex} = props
+    const { analysis} = props
 
     console.log("Analysis:")
     console.log(analysis)
-
-    const petitions = analysis.decisions ? 
-        analysis.decisions.map((d) => {
-            return d.value
-        }).flat() :
-        []
-
-    const submitForm = (e) => {
-        e.preventDefault()
-        setActiveStepIndex(activeStepIndex + 1)
-    }
 
     return (
         <Container>
             <h2> Analysis </h2>
             { 
                 analysis.decisions ? 
-                    <form onSubmit={submitForm}>
-                        <Button type="submit"> Get Petitions </Button>
+                    <div>
+
+                        <Button component={RouterLink} to="/petitions">
+                            Get Petitions
+                        </Button>
                         {analysis.decisions.map((decision, idx) => {
                             return(<PetitionDecision key={idx} decision={decision}/>)
                         })}
-                    </form> :
+                    </div>:
                     <p> You should submit the record for analysis first. </p>
             }
         </Container>

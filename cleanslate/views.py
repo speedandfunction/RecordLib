@@ -45,7 +45,8 @@ class FileUploadView(APIView):
     
     # noinspection PyMethodMayBeStatic
     def post(self, request, *args, **kwargs):
-        """Accept dockets and summaries locally uploaded by a user, save them to the server, and return pointers with information about them.
+        """Accept dockets and summaries locally uploaded by a user, save them to the server, 
+        and return SourceRecords pointing to those files..
 
 
         This POST needs to be a FORM post, not a json post. 
@@ -69,9 +70,84 @@ class FileUploadView(APIView):
         else:
             return Response({"error_message": "Invalid Data.", "errors": file_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
+class SourceRecordsFetchView(APIView):
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        """
+        API endpoint that takes a list of info about documents with urls, downloads them, 
+        and returns SourceRecords, which point to the documents' ids in the database.
+
+        
+
+        """
+        try:
+            posted_data = DownloadDocsSerializer(data=request.data)
+            if posted_data.is_valid():
+                records = posted_data.save(owner=request.user)
+                download.source_records(records)
+                return Response(
+                    DownloadDocsSerializer({"source_records": records}).data,
+                )
+                
+            else:
+                return Response({
+                    "errors": posted_data.errors
+                })
+        except Exception as e:
+            return Response({
+                "errors": [str(e)]
+            })
+
+class IntegrateCRecordWithSources(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def put(self, request, *args, **kwargs):    
+        """
+        Accept a CRecord and a set of SourceRecords. 
+        
+        Parse the SourceRecords, and incorporate the information that the SourceRecords
+        contain into the CRecord.
+
+        TODO IntegrateCRecordWithSources should communicate failures better.
+
+        """
+        try:
+            serializer = IntegrateSourcesSerializer(data=request.data)
+            if serializer.is_valid():
+                nonfatal_errors = []
+                crecord = CRecord.from_dict(serializer.validated_data["crecord"])
+                for source_record_data in serializer.validated_data["source_records"]:
+                    source_record = SourceRecord.objects.get(id=source_record_data["id"])
+                    if source_record.record_type == SourceRecord.RecTypes.SUMMARY_PDF:
+                        try:
+                            summary = parse_pdf(source_record.file.path)
+                            crecord.add_summary(summary, case_merge_strategy="overwrite_old", override_person=True)
+                        except:
+                            nonfatal_errors.append(f"Could not parse {source_record.docket_num} ({source_record.record_type})")
+                    elif source_record.record_type == SourceRecord.RecTypes.DOCKET_PDF:
+                        try:
+                            docket, errs = Docket.from_pdf(source_record.file.path)
+                            crecord.add_docket(docket)
+                        except:
+                            nonfatal_errors.append(f"Could not parse {source_record.docket_num} ({source_record.record_type})")
+                    else:
+                        logger.error(f"Cannot parse a source record with type {source_record.record_type}")
+                        nonfatal_errors.append(f"Cannot parse a source record with type {source_record.record_type}")
+                return Response({'crecord': CRecordSerializer(crecord).data, 'errors': nonfatal_errors}, status=status.HTTP_200_OK) 
+            else:
+                return Response({
+                    "errors": serializer.errors
+                }, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as err: 
+            return Response({
+                "errors": [str(err)]
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class AnalyzeView(APIView):
+
+class AnalysisView(APIView):
     # noinspection PyMethodMayBeStatic
     def post(self, request, *args, **kwargs):
         """ Analyze a Criminal Record for expungeable and sealable cases and charges.
@@ -105,7 +181,8 @@ class AnalyzeView(APIView):
 class RenderDocumentsView(APIView):
     """ Create pettions and an Overview document from an Analysis. 
     
-    POST should be a json-encoded object with an 'petitions' property that is a list of petitions to generate
+    POST should be a json-encoded object with an 'petitions' property that is a list of 
+    petitions to generate
     """
     permission_classes = [permissions.IsAuthenticated]
 
@@ -165,74 +242,3 @@ class UserProfileView(APIView):
             "user": UserSerializer(request.user).data,
             "profile": UserProfileSerializer(request.user).data
         })
-
-class IntegrateCRecordWithSources(APIView):
-    permission_classes = [permissions.IsAuthenticated]
-
-    def put(self, request, *args, **kwargs):    
-        """
-        Accept a CRecord and a set of SourceRecords. 
-        
-        Parse the SourceRecords, and incorporate the information that the SourceRecords contain into the CRecord.
-
-        TODO this should replace FileUpload view. 
-        """
-        try:
-            serializer = IntegrateSourcesSerializer(data=request.data)
-            if serializer.is_valid():
-                nonfatal_errors = []
-                crecord = CRecord.from_dict(serializer.validated_data["crecord"])
-                for source_record_data in serializer.validated_data["source_records"]:
-                    source_record = SourceRecord.objects.get(id=source_record_data["id"])
-                    if source_record.record_type == SourceRecord.RecTypes.SUMMARY_PDF:
-                        try:
-                            summary = parse_pdf(source_record.file.path)
-                            crecord.add_summary(summary, case_merge_strategy="overwrite_old", override_person=True)
-                        except:
-                            nonfatal_errors.append(f"Could not parse {source_record.docket_num} ({source_record.record_type})")
-                    elif source_record.record_type == SourceRecord.RecTypes.DOCKET_PDF:
-                        try:
-                            docket, errs = Docket.from_pdf(source_record.file.path)
-                            crecord.add_docket(docket)
-                        except:
-                            nonfatal_errors.append(f"Could not parse {source_record.docket_num} ({source_record.record_type})")
-                    else:
-                        logger.error(f"Cannot parse a source record with type {source_record.record_type}")
-                        nonfatal_errors.append(f"Cannot parse a source record with type {source_record.record_type}")
-                return Response({'crecord': CRecordSerializer(crecord).data, 'errors': nonfatal_errors}, status=status.HTTP_200_OK) 
-            else:
-                return Response({
-                    "errors": serializer.errors
-                }, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as err: 
-            return Response({
-                "errors": [str(err)]
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-class SourceRecordsView(APIView):
-
-    permission_classes = [permissions.IsAuthenticated]
-
-    def post(self, request, *args, **kwargs):
-        """
-        API endpoint that takes a list of info about documents with urls, downloads them, 
-        and returns the info with ids that correspond to the documents' ids in the database.
-        """
-        try:
-            posted_data = DownloadDocsSerializer(data=request.data)
-            if posted_data.is_valid():
-                records = posted_data.save(owner=request.user)
-                download.source_records(records)
-                return Response(
-                    DownloadDocsSerializer({"source_records": records}).data,
-                )
-                
-            else:
-                return Response({
-                    "errors": posted_data.errors
-                })
-        except Exception as e:
-            return Response({
-                "errors": [str(e)]
-            })
