@@ -77,10 +77,11 @@ function uploadUJSDocsFinished() {
 
 export function uploadUJSDocs() {
         /**
-         * send the selected documents to the server, 
+         * send the information about selected case records to the server, 
          * 
+         * The server will attempt to fetch and store them.
          * 
-         * We'll receive objects that will get added to the SourceRecords store. 
+         * We'll receive SourceRecord objects that will get added to the SourceRecords store. 
          * 
          * Then we'll also send the action to update the current crecord with the server and the 
          * current set of sourcerecords. 
@@ -109,8 +110,6 @@ export function uploadUJSDocs() {
                                 return null
                         }
                 }).filter(i => i !== null)
-                console.log("sending dockets:")
-                console.log(docketsToSend)
                 const summariesToSend = cases.result.map(cId => {
                         const c = cases.entities[cId]
                         if (c.summarySelected) {
@@ -118,7 +117,7 @@ export function uploadUJSDocs() {
                                         caption: c.caption,
                                         docket_num: c.docket_number,
                                         court: c.court,
-                                        url: c.summary_sheet_url,
+                                        url: c.summary_url,
                                         record_type: "SUMMARY_PDF"
                                 }
                         } else {
@@ -129,8 +128,6 @@ export function uploadUJSDocs() {
                 api.uploadUJSDocs(recordsToSend).then(response => {
                         const data = response.data
                         dispatch(uploadUJSDocsFinished())
-                        console.log("server responded with source records:")
-                        console.log(data)
                         dispatch(upsertSourceRecords(data))
                         dispatch(updateCRecord())
                 }).catch(err => {

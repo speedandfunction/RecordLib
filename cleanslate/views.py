@@ -76,11 +76,8 @@ class SourceRecordsFetchView(APIView):
 
     def post(self, request, *args, **kwargs):
         """
-        API endpoint that takes a list of info about documents with urls, downloads them, 
-        and returns SourceRecords, which point to the documents' ids in the database.
-
-        
-
+        API endpoint that takes a set of cases with urls to docket or summary sheets, downloads them, 
+        and returns SourceRecords, which point to the documents' ids in the database.        
         """
         try:
             posted_data = DownloadDocsSerializer(data=request.data)
