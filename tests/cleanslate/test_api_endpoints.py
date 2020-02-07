@@ -8,11 +8,11 @@ from django.core.files import File
 from RecordLib.serializers import to_serializable
 
 def test_anonymous_cannot_get_userprofileview(dclient):
-    resp = dclient.get('/record/profile/', follow=True)
+    resp = dclient.get('/api/record/profile/', follow=True)
     assert resp.status_code == 403 
 
 def test_loggedin_get_userprofileview(admin_client):
-    resp = admin_client.get('/record/profile/', follow=True)
+    resp = admin_client.get('/api/record/profile/', follow=True)
     assert resp.status_code == 200
     userdata = resp.data
     assert 'user' in userdata.keys()
@@ -56,7 +56,7 @@ def test_integrate_sources_with_crecord(dclient, admin_user, example_crecord):
         "source_records": [doc_1_data, doc_2_data]
     }
 
-    resp = dclient.put("/record/sources/", data = data)
+    resp = dclient.put("/api/record/cases/", data = data)
     assert resp.status_code == 200
     assert "crecord" in resp.data
     try:
@@ -86,7 +86,7 @@ def test_download_ujs_docs(admin_client):
         "record_type": SourceRecord.RecTypes.SUMMARY_PDF,
     }
     resp = admin_client.post(
-        "/record/download/",
+        "/api/record/sourcerecords/fetch/",
         data = {
             "source_records": [doc_1, doc_2]
         }, follow=True, content_type="application/json")

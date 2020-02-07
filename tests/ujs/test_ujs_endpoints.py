@@ -2,7 +2,7 @@ import pytest
 from rest_framework.response import Response
 
 def test_search_ujs_by_name_missing_data(admin_client):
-    resp = admin_client.post('/ujs/search/name/', follow=True)
+    resp = admin_client.post('/api/ujs/search/name/', follow=True)
     assert resp.status_code == 400
     assert resp.data['errors']['first_name'][0].code == 'required'
 
@@ -41,7 +41,7 @@ def test_search_ujs_by_name(admin_client, monkeypatch):
     monkeypatch.setattr(admin_client, 'post', mockresponse)
 
     resp = admin_client.post(
-        '/ujs/search/name/', 
+        '/api/ujs/search/name/', 
         data={
             "first_name":"Jane",
             "last_name":"Smith",

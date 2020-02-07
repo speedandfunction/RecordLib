@@ -5,7 +5,7 @@ from grades.services import grade_probability
 
 @pytest.mark.django_db
 def test_create_chargerecords(admin_client):
-    resp = admin_client.post("/grades/", {
+    resp = admin_client.post("/api/grades/", {
         "offense": "Ice skating without proper snacks",
         "title": "15",
         "section": "iii",
@@ -27,7 +27,7 @@ def test_guess_grade(admin_client, example_charge_record):
     cr2.grade = "M1"
     cr2.save()
 
-    resp = admin_client.get(f"/grades/guess/", data = {
+    resp = admin_client.get(f"/api/grades/guess/", data = {
         "offense": example_charge_record.offense,
         "title": example_charge_record.title,
         "section": example_charge_record.section,
@@ -51,7 +51,7 @@ def test_guess_grade_no_subsection(admin_client, example_charge_record):
     cr2.subsection = ""
     cr2.save()
 
-    resp = admin_client.get(f"/grades/guess/", data = {
+    resp = admin_client.get(f"/api/grades/guess/", data = {
         "offense": example_charge_record.offense,
         "title": example_charge_record.title,
         "section": example_charge_record.section

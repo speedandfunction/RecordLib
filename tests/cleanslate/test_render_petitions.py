@@ -26,7 +26,7 @@ def test_render_petitions(admin_user, admin_client, example_crecord, example_att
         petitions.append(*decision.value)
     for p in petitions:
         p.attorney = example_attorney
-    resp = admin_client.post("/record/petitions/", 
+    resp = admin_client.post("/api/record/petitions/", 
         json.dumps(
             {"petitions": petitions}, 
             default=to_serializable
