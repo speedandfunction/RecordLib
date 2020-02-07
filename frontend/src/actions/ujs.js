@@ -127,9 +127,9 @@ export function uploadUJSDocs() {
                 const recordsToSend = docketsToSend.concat(summariesToSend)
                 api.uploadUJSDocs(recordsToSend).then(response => {
                         const data = response.data
-                        dispatch(uploadUJSDocsFinished())
                         dispatch(upsertSourceRecords(data))
                         dispatch(updateCRecord())
+                        dispatch(uploadUJSDocsFinished())
                 }).catch(err => {
                         console.log("error when integrating docs.")
                         console.log(err)

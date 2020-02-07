@@ -17,11 +17,11 @@ function EditAddress(props) {
             <div className="editLine">
                 <TextField 
                     label="Address line one"
-                    type="text" size="60" value={address.line_one} 
+                    type="text" size="medium" value={address.line_one} 
                     onChange={getPropertyModifier('address.line_one')}/>
             </div>
             <div className="editLine">
-                 <TextField type="text" size="60" 
+                 <TextField type="text" size="medium" 
                     label="Address line two"
                     value={address.city_state_zip} onChange={getPropertyModifier('address.city_state_zip')}/>
             </div>

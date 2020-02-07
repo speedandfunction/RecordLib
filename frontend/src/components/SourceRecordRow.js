@@ -24,6 +24,7 @@ function SourceRecordRow(props) {
             </TableCell>
             <TableCell align="left">{record.record_type}</TableCell>
             <TableCell align="left">{record.fetch_status}</TableCell>
+            <TableCell align="left">{record.parse_status}</TableCell>
         </TableRow>
     )
 }

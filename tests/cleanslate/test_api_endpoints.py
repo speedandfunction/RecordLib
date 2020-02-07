@@ -51,15 +51,19 @@ def test_integrate_sources_with_crecord(dclient, admin_user, example_crecord):
 
     doc_2_data = SourceRecordSerializer(doc_2).data
     #doc_2_data.pop("file") 
+    source_records = [doc_1_data, doc_2_data]
     data = {
         "crecord": CRecordSerializer(example_crecord).data, 
-        "source_records": [doc_1_data, doc_2_data]
+        "source_records": source_records
     }
 
     resp = dclient.put("/api/record/cases/", data = data)
     assert resp.status_code == 200
     assert "crecord" in resp.data
+    assert "source_records" in resp.data
+    assert len(resp.data["source_records"]) == len(source_records)
     try:
+
         CRecord.from_dict(resp.data["crecord"])
     except Exception as err:
         pytest.fail(err)

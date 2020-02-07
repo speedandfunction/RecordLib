@@ -75,6 +75,6 @@ def test_create_source_record(admin_user):
     rec_model.save()
     new_id = rec_model.id
     saved_model = SourceRecord.objects.get(id=new_id)
-    saved_model.caption == "Comm v. Smith"
-    saved_model.fetch_status == SourceRecord.Statuses.NOT_FETCHED
-    saved_model.file is None
+    assert saved_model.caption == "Comm. v. Smith"
+    assert saved_model.fetch_status == SourceRecord.FetchStatuses.NOT_FETCHED
+    assert saved_model.parse_status == SourceRecord.ParseStatuses.UNKNOWN

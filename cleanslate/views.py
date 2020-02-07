@@ -107,6 +107,10 @@ class IntegrateCRecordWithSources(APIView):
         Parse the SourceRecords, and incorporate the information that the SourceRecords
         contain into the CRecord.
 
+        Two api endpoints of the Django app interact with RecordLib. This one 
+        accepts a serialzed crecord and a list of sourcerecords. It attempts 
+        to parse each source_record, and then integrate the sourcerecords into the crecord. 
+
         TODO IntegrateCRecordWithSources should communicate failures better.
 
         """
@@ -115,24 +119,45 @@ class IntegrateCRecordWithSources(APIView):
             if serializer.is_valid():
                 nonfatal_errors = []
                 crecord = CRecord.from_dict(serializer.validated_data["crecord"])
+                source_records = []
                 for source_record_data in serializer.validated_data["source_records"]:
-                    source_record = SourceRecord.objects.get(id=source_record_data["id"])
+                    try: 
+                        source_records.append(SourceRecord.objects.get(id=source_record_data["id"]))
+                    except:
+                        pass
+
+                for source_record in source_records:
                     if source_record.record_type == SourceRecord.RecTypes.SUMMARY_PDF:
                         try:
                             summary = parse_pdf(source_record.file.path)
+                            source_record.parse_status = SourceRecord.ParseStatuses.SUCCESS
+                            source_record.save()
                             crecord.add_summary(summary, case_merge_strategy="overwrite_old", override_person=True)
                         except:
+                            source_record.parse_status = SourceRecord.ParseStatuses.FAILURE
+                            source_record.save()
                             nonfatal_errors.append(f"Could not parse {source_record.docket_num} ({source_record.record_type})")
                     elif source_record.record_type == SourceRecord.RecTypes.DOCKET_PDF:
                         try:
                             docket, errs = Docket.from_pdf(source_record.file.path)
+                            source_record.parse_status = SourceRecord.ParseStatuses.SUCCESS
+                            source_record.docket_num = docket._case.docket_number
+                            source_record.save()
                             crecord.add_docket(docket)
                         except:
+                            source_record.parse_status = SourceRecord.ParseStatuses.FAILURE
+                            source_record.save()
                             nonfatal_errors.append(f"Could not parse {source_record.docket_num} ({source_record.record_type})")
                     else:
+                        source_record.parse_status = SourceRecord.ParseStatuses.FAILURE
+                        source_record.save()
                         logger.error(f"Cannot parse a source record with type {source_record.record_type}")
                         nonfatal_errors.append(f"Cannot parse a source record with type {source_record.record_type}")
-                return Response({'crecord': CRecordSerializer(crecord).data, 'errors': nonfatal_errors}, status=status.HTTP_200_OK) 
+                return Response({
+                    'crecord': CRecordSerializer(crecord).data, 
+                    'source_records': SourceRecordSerializer(source_records, many=True).data,
+                    'errors': nonfatal_errors
+                    }, status=status.HTTP_200_OK) 
             else:
                 return Response({
                     "errors": serializer.errors

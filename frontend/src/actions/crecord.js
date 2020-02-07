@@ -1,7 +1,7 @@
 import * as api from "../api"
 import { normalizeCRecord, denormalizeCRecord, CRECORD_ID, normalizeAnalysis, denormalizeSourceRecords } from "../normalize"
 import { addOrReplaceApplicant } from "./applicant"
-
+import { upsertSourceRecords } from "./sourceRecords"
 export const UPDATE_CRECORD = "UPDATE_CRECORD"
 export const UPDATE_CRECORD_SUCCEEDED = "UPDATE_CRECORD_SUCCEEDED"
 export const FETCH_CRECORD_SUCCEEDED = "FETCH_CRECORD_SUCCEEDED"
@@ -99,6 +99,8 @@ export function updateCRecord() {
             console.log(response.data)
             dispatch(updateCRecordSucceeded(response.data.crecord))
             dispatch(addOrReplaceApplicant(response.data.crecord.person))
+            console.log("upserting source records after calling PUT /cases")
+            dispatch(upsertSourceRecords({source_records: response.data.source_records}))
         }).catch(err => {
             console.log("error sending crecord and sourcerecords to server.")
             console.log(err)

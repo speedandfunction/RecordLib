@@ -103,6 +103,7 @@ function SourceRecords(props) {
                                 <TableCell>URL</TableCell>
                                 <TableCell>Record Type</TableCell>
                                 <TableCell>Fetch Status</TableCell>
+                                <TableCell>Parse Status</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>

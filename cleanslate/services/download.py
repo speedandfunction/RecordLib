@@ -20,6 +20,6 @@ def source_records(records: List[SourceRecord]) -> None:
             resp = requests.get(rec.url, headers={"User-Agent": "ExpungmentGeneratorTesting"})
             if resp.status_code == 200:
                 rec.file.save(f"{rec.id}.pdf", ContentFile(resp.content))
-                rec.fetch_status = SourceRecord.Statuses.FETCHED
+                rec.fetch_status = SourceRecord.FetchStatuses.FETCHED
             else:
-                rec.fetch_status = SourceRecord.Statuses.FETCH_FAILED
+                rec.fetch_status = SourceRecord.FetchStatuses.FETCH_FAILED

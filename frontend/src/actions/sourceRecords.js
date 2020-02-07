@@ -15,12 +15,13 @@
 export const UPSERT_SOURCE_RECORDS = "UPSERT_SOURCE_RECORDS"
 
 
-export function upsertSourceRecords(source_records) {
-    /**
-     * Insert or update source records 
-     */
+/**
+ * Insert or update source records 
+ */
+export function upsertSourceRecords(sourceRecords) {
+        console.log("action for upsertSourceRecords")
         return({
-                type: UPSERT_SOURCE_RECORDS,
-                payload: source_records
+            type: UPSERT_SOURCE_RECORDS,
+            payload: sourceRecords
         })
 }

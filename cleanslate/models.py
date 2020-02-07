@@ -102,6 +102,9 @@ class SourceRecordFileInfo:
     fetch_status: str = ""
 
 def source_record_info(filename: str):
+    """
+    TODO what is this method for?
+    """
     file_info = SourceRecordFileInfo()
     if re.search("pdf$", filename, re.IGNORECASE):
         if re.search("summary", filename, re.IGNORECASE):
@@ -114,7 +117,7 @@ def source_record_info(filename: str):
         elif re.search("MD", filename):
             file_info.court = SourceRecord.Courts.MDJ
 
-        file_info.fetch_status = SourceRecord.Statuses.FETCHED
+        file_info.fetch_status = SourceRecord.FetchStatuses.FETCHED
         return file_info
     else:
         return None
@@ -164,7 +167,7 @@ class SourceRecord(models.Model):
             ("DOCKET_PDF", "DOCKET_PDF"),
         ]
 
-    class Statuses:
+    class FetchStatuses:
         """
         Documents have to be fetched and saved locally. 
         Has a particular document been fetched?
@@ -178,6 +181,19 @@ class SourceRecord(models.Model):
             ("FETCHING", "FETCHING"),
             ("FETCHED", "FETCHED"),
             ("FETCH_FAILED", "FETCH_FAILED"),
+        ]
+
+    class ParseStatuses:
+        """
+        Track whether the source record could be successfully parsed or not.
+        """
+        UNKNOWN = "UNKNOWN"
+        SUCCESS = "SUCESSFULLY_PARSED"
+        FAILURE= "PARSE_FAILED"
+        __choices__ = [
+            ("UNKNOWN", "UNKNOWN"),
+            ("SUCCESSFULLY_PARSED", "SUCCESSFULLY_PARSED"),
+            ("PARSE_FAILED", "PARSE_FAILED"),
         ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -200,10 +216,16 @@ class SourceRecord(models.Model):
         
     fetch_status = models.CharField(
         max_length=100,
-        choices=Statuses.__choices__,
-        default=Statuses.NOT_FETCHED,
+        choices=FetchStatuses.__choices__,
+        default=FetchStatuses.NOT_FETCHED,
     )
     
+    parse_status = models.CharField(
+        max_length=100,
+        choices=ParseStatuses.__choices__,
+        default=ParseStatuses.UNKNOWN,
+    )
+
     file = models.FileField(null=True)
 
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
