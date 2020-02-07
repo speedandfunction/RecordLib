@@ -4,10 +4,9 @@ import Navbar from "./components/Navbar";
 import About from "./components/About";
 import UserProfile from "./components/UserProfile";
 import NotFound from "./components/NotFound";
-import PetitionProcess from "./components/PetitionProcess"
 import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-dom";
 import GettingStarted from "./components/GettingStarted";
-import RecordUploader from "./components/RecordUploader";
+import SourceRecords from "./components/SourceRecords";
 import RecordEdit from "./components/RecordEdit";
 import DownloadPetitions from "./components/DownloadPetitions";
 import Analysis from "./components/Analysis";
@@ -29,7 +28,7 @@ function App() {
                         <GettingStarted/>
                     </Route>
                     <Route path="/sourcerecords">
-                        <RecordUploader/>
+                        <SourceRecords/>
                     </Route>
                     <Route path="/criminalrecord">
                         <RecordEdit/>
@@ -51,9 +50,6 @@ function App() {
                     </Route>
                 </Switch>
             </Router>
-
-
-
         </React.Fragment>
     </main>);
 };
