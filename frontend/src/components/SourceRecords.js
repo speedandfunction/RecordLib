@@ -11,6 +11,7 @@ import Typography from "@material-ui/core/Typography";
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
+import CircularProgress from "@material-ui/core/CircularProgress";
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import { uploadRecords } from "../actions/localFiles";
@@ -59,13 +60,16 @@ function FileList(props) {
 }
 
 
-// Component to select files and dispatch api call to upload them.
-function RecordUploader(props) {    
+/**
+ * 
+ *   Component to select files and dispatch api call to upload them.
+ * */
+function SourceRecords(props) {    
     const classes=useStyles()
 
     const [selectedFiles, setSelectedFiles] = useState([]);
 
-    const { uploadRecords, sourceRecords } = props;
+    const { uploadRecords, isUploadPending, sourceRecords } = props;
 
     const onChangeHandler = event => {
         setSelectedFiles([...event.target.files]);
@@ -86,6 +90,8 @@ function RecordUploader(props) {
                     Documents, such as docket sheets, that are already used to compile the current criminal record.
                 </Typography>    
                 { 
+                    isUploadPending ?
+                    <CircularProgress/> :
                     sourceRecords.allIds.length === 0? 
                     <Typography>No records processed yet.</Typography> :
                     <Table aria-label="processed source records">
@@ -139,9 +145,10 @@ function mapDispatchToProps(dispatch) {
 
 function mapStateToProps(state) {
     return {
-        sourceRecords: state.sourceRecords
+        sourceRecords: state.sourceRecords,
+        isUploadPending: state.ujsSearchResults.uploadUJSDocs.pending,
     }
 }
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(RecordUploader)
+export default connect(mapStateToProps, mapDispatchToProps)(SourceRecords)

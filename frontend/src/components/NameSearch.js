@@ -47,18 +47,31 @@ function NameSearch(props) {
                         onClick={searchClickHandler}> Search UJS </Button>
                 </Grid>
                 <Grid item xs={2}>
-                    <Button 
+                    <Button
                         variant="contained"
                         color="primary"
                         disabled={!anySearchedCasesSelected}
-                        onClick={uploadUJSDocsClickHandler("/criminalrecord")}> Process selected cases, and review results </Button>
+                        onClick={uploadUJSDocsClickHandler("/sourcerecords")}>
+                            Process selected and review or upload additional.
+                    </Button>
                 </Grid>
                 <Grid item xs={2}>
                     <Button 
                         variant="contained"
                         color="primary"
                         disabled={!anySearchedCasesSelected}
-                        onClick={uploadUJSDocsClickHandler("/petitions")}> Process selected cases, and download petitions right away </Button>
+                        onClick={uploadUJSDocsClickHandler("/criminalrecord")}> 
+                            Process selected and review applicant's full record.
+                    </Button>
+                </Grid>
+                <Grid item xs={2}>
+                    <Button 
+                        variant="contained"
+                        color="primary"
+                        disabled={!anySearchedCasesSelected}
+                        onClick={uploadUJSDocsClickHandler("/petitions")}> 
+                            Process selected cases and download petitions.
+                    </Button>
                 </Grid>
             </Grid>
             <Grid container direction="row" alignItems="center" alignContent="center" justify="space-around">
