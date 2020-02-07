@@ -18,7 +18,7 @@ function SourceRecordRow(props) {
             <TableCell align="left">
                 {
                     record.url.length > 0 ?
-                        <Link to={record.url}>Link</Link> :
+                        <Link href={record.url}>Link</Link> :
                         record.url 
                 }
             </TableCell>
