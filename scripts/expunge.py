@@ -35,7 +35,7 @@ def dir(directory, archive, expungement_template, sealing_template, atty_name, a
     files = [os.path.join(directory, f) for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
     summaries = []
     dockets = []
-    atty = Attorney(name=atty_name, organization=atty_org, organization_address=atty_org_addr, organization_phone=atty_org_phone, bar_id=atty_bar_id)
+    atty = Attorney(full_name=atty_name, organization=atty_org, organization_address=atty_org_addr, organization_phone=atty_org_phone, bar_id=atty_bar_id)
     for f in files:
         print(f"  Processing {f}")
         try:

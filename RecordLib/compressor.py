@@ -6,6 +6,7 @@ from RecordLib.petitions import Petition
 from docxtpl import DocxTemplate
 from contextlib import contextmanager
 import os 
+import tempfile
 import string
 
 def random_temp_directory() -> str:
@@ -28,7 +29,8 @@ class Compressor:
         """
 
         if tempdir is None:
-            tempdir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tmp")
+            self.tempdir_object = tempfile.TemporaryDirectory()
+            tempdir = self.tempdir_object.name
         while True:
             # Make sure the new directory we're creating to temporarily 
             # store files does not exist.
