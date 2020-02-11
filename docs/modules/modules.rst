@@ -10,7 +10,6 @@ The Code
    RecordLib.rst
    backend.rst
    cleanslate.rst
-   ujs.rst
    frontend.rst
    scripts.rst 
 

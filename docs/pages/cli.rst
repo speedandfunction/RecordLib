@@ -96,6 +96,7 @@ in the target directory relate to one person.
 For example, this command creates an archive of petions generated from processing all the files in the `tests/data/summaries` directory. 
 
 .. code-block:: bash
+
     expunge dir --directory tests/data/summaries/ --archive expungements.zip -et tests/templates/790ExpungementTemplate_usingpythonvars.docx -st tests/templates/791SealingTemplate.docx
 
 

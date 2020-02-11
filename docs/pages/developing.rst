@@ -21,7 +21,7 @@ Clone the repository to your development computer.
 
 .. code-block: bash 
 
-    git clone https://github.com/clsphila/RecordLib`
+    git clone https://github.com/clsphila/RecordLib
 
 Set up environment variables. Copy the example env file and change the secrets. 
 

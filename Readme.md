@@ -31,29 +31,29 @@ Ideally, the expungement rules that get applied will also be written in a clear 
 There are five kinds of objects involved in this framework.
 
 
-1. Criminal Records raw inputs - these are things like a pdf of a docket or a web form that asks a user about criminal record information.
+1. Criminal Records raw inputs - these are things like a pdf of a docket or data from a web form that asks a user about criminal record information.
 2. A Criminal Record - the authoritative representation of what a person's criminal record is. Its made by compiling raw inputs.
 3. Expungement/Sealing Rules - functions that take a Record and return an analysis of how a specific expungement or sealing rule applies to the record. What charges or cases does a specific rule allow to be sealed/expunged?
-4. Analysis - An object that encapsulates how different rules apply to a record
+4. Analysis - An object that describes how different rules apply to a record
 5. Document Generator - a function that takes an analysis and information about a user (i.e., their attorney identification info) and produces a set of documents that includes drafts of petitions for a court.
 
 ## Web App interface
 
-Try out the [web app](/docs/pages/webapp.rst)
+Try out the [web app](/docs/pages/webapp.rst).
 
 ## Command line utilties
 
-Find out how to use Recordlib from the [command line](/docs/pages/cli.rst)
+Find out how to use Recordlib from the [command line](/docs/pages/cli.rst).
 
 ## Developing
 
 See installation for development [instructions](/docs/pages/developing.rst)
 
-#### Background reading
+## Background reading
 
 `Recordlib` parses text into structured forms, and it relies heavily on "Context Free Grammars" and a "Packrat parser" to do that. Read more about [grammars and parsing](docs/pages/grammars.rst) 
 
-#### Testing
+## Testing
 
 Read about testing [here](/docs/pages/testing.rst)
 

@@ -78,14 +78,6 @@ RecordLib.decision module
    :undoc-members:
    :show-inheritance:
 
-RecordLib.guess\_grade module
------------------------------
-
-.. automodule:: RecordLib.guess_grade
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 RecordLib.number\_generator module
 ----------------------------------
 

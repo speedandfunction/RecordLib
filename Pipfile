@@ -11,7 +11,7 @@ click = "==7.0"
 pytest-django = "==3.7.0"
 pytest-pythonpath = "==0.7.3"
 pyyaml = "==5.1.2"
-sphinx = "*"
+sphinx = "==2.4.1"
 sphinx-js = "*"
 recordlib = {path = ".",editable = true}
 
