@@ -19,7 +19,7 @@ Prerequisites:
 
 Clone the repository to your development computer. 
 
-.. code-block: bash 
+.. code-block:: bash 
 
     git clone https://github.com/clsphila/RecordLib
 
@@ -29,7 +29,7 @@ Set up environment variables. Copy the example env file and change the secrets.
 Startup docker-compose. Use the `-dev` compose file so that you can update code and see your changes
 reflected in the running app.
 
-.. code-block: bash
+.. code-block:: bash
 
     make docker-dev-up
 
@@ -45,14 +45,14 @@ This is a little more difficult.
 
 Clone the repository to your development computer. 
 
-.. code-block: bash 
+.. code-block:: bash 
 
     git clone https://github.com/clsphila/RecordLib`
 
 Set up environment variables. Copy the example env file and change the secrets. 
 
 
-.. code-block: bash
+.. code-block:: bash
 
     cp .env.example .env
 
@@ -62,12 +62,12 @@ most Linux distributions.  For other operating systems, find it here:
 http://www.xpdfreader.com/download.html.  Download the command line tools and 
 place pdftotext somewhere in your PATH.
 
-.. code-block: bash
+.. code-block:: bash
 
     # for debian
     apt install xpdf
 
-**Setup postgres.** Instructions for this are available ,, _here: https://www.postgresql.org/download/
+**Setup postgres.** Instructions for this are available `here: <https://www.postgresql.org/download/>`
 
 You also need to set up a database and user for the app, and set the relevant environment variables.
 

@@ -22,9 +22,11 @@ The project is also still in development.
    :maxdepth: 1
    :caption: Contents:
 
+   pages/webapp.rst
+   pages/cli.rst
    pages/developing.rst
    pages/testing.rst
-   pages/cli.rst
+   pages/grammars.rst
    modules/modules.rst
    pages/styleguide.rst
 

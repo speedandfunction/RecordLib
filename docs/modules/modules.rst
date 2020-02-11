@@ -1,6 +1,6 @@
 
 ********
-The Code
+Modules
 ********
 
 .. toctree::
