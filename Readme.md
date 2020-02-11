@@ -8,8 +8,11 @@ Right now this is only an experimental project for trying out some ideas and new
 ```
 git clone https://github.com/clsphila/RecordLib
 cd RecordLib
+yarn install
 make docker-up
 ```
+
+Default admin credentials will appear in the log, at the end of the `migration` service's messages.
 
 ## Goals
 

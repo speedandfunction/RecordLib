@@ -13,6 +13,10 @@ build:
 # Start the web app as a docker compose service. 
 .PHONY: docker-up 
 docker-up:
+ifeq ("","$(wildcard .env)")
+	# local environment needs CONTAINER_REGISTRY and CONTAINER_TAG vars.
+	cp .env.example .env
+endif
 ifeq ("","$(wildcard ./deployment/.docker.env)")
 	echo "Copying file"
 	cp .env.example ./deployment/.docker.env
@@ -28,6 +32,10 @@ endif
 # quickly.
 .PHONY: docker-dev-up
 docker-dev-up:
+ifeq ("","$(wildcard .env)")
+	# local environment needs CONTAINER_REGISTRY and CONTAINER_TAG vars.
+	cp .env.example .env
+endif
 ifeq ("","$(wildcard ./deployment/.docker.env)")
 	cp .env.example ./deployment/.docker.env
 endif
