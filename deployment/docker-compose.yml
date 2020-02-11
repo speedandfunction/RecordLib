@@ -10,6 +10,8 @@ services:
       - "3000:80"
     depends_on:
       - django_web
+    env_file:
+      - .docker.env
     volumes: 
       - type: volume
         source: staticfiles
@@ -34,12 +36,13 @@ services:
     networks:
       recordlib-net: 
     env_file:
-      - .production.env
+      - .docker.env
+    environment:
+      - PSQL_HOST=pg_db
     depends_on:
       - migration
       - pg_db
     command: bash -c "python manage.py collectstatic --noinput && gunicorn backend.wsgi:application --bind 0.0.0.0:8000 --workers 4"
-    #command: gunicorn backend.wsgi:application --bind 0.0.0.0:8000 --workers 4
   migration: 
     build:
       context: ../
@@ -47,10 +50,13 @@ services:
     image: "${CONTAINER_REGISTRY}/recordlibdjango:${CONTAINER_TAG}"
     restart: on-failure 
     env_file: 
-      - .production.env
+      - .docker.env
+    environment:
+      - PSQL_HOST=pg_db
     networks:
       recordlib-net:
-    command: python manage.py migrate --noinput
+    #command: python manage.py migrate --noinput
+    command: bash -c "python manage.py migrate --noinput && python manage.py init_admin"
     depends_on:
       - pg_db
   pg_db:
@@ -60,7 +66,7 @@ services:
     image: "${CONTAINER_REGISTRY}/recordlibdb:${CONTAINER_TAG}"
     restart: always
     env_file: 
-      - .production.env
+      - .docker.env
     networks:
       recordlib-net:
     expose:

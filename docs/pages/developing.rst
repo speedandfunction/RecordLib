@@ -9,6 +9,14 @@ set up takes just a few steps.
 Quickstart with Docker-Compose
 ==============================
 
+Prerequisites:
+
+- git
+- yarn
+- docker
+- docker-compose
+
+
 Clone the repository to your development computer. 
 
 .. code-block: bash 
@@ -18,16 +26,14 @@ Clone the repository to your development computer.
 Set up environment variables. Copy the example env file and change the secrets. 
 
 
-.. code-block: bash
-
-    cp .env.example .env.production
-
 Startup docker-compose. Use the `-dev` compose file so that you can update code and see your changes
 reflected in the running app.
 
 .. code-block: bash
 
-    docker-compose -f deployment/docker-compose-dev.yml up
+    make docker-dev-up
+
+Credentials for the default admin will show up in the compose logs. 
 
 Visit `localhost:3000` to see the site.
 
@@ -94,5 +100,12 @@ Alternatively, you can run DocketScraperAPI in one terminal and run the django a
 same time with `python dev.py` from RecordLib's root. Using `dev.py` is marginally more convenient, but
 logs can be harder to follow and debugging doesn't work well because stdout for both yarn and django are 
 mashed together. 
+
+
+Additional Notes
+====================
+
+
+Statutes contain a lot of section symbols: §. To make this symbol using vim or vim inspired keybindings, use CTL-K SE. That's Control K, then the uppercase letters S and E.
 
 

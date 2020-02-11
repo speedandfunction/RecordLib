@@ -10,13 +10,18 @@ WORKDIR /srv
 
 COPY ./backend /srv/backend
 COPY ./cleanslate /srv/cleanslate
+COPY ./grades /srv/grades
 COPY ./RecordLib /srv/RecordLib
 COPY ./templates /srv/templates
 COPY ./frontend/bundles /srv/frontend/bundles
 COPY ./webpack-stats.json /srv
 COPY ./manage.py /srv
 
+# n.b. this re-installs the django-docketsearch app, 
+# because it is installed as an editable module
+# since its installed from github, not pypi.
 RUN pip install pipenv && pipenv install --system && apt update && \
+    pip install /srv/src/django-docketsearch && \ 
     apt install -y poppler-utils && \
     useradd -ms /bin/bash gunicorn
     #chmod o+x /entrypoint.sh

@@ -1,6 +1,6 @@
 FROM postgres:11
 
-
+# Run an init script to create the web app's database user
 COPY init-user-db.sh /docker-entrypoint-initdb.d/
 
 # Expose the PostgreSQL port

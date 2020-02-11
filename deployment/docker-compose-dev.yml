@@ -19,6 +19,8 @@ services:
         source: protectedfiles
         target: /protected
         read_only: true
+    env_file:
+      - .docker.env
     networks:
       recordlib-net:
   django_web:
@@ -32,15 +34,17 @@ services:
       - type: volume
         source: protectedfiles
         target: /protected
+      - "staticfiles:/srv/static"
       - type: bind
         source: ../
         target: /srv
     networks:
       recordlib-net: 
     env_file:
-      - .production.env
+      - .docker.env
     environment:
       - DEBUG=TRUE
+      - PSQL_HOST=pg_db
     depends_on:
       - migration
       - pg_db
@@ -50,11 +54,14 @@ services:
       context: ../
       dockerfile: deployment/DjangoDockerfile
     image: natev/recordlibdjango
-    env_file: 
-      - .production.env
+    restart: on-failure
     networks:
       recordlib-net:
-    command: python manage.py migrate --noinput
+    command: bash -c "python manage.py migrate --noinput && python manage.py init_admin"
+    env_file: 
+      - .docker.env
+    environment: 
+      - PSQL_HOST=pg_db
     depends_on:
       - pg_db
   pg_db:
@@ -63,14 +70,14 @@ services:
       dockerfile: PG_Dockerfile
     image: natev/recordlibdb
     restart: always
-    env_file: 
-      - .production.env
     networks:
       recordlib-net:
     expose:
       - "5432"
     volumes:
       - dbdata:/var/lib/postgresql/data
+    env_file:
+      - .docker.env
 networks:
   recordlib-net: 
 volumes:

@@ -3,6 +3,8 @@
 # Create the database and user that the django app will use.
 set -e
 
+# TODO dbname and db user are hardcoded to recordlib. these should prob be configurable.
+
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" --set=rlpass="$RECORDLIB_DB_PW" <<-EOSQL
     CREATE USER recordlib;
     CREATE DATABASE recordlib;

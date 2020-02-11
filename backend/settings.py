@@ -64,8 +64,6 @@ INSTALLED_APPS = [
     'ujs_search',
 ]
 
-# Setting for ujs app, url for the docket scraper api.
-DOCKET_SCRAPER_URL = os.environ["DOCKET_SCRAPER_URL"]
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -111,14 +109,6 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/2.2/ref/settings/#databases
-
-#DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.sqlite3',
-#        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#    }
-#}
 CSP_EXCLUDE_URL_PREFIXES = ("/admin",)
 
 DATABASES = {
@@ -169,6 +159,21 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-#CORS_ORIGIN_WHITELIST = [
-#    'http://localhost:3000',
-#]
+LOGGING = {
+    'version':1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+        }
+    },
+    'loggers': {
+        '': {
+            'handlers': ['console'],
+            'propogate': True,
+            'level': 'INFO',
+        }
+    }
+}
+
