@@ -12,7 +12,7 @@ from RecordLib.crecord import Case
 from RecordLib.crecord import Charge, Sentence, SentenceLength
 from RecordLib.crecord import Person
 from RecordLib.sourcerecords.customnodevisitorfactory import CustomVisitorFactory
-from RecordLib.sourcerecords.grammars.summary import (
+from .grammars import (
     summary_page_terminals,
     summary_page_nonterminals,
     summary_body_terminals,

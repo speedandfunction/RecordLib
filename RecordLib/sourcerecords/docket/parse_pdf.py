@@ -2,7 +2,7 @@ from typing import Union, BinaryIO, Tuple, Callable, List, Optional
 from RecordLib.crecord import Charge, Sentence, SentenceLength
 from RecordLib.crecord import Person
 from RecordLib.crecord import Case
-from RecordLib.sourcerecords.grammars.docket import (
+from .grammars import (
     docket_sections, docket_sections_nonterminals, common_terminals, 
     section_grammars)
 from RecordLib.sourcerecords.customnodevisitorfactory import CustomVisitorFactory
