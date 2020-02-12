@@ -8,7 +8,7 @@ import logging
 def test_pdf_factory_one():
     try:
         filename = os.listdir("tests/data/dockets")[0]
-        dk, _ = Docket.from_pdf(os.path.join("tests/data/dockets", filename), tempdir="tests/data/tmp")
+        dk, _ = Docket.from_pdf(os.path.join("tests/data/dockets", filename))
     except:
         pytest.fail("Cannot create Docket object")
     assert isinstance(dk._case, Case)
@@ -36,7 +36,7 @@ def test_pdf_factory_bulk(caplog):
     for f in files:
         try:
             logging.info(f"Parsing {f}")
-            _, errs = Docket.from_pdf(os.path.join("tests/data/dockets", f), tempdir="tests/data/tmp")
+            _, errs = Docket.from_pdf(os.path.join("tests/data/dockets", f))
             if len(errs) > 0:
                 error_list = error_list + [(f, errs)]
             successes += 1

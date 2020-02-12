@@ -369,7 +369,7 @@ def parse_pdf(pdf: Union[BinaryIO, str], tempdir = None) -> Tuple[Person, Case]:
     # a list of strings
     errors = []
     # pdf to raw text
-    txt = get_text_from_pdf(pdf, tempdir=tempdir)
+    txt = get_text_from_pdf(pdf)
     # text to xml sections (see DocketParse.sectionize). This handles page breaks.
     pages_tree = etree.fromstring(text_to_pages(txt))
     sections_tree = sections_from_pages(pages_tree)

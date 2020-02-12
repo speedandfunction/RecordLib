@@ -2,14 +2,13 @@ from typing import Union, BinaryIO
 import os
 import tempfile
 
-def get_text_from_pdf(pdf: Union[BinaryIO, str], tempdir = None) -> str:
+def get_text_from_pdf(pdf: Union[BinaryIO, str]) -> str:
     """
     Function which extracts the text from a pdf document.
     Args:
         pdf:  Either a file object or the location of a pdf document.
         tempdir:  Place to store intermediate files.
 
-    TODO: remove tempdir arg.
 
     Returns:
         The extracted text of the pdf.

@@ -5,12 +5,9 @@ from rest_framework import permissions
 from rest_framework import status
 import logging
 from RecordLib.crecord import CRecord
-from RecordLib.sourcerecords import Docket
+from RecordLib.sourcerecords import Docket, Summary
 from RecordLib.analysis import Analysis
-from RecordLib.sourcerecords.summary.pdf import parse_pdf
 from RecordLib.utilities.serializers import to_serializable
-from RecordLib.sourcerecords import Summary
-from RecordLib.analysis import Analysis
 from RecordLib.analysis.ruledefs import (
     expunge_summary_convictions,
     expunge_nonconvictions,
@@ -129,7 +126,7 @@ class IntegrateCRecordWithSources(APIView):
                 for source_record in source_records:
                     if source_record.record_type == SourceRecord.RecTypes.SUMMARY_PDF:
                         try:
-                            summary = parse_pdf(source_record.file.path)
+                            summary = Summary.from_pdf(source_record.file.path)
                             source_record.parse_status = SourceRecord.ParseStatuses.SUCCESS
                             source_record.save()
                             crecord.add_summary(summary, case_merge_strategy="overwrite_old", override_person=True)
@@ -252,7 +249,7 @@ class RenderDocumentsView(APIView):
             else:
                 raise ValueError
         except Exception as e:
-            print(e)
+            logger.error(str(e))
             return Response("Something went wrong", status=status.HTTP_400_BAD_REQUEST)
 
 
