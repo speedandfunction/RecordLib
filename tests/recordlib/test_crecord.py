@@ -1,5 +1,6 @@
 from RecordLib.crecord import CRecord
 from RecordLib.crecord import Person
+from RecordLib.sourcerecords import SourceRecord
 import pytest
 from datetime import date
 from dateutil.relativedelta import relativedelta
@@ -73,6 +74,16 @@ def test_add_sourcerecord(example_sourcerecord):
     rec.add_sourcerecord(example_sourcerecord, override_person=True)
     assert len(rec.cases) == len(example_sourcerecord.cases) 
     assert rec.person.first_name != "dummy"
+
+
+def test_add_empty_sourcerecord():
+    rec = CRecord(Person("dummy", "name", None))
+    sr = SourceRecord("anysource", parser=None)
+    rec.add_sourcerecord(sr, override_person=True)
+    assert len(rec.cases) == 0 
+    assert rec.person.first_name == "dummy"
+
+
 
 def test_add_docket(example_docket):
     rec = CRecord(Person("dummy", "name", None))

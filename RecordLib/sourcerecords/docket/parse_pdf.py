@@ -405,4 +405,4 @@ def parse_pdf(pdf: Union[BinaryIO, str], tempdir = None) -> Tuple[Person, Case]:
     # i.e. defendant_name = section_tree.xpath("//caption/name")[0].text
     defendant = get_person(sections_tree)
     case = get_case(sections_tree)
-    return  defendant, case, errors
+    return  defendant, case, errors, sections_tree

@@ -1,6 +1,10 @@
-from typing import Any, Callable
+from typing import Any, Callable, Optional
 
-
+def null_parser(src):
+    """
+    A blank parser that returns the right shape of nothing for a sourcerecord.
+    """
+    return None, None, ["No parser used"], None
 
 class SourceRecord:
     """
@@ -10,7 +14,7 @@ class SourceRecord:
 
 
 
-    def __init__(self, src: Any, parser: Callable): 
+    def __init__(self, src: Any, parser: Optional[Callable] = None): 
         """
         Create a new SourceRecord with some data and a callable parser that can parse the source data.
 
@@ -35,9 +39,10 @@ class SourceRecord:
                 errors: parsing errors.
                 parsed_source: if the parser creates a syntax tree out of the source, for example.
         """
+        breakpoint()
         self.raw_source = src
-        self.parser = parser
-        person, cases, errors, parsed_source = parser(src)
+        self.parser = parser or null_parser
+        person, cases, errors, parsed_source = self.parser(src)
         self.person = person
         self.cases = cases
         self.errors = errors

@@ -26,6 +26,7 @@ from .serializers import (
 from .compressor import Compressor
 from .services import download
 from .models import SourceRecord
+from RecordLib.sourcerecords import SourceRecord as RLSourceRecord
 import json
 import os
 import os.path
@@ -124,32 +125,43 @@ class IntegrateCRecordWithSources(APIView):
                         pass
 
                 for source_record in source_records:
-                    if source_record.record_type == SourceRecord.RecTypes.SUMMARY_PDF:
-                        try:
-                            summary = Summary.from_pdf(source_record.file.path)
-                            source_record.parse_status = SourceRecord.ParseStatuses.SUCCESS
-                            source_record.save()
-                            crecord.add_summary(summary, case_merge_strategy="overwrite_old", override_person=True)
-                        except:
-                            source_record.parse_status = SourceRecord.ParseStatuses.FAILURE
-                            source_record.save()
-                            nonfatal_errors.append(f"Could not parse {source_record.docket_num} ({source_record.record_type})")
-                    elif source_record.record_type == SourceRecord.RecTypes.DOCKET_PDF:
-                        try:
-                            docket, errs = Docket.from_pdf(source_record.file.path)
-                            source_record.parse_status = SourceRecord.ParseStatuses.SUCCESS
-                            source_record.docket_num = docket._case.docket_number
-                            source_record.save()
-                            crecord.add_docket(docket)
-                        except:
-                            source_record.parse_status = SourceRecord.ParseStatuses.FAILURE
-                            source_record.save()
-                            nonfatal_errors.append(f"Could not parse {source_record.docket_num} ({source_record.record_type})")
-                    else:
+                    try:
+                        rlsource = RLSourceRecord(
+                            source_record.file.path, 
+                            parser=source_record.get_parser())
+                        source_record.parse_status = SourceRecord.ParseStatuses.SUCCESS
+                        crecord.add_sourcerecord(rlsource, case_merge_strategy="overwrite_old", override_person=True)
+                    except:
                         source_record.parse_status = SourceRecord.ParseStatuses.FAILURE
+                        nonfatal_errors.append(f"Could not parse {source_record.docket_num} ({source_record.record_type})")
+                    finally:
                         source_record.save()
-                        logger.error(f"Cannot parse a source record with type {source_record.record_type}")
-                        nonfatal_errors.append(f"Cannot parse a source record with type {source_record.record_type}")
+                    # if source_record.record_type == SourceRecord.RecTypes.SUMMARY_PDF:
+                    #     try:
+                    #         summary = Summary.from_pdf(source_record.file.path)
+                    #         source_record.parse_status = SourceRecord.ParseStatuses.SUCCESS
+                    #         source_record.save()
+                    #         crecord.add_summary(summary, case_merge_strategy="overwrite_old", override_person=True)
+                    #     except:
+                    #         source_record.parse_status = SourceRecord.ParseStatuses.FAILURE
+                    #         source_record.save()
+                    #         nonfatal_errors.append(f"Could not parse {source_record.docket_num} ({source_record.record_type})")
+                    # elif source_record.record_type == SourceRecord.RecTypes.DOCKET_PDF:
+                    #     try:
+                    #         docket, errs = Docket.from_pdf(source_record.file.path)
+                    #         source_record.parse_status = SourceRecord.ParseStatuses.SUCCESS
+                    #         source_record.docket_num = docket._case.docket_number
+                    #         source_record.save()
+                    #         crecord.add_docket(docket)
+                    #     except:
+                    #         source_record.parse_status = SourceRecord.ParseStatuses.FAILURE
+                    #         source_record.save()
+                    #         nonfatal_errors.append(f"Could not parse {source_record.docket_num} ({source_record.record_type})")
+                    # else:
+                    #     source_record.parse_status = SourceRecord.ParseStatuses.FAILURE
+                    #     source_record.save()
+                    #     logger.error(f"Cannot parse a source record with type {source_record.record_type}")
+                    #     nonfatal_errors.append(f"Cannot parse a source record with type {source_record.record_type}")
                 return Response({
                     'crecord': CRecordSerializer(crecord).data, 
                     'source_records': SourceRecordSerializer(source_records, many=True).data,

@@ -176,9 +176,13 @@ class CRecord:
             This updated CRecord object.
         """
         # Get D's name from the sourcerecord
-        if override_person or self.person is None:
+        if (override_person or self.person is None)and sourcerecord.person is not None:
             self.person = sourcerecord.person
         # Get the cases from the source record
+        if sourcerecord.cases is None:
+            # We're done. No modifications of self are necessary.
+            return self
+
         docket_nums = [c.docket_number for c in self.cases]
         for i, new_case in enumerate(sourcerecord.cases):
             if new_case.docket_number not in docket_nums:
