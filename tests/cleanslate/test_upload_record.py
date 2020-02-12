@@ -1,5 +1,5 @@
-from RecordLib.summary.pdf import parse_pdf
-from RecordLib.serializers import to_serializable
+from RecordLib.sourcerecords.summary.pdf import parse_pdf
+from RecordLib.utilities.serializers import to_serializable
 import os
 import json
 

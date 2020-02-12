@@ -1,24 +1,24 @@
 import click
 import logging
-from RecordLib.serializers import to_serializable
+from RecordLib.utilities.serializers import to_serializable
 from RecordLib.crecord import CRecord
-from RecordLib.summary import Summary
-from RecordLib.docket import Docket
+from RecordLib.sourcerecords.summary import Summary
+from RecordLib.sourcerecords.docket import Docket
 from RecordLib.analysis import Analysis
-from RecordLib.redis_helper import RedisHelper
-from RecordLib.ruledefs import (
+from RecordLib.utilities.redis_helper import RedisHelper
+from RecordLib.analysis.ruledefs import (
     expunge_summary_convictions,
     expunge_nonconvictions,
     expunge_deceased,
     expunge_over_70,
     seal_convictions,
 )
-from RecordLib.ruledefs.seal import (
+from RecordLib.analysis.ruledefs.sealing_rules import (
     no_f1_convictions,
     any_felony_convictions_n_years,
     more_than_x_convictions_y_grade_z_years,
 )
-from RecordLib.summary.pdf import parse_pdf as parse_pdf_summary
+from RecordLib.sourcerecords.summary.pdf import parse_pdf as parse_pdf_summary
 import pytest
 import json
 import glob

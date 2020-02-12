@@ -1,15 +1,14 @@
-
-********
-Modules
-********
+RecordLib
+=========
 
 .. toctree::
-   :maxdepth: 1 
-   :caption: Packages:
+   :maxdepth: 4
 
-   RecordLib.rst
-   backend.rst
-   cleanslate.rst
-   frontend.rst
-   scripts.rst 
-
+   RecordLib
+   backend
+   cleanslate
+   dev
+   grades
+   manage
+   scripts
+   setup

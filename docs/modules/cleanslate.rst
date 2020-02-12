@@ -7,6 +7,7 @@ Subpackages
 .. toctree::
 
    cleanslate.migrations
+   cleanslate.services
 
 Submodules
 ----------

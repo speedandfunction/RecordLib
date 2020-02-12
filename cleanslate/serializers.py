@@ -5,9 +5,9 @@ from django.contrib.auth.models import User
 from RecordLib.crecord import (
     CRecord
 )
-from RecordLib.case import Case
-from RecordLib.person import Person
-from RecordLib.common import (Charge, Sentence, SentenceLength)
+from RecordLib.crecord import Case
+from RecordLib.crecord import Person
+from RecordLib.crecord import (Charge, Sentence, SentenceLength)
 
 class UserSerializer(S.ModelSerializer):
     class Meta:

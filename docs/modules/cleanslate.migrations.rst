@@ -44,6 +44,22 @@ cleanslate.migrations.0005\_auto\_20191031\_1602 module
    :undoc-members:
    :show-inheritance:
 
+cleanslate.migrations.0006\_sourcerecord module
+-----------------------------------------------
+
+.. automodule:: cleanslate.migrations.0006_sourcerecord
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cleanslate.migrations.0007\_sourcerecord\_parse\_status module
+--------------------------------------------------------------
+
+.. automodule:: cleanslate.migrations.0007_sourcerecord_parse_status
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 
 Module contents
 ---------------

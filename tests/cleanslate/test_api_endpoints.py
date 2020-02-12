@@ -5,7 +5,7 @@ from RecordLib.crecord import CRecord
 from cleanslate.serializers import SourceRecordSerializer
 from cleanslate.serializers import CRecordSerializer
 from django.core.files import File
-from RecordLib.serializers import to_serializable
+from RecordLib.utilities.serializers import to_serializable
 
 def test_anonymous_cannot_get_userprofileview(dclient):
     resp = dclient.get('/api/record/profile/', follow=True)

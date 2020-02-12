@@ -1,5 +1,5 @@
 from RecordLib.analysis import Analysis
-from RecordLib.ruledefs import (
+from RecordLib.analysis.ruledefs import (
     expunge_over_70, expunge_summary_convictions
 )
 import pytest

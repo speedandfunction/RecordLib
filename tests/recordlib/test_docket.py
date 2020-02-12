@@ -1,6 +1,6 @@
-from RecordLib.docket import Docket
-from RecordLib.person import Person
-from RecordLib.case import Case
+from RecordLib.sourcerecords import Docket
+from RecordLib.crecord import Person
+from RecordLib.crecord import Case
 import pytest
 import os
 import logging

@@ -1,10 +1,10 @@
 from RecordLib.crecord import CRecord
-from RecordLib.person import Person
+from RecordLib.crecord import Person
 import pytest
 from datetime import date
 from dateutil.relativedelta import relativedelta
 import copy
-from RecordLib.serializers import to_serializable
+from RecordLib.utilities.serializers import to_serializable
 
 def test_init():
     dob = date(2010, 1,1)

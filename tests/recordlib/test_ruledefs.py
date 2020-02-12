@@ -1,11 +1,11 @@
 
 
-from RecordLib import ruledefs
-from RecordLib.ruledefs.seal import (
+from RecordLib.analysis import ruledefs
+from RecordLib.analysis.ruledefs.sealing_rules import (
     not_felony1, fines_and_costs_paid, is_misdemeanor_or_ungraded)
-from RecordLib.common import Sentence, SentenceLength
-from RecordLib.case import Case
-from RecordLib.serializers import to_serializable
+from RecordLib.crecord import Sentence, SentenceLength
+from RecordLib.crecord import Case
+from RecordLib.utilities.serializers import to_serializable
 from RecordLib.petitions import Expungement
 from datetime import date
 import pytest

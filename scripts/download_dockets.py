@@ -2,7 +2,7 @@ import click
 import logging
 import requests
 import os
-from RecordLib.number_generator import create_docket_numbers
+from RecordLib.utilities.number_generator import create_docket_numbers
 import pytest
 import csv
 

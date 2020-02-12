@@ -1,7 +1,7 @@
 import pytest
-from RecordLib.ruledefs.seal import Decision
+from RecordLib.analysis import Decision
 import json
-from RecordLib.serializers import to_serializable
+from RecordLib.utilities.serializers import to_serializable
 
 def test_decision_boolean():
     want_pizza = Decision(name="Do I want pizza?", value=True, reasoning="Pizza is good.")

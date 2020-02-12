@@ -1,6 +1,6 @@
 import click
-from RecordLib.docket import Docket
-from RecordLib.serializers import to_serializable
+from RecordLib.sourcerecords.docket import Docket
+from RecordLib.utilities.serializers import to_serializable
 import json
 
 @click.command()

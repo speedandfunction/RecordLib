@@ -1,7 +1,7 @@
-from RecordLib.summary.pdf import parse_pdf
+from RecordLib.sourcerecords.summary.pdf import parse_pdf
 from RecordLib.crecord import CRecord
-from RecordLib.person import Person
-from RecordLib.case import Case
+from RecordLib.crecord import Person
+from RecordLib.crecord import Case
 import pytest
 import os
 from datetime import date, timedelta

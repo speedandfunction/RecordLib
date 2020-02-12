@@ -1,14 +1,14 @@
 import pytest
-from RecordLib.case import Case
-from RecordLib.person import Person
-from RecordLib.common import Charge, Sentence, SentenceLength, Address
+from RecordLib.crecord import Case
+from RecordLib.crecord import Person
+from RecordLib.crecord import Charge, Sentence, SentenceLength, Address
 from RecordLib.crecord import CRecord
-from RecordLib.attorney import Attorney
-from RecordLib.summary.pdf import parse_pdf as parse_summary_pdf
+from RecordLib.crecord import Attorney
+from RecordLib.sourcerecords.summary.pdf import parse_pdf as parse_summary_pdf
 from RecordLib.petitions import Expungement
-from RecordLib.docket import Docket
+from RecordLib.sourcerecords import Docket
 from datetime import date
-from RecordLib.redis_helper import RedisHelper
+from RecordLib.utilities.redis_helper import RedisHelper
 import os
 #from django.test import Client 
 from rest_framework.test import APIClient

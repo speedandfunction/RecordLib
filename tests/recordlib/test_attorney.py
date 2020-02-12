@@ -1,5 +1,5 @@
-from RecordLib.attorney import Attorney
-from RecordLib.common import Address
+from RecordLib.crecord import Attorney
+from RecordLib.crecord import Address
 
 
 def test_create_attorney():

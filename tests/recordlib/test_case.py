@@ -1,9 +1,9 @@
-from RecordLib.case import Case
-from RecordLib.common import Charge
+from RecordLib.crecord import Case
+from RecordLib.crecord import Charge
 import pytest
 from datetime import date
 from dataclasses import asdict
-from RecordLib.serializers import to_serializable
+from RecordLib.utilities.serializers import to_serializable
 
 
 def test_case(example_sentence):

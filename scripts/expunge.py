@@ -3,13 +3,13 @@
 
 import click
 import os
-from RecordLib.summary.pdf import parse_pdf
-from RecordLib.docket.docket import Docket
+from RecordLib.sourcerecords.summary.pdf import parse_pdf
+from RecordLib.sourcerecords.docket.docket import Docket
 from RecordLib.crecord import CRecord
 from RecordLib.analysis import Analysis
-from RecordLib.ruledefs import * 
-from RecordLib.compressor import Compressor
-from RecordLib.attorney import Attorney
+from RecordLib.analysisruledefs import * 
+from RecordLib.petitions.compressor import Compressor
+from RecordLib.crecord import Attorney
 
 @click.group()
 def cli():

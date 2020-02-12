@@ -1,8 +1,8 @@
 import pytest
-from RecordLib.ruledefs.seal import *
+from RecordLib.analysis.ruledefs.sealing_rules import *
 from RecordLib.crecord import CRecord, Charge
 import json
-from RecordLib.serializers import to_serializable
+from RecordLib.utilities.serializers import to_serializable
 from datetime import date
 from RecordLib.petitions import Sealing, Petition
 

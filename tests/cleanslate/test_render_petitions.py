@@ -1,7 +1,7 @@
 import pytest
 from RecordLib.analysis import Analysis
-from RecordLib.serializers import to_serializable
-from RecordLib.ruledefs import expunge_nonconvictions
+from RecordLib.utilities.serializers import to_serializable
+from RecordLib.analysis.ruledefs import expunge_nonconvictions
 from cleanslate.models import ExpungementPetitionTemplate, SealingPetitionTemplate
 import json 
 from django.core.files import File

@@ -1,4 +1,4 @@
-from RecordLib.serializers import to_serializable
+from RecordLib.utilities.serializers import to_serializable
 
 
 def test_case_serialize(example_case):

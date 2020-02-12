@@ -1,7 +1,7 @@
-from RecordLib.person import Person
-from RecordLib.common import Address
+from RecordLib.crecord import Person
+from RecordLib.crecord import Address
 from datetime import date
-from RecordLib.serializers import to_serializable
+from RecordLib.utilities.serializers import to_serializable
 from cleanslate.serializers import PersonSerializer
 import json
 

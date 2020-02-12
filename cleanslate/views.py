@@ -5,13 +5,13 @@ from rest_framework import permissions
 from rest_framework import status
 import logging
 from RecordLib.crecord import CRecord
-from RecordLib.docket import Docket
+from RecordLib.sourcerecords import Docket
 from RecordLib.analysis import Analysis
-from RecordLib.summary.pdf import parse_pdf
-from RecordLib.serializers import to_serializable
-from RecordLib.summary import Summary
+from RecordLib.sourcerecords.summary.pdf import parse_pdf
+from RecordLib.utilities.serializers import to_serializable
+from RecordLib.sourcerecords import Summary
 from RecordLib.analysis import Analysis
-from RecordLib.ruledefs import (
+from RecordLib.analysis.ruledefs import (
     expunge_summary_convictions,
     expunge_nonconvictions,
     expunge_deceased,
