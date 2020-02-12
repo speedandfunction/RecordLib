@@ -1,0 +1,81 @@
+version: '3.7'
+services:
+  frontend: 
+    build: 
+      context: .
+      dockerfile: FrontendDockerfile
+    image: "${CONTAINER_REGISTRY}/recordlibfrontend:${CONTAINER_TAG}"
+    restart: always
+    ports: 
+      - "3000:80"
+    depends_on:
+      - django_web
+    env_file:
+      - .docker.env
+    volumes: 
+      - type: volume
+        source: staticfiles
+        target: /srv/static
+        read_only: true
+      - type: volume
+        source: protectedfiles
+        target: /protected
+        read_only: true
+    networks:
+      recordlib-net:
+  django_web:
+    build:
+      context: ../
+      dockerfile: deployment/DjangoDockerfile
+    image: "{CONTAINER_REGISTRY}/recordlibdjango:${CONTAINER_TAG}"
+    expose:
+      - 8000
+    volumes:
+      - "staticfiles:/srv/static"
+      - "protectedfiles:/protected"
+    networks:
+      recordlib-net: 
+    env_file:
+      - .docker.env
+    environment:
+      - PSQL_HOST=pg_db
+    depends_on:
+      - migration
+      - pg_db
+    command: bash -c "python manage.py collectstatic --noinput && gunicorn backend.wsgi:application --bind 0.0.0.0:8000 --workers 4"
+  migration: 
+    build:
+      context: ../
+      dockerfile: deployment/DjangoDockerfile
+    image: "${CONTAINER_REGISTRY}/recordlibdjango:${CONTAINER_TAG}"
+    restart: on-failure 
+    env_file: 
+      - .docker.env
+    environment:
+      - PSQL_HOST=pg_db
+    networks:
+      recordlib-net:
+    #command: python manage.py migrate --noinput
+    command: bash -c "python manage.py migrate --noinput && python manage.py init_admin"
+    depends_on:
+      - pg_db
+  pg_db:
+    build:
+      context: .
+      dockerfile: PG_Dockerfile
+    image: "${CONTAINER_REGISTRY}/recordlibdb:${CONTAINER_TAG}"
+    restart: always
+    env_file: 
+      - .docker.env
+    networks:
+      recordlib-net:
+    expose:
+      - "5432"
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+networks:
+  recordlib-net: 
+volumes:
+  dbdata:
+  staticfiles:
+  protectedfiles:

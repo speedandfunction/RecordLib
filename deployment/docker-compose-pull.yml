@@ -1,10 +1,8 @@
 version: '3.7'
+# Pull the latest versions of the images, without building locally.
 services:
   frontend: 
-    build: 
-      context: .
-      dockerfile: FrontendDockerfile
-    image: "${CONTAINER_REGISTRY}/recordlibfrontend:${CONTAINER_TAG}"
+    image: natev/recordlibfrontend:latest
     restart: always
     ports: 
       - "3000:80"
@@ -24,10 +22,7 @@ services:
     networks:
       recordlib-net:
   django_web:
-    build:
-      context: ../
-      dockerfile: deployment/DjangoDockerfile
-    image: natev/recordlibdjango
+    image: natev/recordlibdjango:latest
     expose:
       - 8000
     volumes:
@@ -43,11 +38,8 @@ services:
       - migration
       - pg_db
     command: bash -c "python manage.py collectstatic --noinput && gunicorn backend.wsgi:application --bind 0.0.0.0:8000 --workers 4"
-  migration: 
-    build:
-      context: ../
-      dockerfile: deployment/DjangoDockerfile
-    image: "${CONTAINER_REGISTRY}/recordlibdjango:${CONTAINER_TAG}"
+  migration:
+    image: natev/recordlibdjango:latest
     restart: on-failure 
     env_file: 
       - .docker.env
@@ -55,7 +47,6 @@ services:
       - PSQL_HOST=pg_db
     networks:
       recordlib-net:
-    #command: python manage.py migrate --noinput
     command: bash -c "python manage.py migrate --noinput && python manage.py init_admin"
     depends_on:
       - pg_db
@@ -63,7 +54,7 @@ services:
     build:
       context: .
       dockerfile: PG_Dockerfile
-    image: "${CONTAINER_REGISTRY}/recordlibdb:${CONTAINER_TAG}"
+    image: natev/recordlibdb:latest
     restart: always
     env_file: 
       - .docker.env

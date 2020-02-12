@@ -35,7 +35,7 @@ reflected in the running app.
 
 Credentials for the default admin will show up in the compose logs. 
 
-Visit `localhost:3000` to see the site.
+Visit `localhost:3000` to see the site. Unfort
 
 
 Do everything locally 
