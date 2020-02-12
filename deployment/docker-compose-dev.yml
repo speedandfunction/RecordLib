@@ -1,3 +1,5 @@
+# This docker-compose is for locally building and running the RecordLib web services. 
+# N.B. It currently doesn't rebuild the frontend live. 
 version: '3.7'
 services:
   frontend: 

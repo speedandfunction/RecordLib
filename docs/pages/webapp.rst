@@ -12,9 +12,9 @@ The quickest way to start up the webapp is to run
 .. code-block:: bash
 
    yarn install
-   make docker-up
+   make docker-build-up
 
-This will start up the app using the configuration of `deployment/docker-compose.yml`. This method will
+This will start up the app using the configuration of `deployment/docker-compose-build.yml`. This method will
 use default configuration values (not suitable for production, though!).
 
 
