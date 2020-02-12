@@ -68,6 +68,12 @@ def test_add_summary_merge_strategies(example_summary):
     assert rec.cases[0].otn != summary2.get_cases()[0].otn
     assert rec.person.first_name == summary2.get_defendant().first_name
 
+def test_add_sourcerecord(example_sourcerecord):
+    rec = CRecord(Person("dummy", "name", None))
+    rec.add_sourcerecord(example_sourcerecord, override_person=True)
+    assert len(rec.cases) == len(example_sourcerecord.cases) 
+    assert rec.person.first_name != "dummy"
+
 def test_add_docket(example_docket):
     rec = CRecord(Person("dummy", "name", None))
     rec.add_docket(example_docket)

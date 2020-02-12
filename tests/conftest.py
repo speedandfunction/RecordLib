@@ -5,7 +5,8 @@ from RecordLib.crecord import Charge, Sentence, SentenceLength, Address
 from RecordLib.crecord import CRecord
 from RecordLib.crecord import Attorney
 from RecordLib.petitions import Expungement
-from RecordLib.sourcerecords import Docket, Summary
+from RecordLib.sourcerecords import Docket, Summary, SourceRecord
+from RecordLib.sourcerecords.summary.parse_pdf import parse_pdf as summary_parser
 from datetime import date
 from RecordLib.utilities.redis_helper import RedisHelper
 import os
@@ -44,6 +45,11 @@ def example_attorney(example_attorney_address):
 def example_summary():
     return Summary.from_pdf(
         pdf="tests/data/CourtSummaryReport.pdf")
+
+@pytest.fixture
+def example_sourcerecord():
+    return SourceRecord("tests/data/CourtSummaryReport.pdf", parser=summary_parser)
+
 
 
 @pytest.fixture

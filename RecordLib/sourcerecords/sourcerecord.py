@@ -17,6 +17,13 @@ class SourceRecord:
         For example, if the `src` is a path to a summary pdf, then `parser` should be a function that
         accepts a path to a summary pdf and returns a tuple with certain values.
 
+        Example:
+            def bad_parser(txt): 
+                return Person("Joe"), [Case(statute="18 1234")], [], txt
+
+            sourcerecord = SourceRecord(sometext, parser=bad_parser)
+            len(sourcerecord.cases) == 1
+            sourcerecord.person.name == "Joe"
 
         Args: 
             src: data that contains information related to a criminal record.

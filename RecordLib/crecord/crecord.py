@@ -154,3 +154,44 @@ class CRecord:
                 self.cases[i] = docket._case
         if replaced is False: self.cases.append(docket._case)
         return self
+
+    def add_sourcerecord(self, sourcerecord: "SourceRecord", case_merge_strategy: str = "ignore_new", override_person: bool = False) -> CRecord:
+        """
+        Add the information from a SourceRecord to a CRecord.
+
+        Depending on the `case_merge_strategy`, any cases in the source record 
+        that have a docket number that matches any case already in this
+        CRecord will not be added, or the new case will overwrite the old.
+
+        Depending on `override_person`, if a new source record has a person who
+        appears to be a different person, then the new Person will or will not be overwritten in this 
+        Record. If the CRecord has no person attribute, then the Person from the source record will be
+        added to this record regardless of this param.
+
+        Args:
+            sourcerecord (SourceRecord): A parsed sourcerecord
+            case_merge_strategy (str): "ignore_new" or "overwrite_old", which indicate whether duplicate new cases should be dropped or should replace the old ones
+
+        Returns:
+            This updated CRecord object.
+        """
+        # Get D's name from the sourcerecord
+        if override_person or self.person is None:
+            self.person = sourcerecord.person
+        # Get the cases from the source record
+        docket_nums = [c.docket_number for c in self.cases]
+        for i, new_case in enumerate(sourcerecord.cases):
+            if new_case.docket_number not in docket_nums:
+                logging.info(f"Adding {new_case.docket_number} to record.")
+                self.cases.append(new_case)
+                docket_nums.append(new_case.docket_number)
+            elif case_merge_strategy == "ignore_new":
+                logging.info(f"Case with docket { new_case.docket_number } already part of record. Ignoring it.")
+            elif case_merge_strategy == "overwrite_old":
+                logging.info(f"Case with docket { new_case.docket_number } already part of record. Using it.")
+                self.cases[i] = new_case
+            else:
+                logging.info(f"Case with docket { new_case.docket_number } already part of record, no merge strategy selected. Ignoring duplicate.")
+
+        return self
+
