@@ -1,9 +1,10 @@
-from RecordLib.sourcerecords import Docket
+from RecordLib.sourcerecords import Docket, SourceRecord
 from RecordLib.crecord import Person
 from RecordLib.crecord import Case
 import pytest
 import os
 import logging
+from RecordLib.sourcerecords.docket.parse_mdj_pdf import parse_mdj_pdf
 
 def test_pdf_factory_one():
     try:
@@ -50,3 +51,18 @@ def test_pdf_factory_bulk(caplog):
     if successes < total_dockets:
         logging.error(f"Only {successes}/{total_dockets} parsed.")
         pytest.fail(f"Only {successes}/{total_dockets} parsed.")
+
+
+
+def test_mdj_docket_pdf_parser():
+    path = os.path.join("tests","data","dockets")
+    files = os.listdir(path)
+    mdj_dockets = list(filter(lambda f: "MJ" in f, files))
+    if len(mdj_dockets) == 0:
+        pytest.fail("You need an MDJ docket named like MJ-........pdf for this test to pass.")
+    for f in mdj_dockets:
+        try:
+            sr = SourceRecord(os.path.join(path, f), parser=parse_mdj_pdf)
+        except Exception as e:
+            pytest.fail(str(e))
+        assert len(sr.cases) == 1 
