@@ -21,5 +21,7 @@ def source_records(records: List[SourceRecord]) -> None:
             if resp.status_code == 200:
                 rec.file.save(f"{rec.id}.pdf", ContentFile(resp.content))
                 rec.fetch_status = SourceRecord.FetchStatuses.FETCHED
+                rec.save()
             else:
                 rec.fetch_status = SourceRecord.FetchStatuses.FETCH_FAILED
+                rec.save()

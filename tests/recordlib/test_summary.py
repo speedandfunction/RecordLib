@@ -1,4 +1,4 @@
-from RecordLib.sourcerecords.summary.pdf import parse_pdf
+from RecordLib.sourcerecords import Summary
 from RecordLib.crecord import CRecord
 from RecordLib.crecord import Person
 from RecordLib.crecord import Case
@@ -9,22 +9,19 @@ import logging
 
 def test_init():
     try:
-        parse_pdf(
-            pdf=open("tests/data/CourtSummaryReport.pdf", "rb"),
-            tempdir="tests/data/tmp")
+        Summary.from_pdf(
+            pdf=open("tests/data/CourtSummaryReport.pdf", "rb"))
     except:
         pytest.fail("Creating Summary object failed.")
 
 def test_parse_pdf_from_file():
-    summary = parse_pdf(
-        pdf=open("tests/data/CourtSummaryReport.pdf", "rb"),
-        tempdir="tests/data/tmp")
+    summary = Summary.from_pdf(
+        pdf=open("tests/data/CourtSummaryReport.pdf", "rb"))
     assert len(summary.get_cases()) > 0
 
 def test_parse_pdf_from_path():
-    summary = parse_pdf(
-        pdf="tests/data/CourtSummaryReport.pdf",
-        tempdir="tests/data/tmp")
+    summary = Summary.from_pdf(
+        pdf="tests/data/CourtSummaryReport.pdf")
     assert len(summary.get_cases()) > 0
 
 def test_bulk_parse_pdf_from_path(caplog):
@@ -36,7 +33,7 @@ def test_bulk_parse_pdf_from_path(caplog):
     logging.info("Successful parses:")
     for path in paths:
         try:
-            summary = parse_pdf(pdf=os.path.join(f"tests/data/summaries", path), tempdir="tests/data/tmp")
+            summary = Summary.from_pdf(pdf=os.path.join(f"tests/data/summaries", path))
             logging.info(path)
         except:
             print(path)
@@ -49,34 +46,30 @@ def test_bulk_parse_pdf_from_path(caplog):
 
 
 def test_add_summary_to_crecord():
-    summary = parse_pdf(
-        pdf="tests/data/CourtSummaryReport.pdf",
-        tempdir="tests/data/tmp")
+    summary = Summary.from_pdf(
+        pdf="tests/data/CourtSummaryReport.pdf")
     rec = CRecord(Person("John", "Smith", date(1998, 1, 1)))
     rec.add_summary(summary, override_person=True)
     assert len(rec.person.first_name) > 0
     assert rec.person.first_name != "John"
 
 def test_get_defendant():
-    summary = parse_pdf(
-        pdf="tests/data/CourtSummaryReport.pdf",
-        tempdir="tests/data/tmp")
+    summary = Summary.from_pdf(
+        pdf="tests/data/CourtSummaryReport.pdf")
     assert len(summary.get_defendant().first_name) > 0
     assert len(summary.get_defendant().last_name) > 0
     assert summary.get_defendant().date_of_birth > date(1900, 1, 1)
 
 def test_get_cases():
-    summary = parse_pdf(
-        pdf="tests/data/CourtSummaryReport.pdf",
-        tempdir="tests/data/tmp")
+    summary = Summary.from_pdf(
+        pdf="tests/data/CourtSummaryReport.pdf")
     assert len(summary.get_cases()) > 0
     assert len(summary.get_cases()) > 0
     assert isinstance(summary.get_cases()[0], Case)
 
 def test_get_sentences():
-    summary = parse_pdf(
-        pdf="tests/data/CourtSummaryReport.pdf",
-        tempdir="tests/data/tmp")
+    summary = Summary.from_pdf(
+        pdf="tests/data/CourtSummaryReport.pdf")
     cases = summary.get_cases()
     for case in cases:
         for charge in case.charges:
@@ -87,9 +80,8 @@ def test_get_sentences():
                     pytest.fail("Could not get sentence from charge.")
 
 def test_get_arrest_date():
-    summary = parse_pdf(
-        pdf=open("tests/data/CourtSummaryReport.pdf", "rb"),
-        tempdir="tests/data/tmp")
+    summary = Summary.from_pdf(
+        pdf=open("tests/data/CourtSummaryReport.pdf", "rb"))
     cases = summary.get_cases()
     # There's not a standard example summary pdf to run tests on, so can't assume much about the contents of 
     # the summary being parsed here.

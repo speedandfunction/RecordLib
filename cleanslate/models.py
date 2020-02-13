@@ -8,7 +8,8 @@ import uuid
 from typing import Optional
 from dataclasses import dataclass, asdict
 import re 
-
+from RecordLib.sourcerecords.docket.parse_pdf import parse_pdf as docket_pdf_parser
+from RecordLib.sourcerecords.summary.parse_pdf import parse_pdf as summary_pdf_parser
 
 class DocumentTemplate(models.Model):
     """Abstact model for storing a template for expungement or sealing petitions."""
@@ -19,11 +20,6 @@ class DocumentTemplate(models.Model):
 
     class Meta:
         abstract = True
-    #def data_as_bytesio(self):
-    #    """
-    #    DB stores `data` as bytes, but we more often want to use a BytesIO object.
-    #    """
-    #    return io.BytesIO(self.data)
 
 class ExpungementPetitionTemplate(DocumentTemplate):
     class Meta:
@@ -166,6 +162,17 @@ class SourceRecord(models.Model):
             ("SUMMARY_PDF", "SUMMARY_PDF"),
             ("DOCKET_PDF", "DOCKET_PDF"),
         ]
+
+    def get_parser(self):
+        """
+
+        Based on the record_type of this SourceRecord, identify the parser it should use.
+        """
+        return {
+            "SUMMARY_PDF": summary_pdf_parser,
+            "DOCKET_PDF": docket_pdf_parser,
+        }.get(self.record_type)
+
 
     class FetchStatuses:
         """

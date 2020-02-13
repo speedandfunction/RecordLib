@@ -4,9 +4,9 @@ from RecordLib.crecord import Person
 from RecordLib.crecord import Charge, Sentence, SentenceLength, Address
 from RecordLib.crecord import CRecord
 from RecordLib.crecord import Attorney
-from RecordLib.sourcerecords.summary.pdf import parse_pdf as parse_summary_pdf
 from RecordLib.petitions import Expungement
-from RecordLib.sourcerecords import Docket
+from RecordLib.sourcerecords import Docket, Summary, SourceRecord
+from RecordLib.sourcerecords.summary.parse_pdf import parse_pdf as summary_parser
 from datetime import date
 from RecordLib.utilities.redis_helper import RedisHelper
 import os
@@ -43,14 +43,19 @@ def example_attorney(example_attorney_address):
 
 @pytest.fixture
 def example_summary():
-    return parse_summary_pdf(
-        pdf="tests/data/CourtSummaryReport.pdf", tempdir="tests/data/tmp")
+    return Summary.from_pdf(
+        pdf="tests/data/CourtSummaryReport.pdf")
+
+@pytest.fixture
+def example_sourcerecord():
+    return SourceRecord("tests/data/CourtSummaryReport.pdf", parser=summary_parser)
+
 
 
 @pytest.fixture
 def example_docket():
     docket_path = os.listdir("tests/data/dockets")[0]
-    d, errs = Docket.from_pdf(os.path.join("tests","data","dockets",docket_path), tempdir="tests/data/tmp")
+    d, errs = Docket.from_pdf(os.path.join("tests","data","dockets",docket_path))
     return d
 
 

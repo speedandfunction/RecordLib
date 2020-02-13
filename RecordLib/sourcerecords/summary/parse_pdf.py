@@ -12,7 +12,7 @@ from RecordLib.crecord import Case
 from RecordLib.crecord import Charge, Sentence, SentenceLength
 from RecordLib.crecord import Person
 from RecordLib.sourcerecords.customnodevisitorfactory import CustomVisitorFactory
-from RecordLib.sourcerecords.grammars.summary import (
+from .grammars import (
     summary_page_terminals,
     summary_page_nonterminals,
     summary_body_terminals,
@@ -30,7 +30,6 @@ import os
 import logging
 import re
 
-from RecordLib.sourcerecords.summary import Summary
 from RecordLib.sourcerecords.summary.utilities import *
 
 
@@ -445,21 +444,21 @@ md_processors = {"parse_summary": parse_md_summary,
                  "get_cases": get_md_cases}
 
 
-def parse_pdf(pdf: Union[BinaryIO, str], tempdir: str = "tmp") -> Summary:
+def parse_pdf(pdf: Union[BinaryIO, str]) -> Tuple[Person, List[Case], List[str], etree.Element]:
     """
-    Parser method that can take a source and return a Person and Cases,
+    Parser method that can take a source and return a Summary
     used to build a CRecord.
     """
-    text = get_text_from_pdf(pdf, tempdir)
+    text = get_text_from_pdf(pdf)
     inputs_dictionary = get_processors(text)
     summary_page_grammar = inputs_dictionary["summary_page_grammar"]
-
+    errors = []
     try:
         parsed_pages = summary_page_grammar.parse(text)
     except Exception as e:
         #slines = text.split("\n")
         #breakpoint()
-        raise ValueError(f"Grammar cannot parse summary: {str(e)}")
+        errors.append(f"Grammar cannot parse summary: {str(e)}")
 
     parse_summary = inputs_dictionary["parse_summary"]
     pages_xml_tree, summary_body_xml_tree = parse_summary(parsed_pages)
@@ -471,4 +470,5 @@ def parse_pdf(pdf: Union[BinaryIO, str], tempdir: str = "tmp") -> Summary:
     defendant = get_defendant(summary_xml)
     get_cases = inputs_dictionary["get_cases"]
     cases = get_cases(summary_xml)
-    return Summary(defendant, cases)
+    return defendant, cases, errors, summary_xml
+

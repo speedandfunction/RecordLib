@@ -8,11 +8,9 @@ from typing import Union, BinaryIO
 class Docket:
 
     @staticmethod
-    def from_pdf(pdf: Union[BinaryIO, str], tempdir: str = "tmp") -> Docket:
+    def from_pdf(pdf: Union[BinaryIO, str]) -> Docket:
         """ Create a Docket from a pdf file. """
-        # need to get (def, case), not just the Docket, b/c otherwise
-        # there's a circular import, with Docket importing parse_pdf, and parse_pdf importing Docket
-        defendant, case, errors = parse_pdf(pdf, tempdir=tempdir)
+        defendant, case, errors = parse_pdf(pdf)
         return Docket(defendant, case), errors
 
     def __init__(self, defendant: Person, case: Case) -> None:
