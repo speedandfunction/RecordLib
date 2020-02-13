@@ -353,7 +353,7 @@ def get_case(stree: etree) -> Case:
         judge=judge, affiant=affiant, arresting_agency=arresting_agency, 
         complaint_date=complaint_date)
 
-def parse_pdf(pdf: Union[BinaryIO, str], tempdir = None) -> Tuple[Person, Case]:
+def parse_pdf(pdf: Union[BinaryIO, str], tempdir = None) -> Tuple[Person, [Case], List[str], etree.Element]:
     """
     Parse the a pdf of a criminal record docket. 
 
