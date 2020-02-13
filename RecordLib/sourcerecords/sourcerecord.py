@@ -39,7 +39,6 @@ class SourceRecord:
                 errors: parsing errors.
                 parsed_source: if the parser creates a syntax tree out of the source, for example.
         """
-        breakpoint()
         self.raw_source = src
         self.parser = parser or null_parser
         person, cases, errors, parsed_source = self.parser(src)
