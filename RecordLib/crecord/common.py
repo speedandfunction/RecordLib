@@ -155,7 +155,10 @@ class Charge:
     @staticmethod
     def from_dict(dct: dict) -> Charge:
         try:
-            dct["sentences"] = [Sentence.from_dict(s) for s in dct.get("sentences")] or []
+            if dct.get("sentences"):
+                dct["sentences"] = [Sentence.from_dict(s) for s in dct.get("sentences")]
+            else:
+                dct["sentences"] = []
             return Charge(**dct)
         except Exception as err:
             logger.error(str(err))

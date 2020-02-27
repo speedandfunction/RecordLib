@@ -1,6 +1,10 @@
 from typing import Union, BinaryIO
 import os
 import tempfile
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 def get_text_from_pdf(pdf: Union[BinaryIO, str]) -> str:
     """
@@ -32,4 +36,5 @@ def get_text_from_pdf(pdf: Union[BinaryIO, str]) -> str:
                 text = f.read()
                 return text
         except IOError as e:
-            raise ValueError("Cannot extract pdf text..")
+            logger.error("Cannot extract pdf text..")
+            return ""

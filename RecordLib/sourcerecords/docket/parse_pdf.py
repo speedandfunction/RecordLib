@@ -353,7 +353,7 @@ def get_case(stree: etree) -> Case:
         judge=judge, affiant=affiant, arresting_agency=arresting_agency, 
         complaint_date=complaint_date)
 
-def parse_pdf(pdf: Union[BinaryIO, str], tempdir = None) -> Tuple[Person, Case]:
+def parse_pdf(pdf: Union[BinaryIO, str], tempdir = None) -> Tuple[Person, List[Case], List[str], etree.Element]:
     """
     Parse the a pdf of a criminal record docket. 
 
@@ -370,6 +370,8 @@ def parse_pdf(pdf: Union[BinaryIO, str], tempdir = None) -> Tuple[Person, Case]:
     errors = []
     # pdf to raw text
     txt = get_text_from_pdf(pdf)
+    if txt == "":
+        return None, None, ["could not extract text from pdf"], None
     # text to xml sections (see DocketParse.sectionize). This handles page breaks.
     pages_tree = etree.fromstring(text_to_pages(txt))
     sections_tree = sections_from_pages(pages_tree)
