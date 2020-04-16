@@ -10,7 +10,7 @@ def test_pdf_factory_one():
     try:
         filename = os.listdir("tests/data/dockets")[0]
         dk, _ = Docket.from_pdf(os.path.join("tests/data/dockets", filename))
-    except:
+    except Exception as e:
         pytest.fail("Cannot create Docket object")
     assert isinstance(dk._case, Case)
     assert isinstance(dk._defendant, Person)

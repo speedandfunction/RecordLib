@@ -18,5 +18,6 @@ setup(
         analyze=scripts.analyze:cli
         parse=scripts.parse:parse
         expunge=scripts.expunge:cli
+        csscreen=scripts.csscreen:cli
     ''',
 )

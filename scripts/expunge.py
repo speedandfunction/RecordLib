@@ -7,7 +7,7 @@ from RecordLib.sourcerecords.summary.pdf import parse_pdf
 from RecordLib.sourcerecords.docket.docket import Docket
 from RecordLib.crecord import CRecord
 from RecordLib.analysis import Analysis
-from RecordLib.analysisruledefs import * 
+from RecordLib.analysis.ruledefs import * 
 from RecordLib.petitions.compressor import Compressor
 from RecordLib.crecord import Attorney
 

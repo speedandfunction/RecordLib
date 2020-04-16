@@ -1,4 +1,5 @@
 from RecordLib.crecord import Person
+from RecordLib.crecord.person import  convert_datestring
 from RecordLib.crecord import Address
 from datetime import date
 from RecordLib.utilities.serializers import to_serializable
@@ -56,7 +57,6 @@ def test_person_todict():
 
 def test_serializing_person(example_person):
     ser = to_serializable(example_person)
-    print(ser)
     assert ser["first_name"] == example_person.first_name
     assert ser["aliases"] == example_person.aliases
 
@@ -67,8 +67,13 @@ def test_serializing_person(example_person):
     assert isinstance(deser, Person)
     assert deser == example_person
 
+def test_convert_datestring():
+    assert convert_datestring("2019-01-01").year == 2019
+    assert convert_datestring("01/01/2019").year == 2019
 
 def test_person_from_dict(example_person):
     ser = to_serializable(example_person)
     per2 = Person.from_dict(ser)
     assert example_person.last_name == per2.last_name
+    assert isinstance(per2.date_of_birth, date)
+    

@@ -1,5 +1,6 @@
 import pytest
-from RecordLib.analysis.ruledefs.sealing_rules import *
+from RecordLib.analysis.ruledefs.petition_rules import *
+from RecordLib.analysis.ruledefs.simple_sealing_rules import *
 from RecordLib.crecord import CRecord, Charge
 import json
 from RecordLib.utilities.serializers import to_serializable
@@ -263,15 +264,15 @@ def test_no_firearms_offense(example_crecord, example_charge):
 
 
 
-def test_fines_and_costs_paid(example_crecord):
-    example_crecord.cases[0].total_fines = 100
-    example_crecord.cases[0].fines_paid = 0
-    assert bool(fines_and_costs_paid(example_crecord)) is False
-    example_crecord.cases[0].total_fines = 0
-    assert bool(fines_and_costs_paid(example_crecord)) is True
-    example_crecord.cases[0].total_fines = 100
-    example_crecord.cases[0].fines_paid = 100
-    assert bool(fines_and_costs_paid(example_crecord)) is True
+def test_fines_and_costs_paid(example_case):
+    example_case.total_fines = 100
+    example_case.fines_paid = 0
+    assert bool(fines_and_costs_paid(example_case)) is False
+    example_case.total_fines = 0
+    assert bool(fines_and_costs_paid(example_case)) is True
+    example_case.total_fines = 100
+    example_case.fines_paid = 100
+    assert bool(fines_and_costs_paid(example_case)) is True
 
 
 def test_is_misdemeanor_or_ungraded(example_charge):

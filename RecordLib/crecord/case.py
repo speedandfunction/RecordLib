@@ -6,6 +6,8 @@ from typing import List, Optional
 from datetime import date
 import logging
 from dateutil.relativedelta import relativedelta
+from .helpers import convert_datestring
+
 
 class Case:
     """
@@ -44,8 +46,8 @@ class Case:
                 total_fines = dct.get("total_fines"),
                 fines_paid = dct.get("fines_paid"),
                 complaint_date = dct.get("complaint_date"),
-                arrest_date = dct.get("arrest_date"),
-                disposition_date = dct.get("disposition_date"),
+                arrest_date = convert_datestring(dct.get("arrest_date")),
+                disposition_date = convert_datestring(dct.get("disposition_date")),
                 judge = dct.get("judge"),
                 judge_address = dct.get("judge_address"),
                 affiant = dct.get("affiant"),

@@ -1,3 +1,20 @@
+"""
+Simple Rule functions relating to Petition-based sealing.
+
+These rule functions take different inputs and return a Decision that explains whether the inputs meet some sort of condition. 
+
+
+They return Decisions of the type:
+
+Decision:
+    name: str
+    value: bool
+    reasoning: [Decision] | str
+
+The rules in this module all relate to petition-based sealing..
+
+"""
+
 from __future__ import annotations
 from RecordLib.crecord import CRecord, Charge
 from typing import Tuple, Union, List
@@ -6,6 +23,7 @@ import json
 import re
 from RecordLib.analysis import Decision
 from RecordLib.petitions import Sealing
+import math
 
 
 def no_danger_to_person_offense(
@@ -69,44 +87,58 @@ def ten_years_since_last_conviction(crecord: CRecord) -> Decision:
     Returns:
         a Decision indicating if the record has a conviction that's more recent than 10 years.
     """
-
     decision = Decision(
-        name="Has the person been free of conviction for at least 10 years?",
-        reasoning= [
-            charge.is_conviction() and (case.years_passed_disposition() >= 10) for case in crecord.cases for charge in case.charges
-    ])
-    decision.value = all(decision.reasoning)
-    
+        name="Has the person been free of conviction for at least 10 years?",    
+    )
+    convictions = [case for case in crecord.cases for charge in case.charges if charge.is_conviction()]
+    if len(convictions) == 0:
+        decision.value = True
+        decision.reasoning = "The person appears to have no convictions."
+        return decision
 
+    last_conviction = max(convictions, key=lambda c: c.disposition_date)
+    years_since_last_conviction = min([case.years_passed_disposition() for case in crecord.cases for charge in case.charges if charge.is_conviction()])
+
+
+    decision.reasoning= (
+        f"It has been {years_since_last_conviction} years since the last conviction on " + 
+        f"{last_conviction.disposition_date} in {last_conviction.docket_number}."
+    )
+    decision.value = years_since_last_conviction > 10
+
+    if decision.value is False:
+        decision.reasoning += f" Person may be eligible for sealing in {math.ceil(10 - years_since_last_conviction)} years, if there are no further convictions. "
     return decision
 
 
-def fines_and_costs_paid(crecord: CRecord) -> Decision:
+def fines_and_costs_paid(case: Case) -> Decision:
     """
-    In individual is not eligible for sealing unless all fines and costs have been paid.
+    In individual is not eligible for sealing a specific case unless all fines and costs have been paid on that case.
 
     18 Pa. C.S. § 9122.1(a).
 
     Args:
-        crecord: A criminal record
+        case: a single Case. 
 
     Returns:
-        a Decision indicating if all fines and costs have been paid on the Record.
+        a Decision indicating if all fines and costs have been paid on the case.
     """
     decision = Decision(
-        name="Fines and costs are all paid on the whole record?",
-        reasoning=[
-            {"case": case.docket_number, "total fines": case.total_fines, "fines paid": case.fines_paid}
-            for case in crecord.cases
-        ],
+        name=f"Fines and costs are all paid on the case {case.docket_number}?",
+        reasoning = ""
     )
-    try:
-        # if the fines remaining for the record are less than 0, then this test passes.
-        decision.value = sum([(case.fines_remaining()) for case in crecord.cases]) <= 0
-    except TypeError:
-        # If fines_and_costs is unknown for a case, the test above will fail,
-        # and  we'll conservatively assume the worst, that there are unpaid fines and costs.
-        decision.value = False
+    if case.total_fines is None or case.fines_paid is None:
+        if case.total_fines is None :
+            decision.value = False
+            decision.reasoning += f"Total Fines is undefined, so we're not sure if this case has fines. "
+        
+        if case.fines_paid is None:
+            decision.value = False
+            decision.reasoning += f"Fines paid is undefined, so we're not sure if this case has any fines paid."
+        return decision
+
+    decision.value = (case.total_fines - case.fines_paid) == 0
+    decision.reasoning = f"The case's total fines are {case.total_fines}, of which {case.fines_paid} has been paid."
     return decision
 
 
@@ -631,33 +663,17 @@ def no_paramilitary_training(
     decision.value = True if len(decision.reasoning) < conviction_limit else False
     return decision
 
-def seal_convictions(crecord: CRecord) -> Tuple[CRecord, Decision]:
+
+def full_record_requirements_for_petition_sealing(crecord: CRecord) -> Decision:
     """
-    Pa.C.S. 9122.1 provides for petition-based sealing of records when certain
-    conditions are met.
+    To seal a case or charge by petition, there are requirements that the record as a whole must satisfy. 
 
-    Paragraph (a) provides a general rule that sealing is available when someone has been free of conviction for 10 years of certain offenses, and has paid fines and costs.
-
-
-    Returns:
-        A Decision. The decision's name is "Sealable Convictions". Its `value` is a list of the Cases and 
-            charges that are selable from `crecord`. 
-            Its `reasoning` is a list of all the decisions relating to the whole record, and all the decisions 
-            relating to each case.
-
-    TODO Paragraph (b)(2) provides conditions that disqualify a person's whole record from sealing.
-
-    TODO Paragraph (b)(1) provides conditions that exclude convictions from sealing.
+    This function makes the Decisions that evaluate whether the record meets these requirements. 
     """
-    conclusion = Decision(
-        name="Convictions can be sealed under the Clean Slate reforms.",
-        value=[])
-    mod_rec = CRecord(person=crecord.person, cases=[])
-
-    # Requirements for sealing any part of a record
-    conclusion.reasoning = [
+    decision = Decision(name="Sealing requirements that relate to the whole record.")
+    decision.reasoning = [
         ten_years_since_last_conviction(crecord),  # 18 Pa.C.S. 9122.1(a)
-        fines_and_costs_paid(crecord),  # 18 Pa.C.S. 9122.1(a)
+        #fines_and_costs_paid(crecord),  # 18 Pa.C.S. 9122.1(a)
         no_f1_convictions(crecord),  # 18 Pa.C.S. 9122.1(b)(2)(i)
         no_danger_to_person_offense(
             crecord, penalty_limit=7, conviction_limit=1, within_years=20
@@ -684,77 +700,90 @@ def seal_convictions(crecord: CRecord) -> Tuple[CRecord, Decision]:
         no_abuse_of_corpse(crecord, conviction_limit=1, within_years=15),
         no_paramilitary_training(crecord, conviction_limit=1, within_years=15),
     ]
-    if all(conclusion.reasoning):
-        for case in crecord.cases:
-            # The sealability of each case is its own decision
-            case_decision = Decision(
-                name=f"Sealing case {case.docket_number}", reasoning=[]
-            )
-            # create copies of a case that don't include any charges.
-            # sealable or unsealable charges will be added to these.
-            sealable_parts_of_case = case.partialcopy()
-            unsealable_parts_of_case = case.partialcopy()
-            for charge in case.charges:
-                # The sealability of each charge is its own Decision.
-                charge_decision = Decision(name=f"Sealing charge {charge.offense}")
-                # Conditions that determine whether this charge is sealable
-                #  See 91 Pa.C.S. 9122.1(b)(1)
-                charge_decision.reasoning = [
-                    is_misdemeanor_or_ungraded(charge),
-                    no_danger_to_person_offense(
-                        charge,
-                        penalty_limit=2,
-                        conviction_limit=1,
-                        within_years=float("Inf"),
-                    ),
-                    no_offense_against_family(
-                        charge,
-                        penalty_limit=2,
-                        conviction_limit=1,
-                        within_years=float("Inf"),
-                    ),
-                    no_firearms_offense(
-                        charge,
-                        penalty_limit=2,
-                        conviction_limit=1,
-                        within_years=float("Inf"),
-                    ),
-                    no_sexual_offense(
-                        charge,
-                        penalty_limit=2,
-                        conviction_limit=1,
-                        within_years=float("Inf"),
-                    ),
-                    no_corruption_of_minors_offense(
-                        charge,
-                        penalty_limit=2,
-                        conviction_limit=1,
-                        within_years=float("Inf"),
-                    ),
-                ]
-                if all(charge_decision.reasoning):
-                    charge_decision.value = "Sealable"
-                    sealable_parts_of_case.charges.append(charge)
-                    # N.B. Appending charge, not deepcopy(charge), because I don't think
-                    # the overhead is neccessary. But that could turn out to be wrong someday.
-                else:
-                    charge_decision.value = "Not sealable"
-                    unsealable_parts_of_case.charges.append(charge)
-                case_decision.reasoning.append(charge_decision)
-            if all([reason.value == "Sealable" for reason in case_decision.reasoning]):
-                # All the charges in the current case are sealable.
-                case_decision.value = "All charges sealable"
-                conclusion.value.append(Sealing(client=crecord.person, cases=[sealable_parts_of_case]))
-            elif any(
-                [reason.value == "Sealable" for reason in case_decision.reasoning]
-            ):
-                # At least one charge in the current case is sealable.
-                case_decision.value = "Some charges sealable"
-                mod_rec.cases.append(unsealable_parts_of_case)
-                conclusion.value.append(Sealing(client=crecord.person, cases=[sealable_parts_of_case]))
-            else:
-                case_decision.value = "No charges sealable"
-                mod_rec.cases.append(unsealable_parts_of_case)
-            conclusion.reasoning.append(case_decision)
+    decision.value = all(decision.reasoning)
+    return decision
 
-    return mod_rec, conclusion
+def petition_sealing_for_single_case(case: Case) -> Decision:
+    """
+    Make a decision about whether a specific case is sealable by petition.
+
+    This function doesn't know about whether the whole record meets the full record requirements. 
+
+    The function `slices` the input Case. It returns a SliceDecision, where the `value` is a 2-Tuple. The left side of the tuple
+    holds parts of the case that can't be sealed, and the right side holds parts of the tuple that can be sealed.
+
+    If you have a SliceDecision from this function, as in `sd = petition_sealing_for_single_case(case)`,
+    and you want to know "is that case sealable at all?", you'd ask `sd.value[1] is None`. If that is `False`, 
+    then there is some sealable charge or charges. 
+    """
+    case_decision = Decision(
+        name=f"Sealing case {case.docket_number}", reasoning=[]
+    )
+    fines_decision = fines_and_costs_paid(case)  # 18 Pa.C.S. 9122.1(a)
+    case_decision.reasoning.append(fines_decision)
+    # create copies of a case that don't include any charges.
+    # sealable or unsealable charges will be added to these.
+    sealable_parts_of_case = case.partialcopy()
+    unsealable_parts_of_case = case.partialcopy()
+
+    # Iterate over the charges in a case, to see which charges are sealable. 
+    charge_decisions = []
+    for charge in case.charges:
+        # The sealability of each charge is its own Decision.
+        charge_decision = petition_sealing_for_single_charge(charge) 
+        charge_decisions.append(charge_decision)
+        if bool(charge_decision) is True:
+            sealable_parts_of_case.charges.append(charge)
+        else:
+            unsealable_parts_of_case.charges.append(charge)
+
+    case_decision.value = (
+        unsealable_parts_of_case if len(unsealable_parts_of_case.charges) > 0 else None,
+        sealable_parts_of_case if len(sealable_parts_of_case.charges) > 0 else None
+    )
+
+    case_decision.reasoning.extend(charge_decisions)
+    return case_decision 
+
+def petition_sealing_for_single_charge(charge: Charge):
+    """
+    Decide whether a single charge is sealable.
+    """
+    charge_decision = Decision(name=f"Sealing charge {charge.offense}")
+    # Conditions that determine whether this charge is sealable
+    #  See 91 Pa.C.S. 9122.1(b)(1)
+    charge_decision.reasoning = [
+        is_misdemeanor_or_ungraded(charge),
+        no_danger_to_person_offense(
+            charge,
+            penalty_limit=2,
+            conviction_limit=1,
+            within_years=float("Inf"),
+        ),
+        no_offense_against_family(
+            charge,
+            penalty_limit=2,
+            conviction_limit=1,
+            within_years=float("Inf"),
+        ),
+        no_firearms_offense(
+            charge,
+            penalty_limit=2,
+            conviction_limit=1,
+            within_years=float("Inf"),
+        ),
+        no_sexual_offense(
+            charge,
+            penalty_limit=2,
+            conviction_limit=1,
+            within_years=float("Inf"),
+        ),
+        no_corruption_of_minors_offense(
+            charge,
+            penalty_limit=2,
+            conviction_limit=1,
+            within_years=float("Inf"),
+        ),
+    ]
+    charge_decision.value = all(charge_decision.reasoning)
+    return charge_decision

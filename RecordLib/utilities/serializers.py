@@ -7,8 +7,10 @@ from RecordLib.petitions import Expungement, Sealing
 from RecordLib.analysis import Decision
 from RecordLib.crecord import CRecord
 from RecordLib.crecord import Attorney
+from RecordLib.sourcerecords import SourceRecord
 from datetime import date, datetime, timedelta
-
+from lxml import etree
+from lxml.etree import _ElementTree
 
 @functools.singledispatch
 def to_serializable(val):
@@ -19,6 +21,14 @@ def to_serializable(val):
     depending on the type sent to the method.
     """
     return str(val)
+
+@to_serializable.register(bytes)
+def td_bytes(bt):
+    return "<bytes>"
+
+@to_serializable.register(_ElementTree)
+def td_etree(tree):
+    return etree.tostring(tree)
 
 @to_serializable.register(type(None))
 def td_none(n):
@@ -34,6 +44,16 @@ def ts_list(l):
         return []
     return [to_serializable(el) for el in l]
 
+@to_serializable.register(SourceRecord)
+def ts_sourcerecord(sr):
+    return {
+            "parser": sr.parser.__name__,
+            "person": to_serializable(sr.person),
+            "cases": to_serializable(sr.cases),
+            "errors": sr.errors,
+            "raw_source": to_serializable(sr.raw_source),
+            "parsed_source": to_serializable(sr.parsed_source),
+        }
 
 @to_serializable.register(Case)
 @to_serializable.register(Charge)

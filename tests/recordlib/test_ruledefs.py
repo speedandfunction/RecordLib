@@ -1,7 +1,7 @@
 
 
 from RecordLib.analysis import ruledefs
-from RecordLib.analysis.ruledefs.sealing_rules import (
+from RecordLib.analysis.ruledefs.simple_sealing_rules import (
     not_felony1, fines_and_costs_paid, is_misdemeanor_or_ungraded)
 from RecordLib.crecord import Sentence, SentenceLength
 from RecordLib.crecord import Case

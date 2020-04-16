@@ -20,10 +20,14 @@ def years_since_last_arrested_or_prosecuted(crecord: CRecord) -> int:
     How many years since a person was last arrested or prosecuted?
 
     If we can't tell how many years, return 0.
+
+    If they don't have any cases, then years-since-last is Infinite.
     """
+    if crecord.cases is None:
+        return float("Inf")
     if len(crecord.cases) == 0:
-        return float("-Inf")
-    if any("Active" in case.status for case in crecord.cases):
+        return float("Inf")
+    if any("Active" in case.status for case in crecord.cases if case.status is not None):
         return 0
     cases_ordered = sorted(crecord.cases, key=Case.order_cases_by_last_action)
     last_case = cases_ordered[-1]
@@ -176,7 +180,7 @@ class CRecord:
             This updated CRecord object.
         """
         # Get D's name from the sourcerecord
-        if (override_person or self.person is None)and sourcerecord.person is not None:
+        if (override_person or self.person is None) and sourcerecord.person is not None:
             self.person = sourcerecord.person
         # Get the cases from the source record
         if sourcerecord.cases is None:

@@ -1,10 +1,13 @@
 from __future__ import annotations
 from dataclasses import dataclass
-from typing import List, Optional
-from datetime import date
+from typing import List, Optional, Union
+from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
 from .common import Address
+import logging
+from .helpers import convert_datestring
 
+logger = logging.getLogger(__name__)
 
 @dataclass
 class Person:
@@ -27,8 +30,8 @@ class Person:
             return Person(
                 first_name = dct.get("first_name"),
                 last_name = dct.get("last_name"),
-                date_of_birth = dct.get("date_of_birth"), 
-                date_of_death = dct.get("date_of_death"),
+                date_of_birth = convert_datestring(dct.get("date_of_birth")), 
+                date_of_death = convert_datestring(dct.get("date_of_death")),
                 aliases = dct.get("aliases") or [],
                 ssn = dct.get("ssn"),
                 address = Address.from_dict(dct.get("address"))

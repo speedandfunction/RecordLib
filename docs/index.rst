@@ -31,7 +31,6 @@ The project is also still in development.
    pages/styleguide.rst
 
 
-
 ******************
 Indices and tables
 ******************

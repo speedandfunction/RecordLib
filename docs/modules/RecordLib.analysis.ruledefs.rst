@@ -4,21 +4,31 @@ RecordLib.analysis.ruledefs package
 Submodules
 ----------
 
-RecordLib.analysis.ruledefs.expungement\_rules module
+RecordLib.analysis.ruledefs.petition\_rules module
 -----------------------------------------------------
 
-.. automodule:: RecordLib.analysis.ruledefs.expungement_rules
+.. automodule:: RecordLib.analysis.ruledefs.petition_rules
    :members:
    :undoc-members:
    :show-inheritance:
 
-RecordLib.analysis.ruledefs.sealing\_rules module
--------------------------------------------------
+RecordLib.analysis.ruledefs.simple\_sealing\_rules module
+-----------------------------------------------------------
 
-.. automodule:: RecordLib.analysis.ruledefs.sealing_rules
+.. automodule:: RecordLib.analysis.ruledefs.simple\_sealing\__rules
    :members:
    :undoc-members:
    :show-inheritance:
+
+
+RecordLib.analysis.ruledefs.simple\_expungement\_rules module
+---------------------------------------------------------------
+
+.. automodule:: RecordLib.analysis.ruledefs.simple\_expungement\__rules
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 
 
 Module contents

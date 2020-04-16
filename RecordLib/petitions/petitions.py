@@ -1,7 +1,6 @@
 """
 Classes representing expungment or sealing petitions. 
 
-TODO These are really just stubs for now while I'm working on what the Analysis and ruledef function signatures look like.
 """
 from __future__ import annotations
 from RecordLib.crecord import Case

@@ -1,0 +1,176 @@
+<%! import re %>
+
+<%def name="record_summary(cases)">
+    % for case in cases:
+
+        <div style="padding-bottom: 0">
+            <p>
+                <p>
+                    <b> Case: ${ case.docket_number } </b>
+                </p>
+                <p>
+                    County: ${ getattr(case, 'county', 'COUNTY UNKNOWN') }
+                </p>
+            </p>
+            <p> Charges: </p>
+            <ul>
+                % for charge in case.charges:
+                <li>
+                    <em>Offense</em>: ${ charge.offense}
+                </li> 
+                <li> 
+                    <em>Disposition</em>: ${ getattr(charge, 'disposition', 'DISPOSITION UNKNOWN') }
+                </li>
+                % endfor 
+            </ul>
+            % if (getattr(case, "total_fines", 0) or 0) > (getattr(case, 'fines_paid', 0) or 0):
+                <p>
+                    It appears that you may still owe court fines and costs on this case, 
+                    in the amount of $${ (getattr(case, 'total_fines', 0) or 0) - (getattr(case, 'fines_paid', 0) or 0)}. 
+                </p>
+            % endif
+        </div>
+ 
+
+    % endfor
+</%def>
+
+
+<%def name="petition_details(petitions)">
+    ## Insert  a block describing each set of actions the person can take. 
+    ## only include an action like "arrests you can expunge" if there are some arrests in that category.
+    % for petition_type in petitions:
+        % if len(petition_type.value) > 0: 
+            <div style="padding: 1rem">
+                <h3>
+                    ${ petition_type.name }
+                </h3>
+                <p>
+                    ${explain_petition_type(petition_type.name)}
+                </p>
+                % for petition in petition_type.value:
+                    <div style="padding: 1rem">
+                        <p>
+                            <p>
+                                ## Assuming any petition only ever has 1 case. Is that true?
+                                <b> Case: ${ petition.cases[0].docket_number } </b>
+                            </p>
+                            <p>
+                                County: ${ petition.cases[0].county }
+                            </p>
+                        </p>
+                        <p> Charges: </p>
+                        <ul>
+
+                            % for charge in petition.cases[0].charges:
+                            <li>
+                                Offense: ${ charge.offense}
+                            </li> 
+                            <li> 
+                                Disposition: ${ charge.disposition}
+                            </li>
+                            % endfor 
+                        </ul>
+                    </div>
+                    % if (petition.cases[0].total_fines or 0) - (petition.cases[0].fines_paid or 0) > 0:
+                        <p>
+                            It appears you owe court fines or costs on this case. You may need to pay outstanding costs before this record can be sealed. 
+                            Some kinds of costs or fees can be waived, so you may want to get advice from a lawyer about how to resolve court costs.
+                        </p>
+                    % endif
+                % endfor
+            </div>
+        % endif
+    % endfor
+</%def>
+
+
+<%def name='no_remaining_record()'>
+     Our analysis suggests that your entire record is eligible to be cleared or sealed.
+</%def>
+
+<%def name='remaining_record(remaining_record, get_unsealable_until_date)'>
+    <p> These cases appear not to be eligible for sealing or expungement. </p>
+    <p> For these cases, you may need to pay outstanding fines, wait for time to pass since the arrest, or even seek a pardon from the Governor.</p>
+    <p> It would be a good idea to reach out to a lawyer to help you figure out how you might be able to clear these cases. </p>
+    % for case in remaining_record.cases:
+        <div style="padding-left: 1rem;">
+            <p>
+                <p>
+                    <b> Case: ${ case.docket_number } </b>
+                </p>
+                <p>
+                    County: ${ getattr(case, 'county', 'COUNTY UNKNOWN')}
+                </p>
+            </p>
+            <p> Charges: </p>
+            <ul>
+                
+                % for charge in case.charges:
+                <li>
+                    Offense: ${ charge.offense }
+                </li> 
+                <li> 
+                    Disposition: ${ charge.disposition }
+                </li>
+                % endfor 
+            </ul>
+            % if get_unsealable_until_date(case) is not None:
+                <p> It looks like this case will be eligible for sealing in the future, if you have no further convictions. ${ get_unsealable_until_date(case) }</p>
+            % endif
+        </div>
+            
+    % endfor
+</%def>
+
+<%def name='referral_information(counties)'>
+    <p> 
+        If you would like to speak with a lawyer to get more information about your record, or to help you file any petitions, here are a few resources that might help.
+    </p>
+    <p>
+        You may qualify for a legal aid organization for assistance if you are low-income. You can find a legal aid organization in your county by visiting 
+        <a href="https://palegalaid.net/legal-aid-providers-in-pa"> https://palegalaid.net/legal-aid-providers-in-pa </a>. 
+        Others can call the Pennsylvania Bar Association Lawyer Referral Service at 
+        <a href="tel:800-692-7375">(800) 692-7375</a>, Monday through Friday, from 8 AM to 4:30 PM.
+    </p>
+</%def>
+
+<%def name='explain_petition_type(ptype)'>
+    % if ptype == "Expungements of nonconvictions.": 
+        <p>
+            Your record shows that you were not convicted of the charge or charges below. 
+            This means they could be eligible to be expunged by filing a petition with a court.
+        </p>
+    % elif ptype == "Expungements for a person over 70.":
+        <p>
+            Your record shows that you are over 70 years old and have not had contact with the justice sytem for several years. This means it may be possible 
+            to expunge your entire record by filing a petition with a court. 
+        </p>
+    % elif ptype == "Expungements for summary convictions.":
+        <p>
+            Your record shows that you were convicted of a charge or charges that were graded as 'summary' offenses. These charges could be eligible to 
+            be expunged by filing a petition with a court. 
+        </p>
+
+    % elif ptype == "Sealing some convictions under the Clean Slate reforms.":
+        <p> 
+            Pennsylvanias Clean Slate law allows courts to seal certain convictions. Sealing means that these convictions stay on your record, 
+            but only specific government agencies can access the sealed parts of your record. Other entities, such as private employers, cannot see sealed records. 
+        </p>
+        <p>
+            Your record shows that you have convictions that could be elibible for sealing by filing a petition with a court.
+        </p>
+    % elif ptype == "Autosealing convictions under the Clean Slate reforms.":
+        <p> Pennsylvanias Clean Slate law provides that the court system will automatically seal certain convictions. Sealing means that these convictions stay on your record, 
+            but only specific government agencies can access the sealed parts of your record. Other entities, such as private employers, cannot see sealed records. 
+        </p>
+        <p>
+            Your record shows that you have convictions that are should be automatically sealed by the courts. 
+        </p>
+    % else: 
+        <p> 
+            [--data missing--]
+        </p>
+    % endif
+</%def>
+

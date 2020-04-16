@@ -34,6 +34,9 @@ uritemplate = "==3.0.0"
 django-docketsearch = {git = "https://github.com/clsphila/django-docketsearch.git",ref = "738aedba7dab8689b3ea94db447e7e628954b4fb",editable = true}
 aiohttp = "*" 
 yarl = "==1.4.2"
+recordlib = {editable = true,path = "."}
+mako = "1.1.2"
+sendgrid = "*"
 
 [requires]
 python_version = "3.7"

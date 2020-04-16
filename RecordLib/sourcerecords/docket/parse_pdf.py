@@ -15,7 +15,7 @@ import logging
 import re
 from datetime import datetime, date
 
-def text_to_pages(txt: str) -> str:
+def text_to_pages(txt: str) -> Tuple[str, List[str]]:
     """ Convert raw text of a docket to an xml-string, where the nodes are the pages and sections of the docket.
     
     i.e.
@@ -33,16 +33,18 @@ def text_to_pages(txt: str) -> str:
             </page>
         </docket>
     """
+    errors = []
     grammar = Grammar(docket_sections)
     try:
         nodes = grammar.parse(txt)
         visitor = CustomVisitorFactory(common_terminals, 
         docket_sections_nonterminals, docket_sections_custom_nodevisitors).create_instance()
-        return visitor.visit(nodes)
+        return visitor.visit(nodes), errors
     except Exception as e:
         slines = txt.split("\n")
         logging.error("text_to_pages failed.")
-        return "<docket></docket>"
+        errors.append("Could not extract pages from docket text.")
+        return "<docket></docket>", errors
 
 
 def create_section_header_remover(section_name: str) -> Callable:
@@ -89,7 +91,7 @@ def create_section_header_remover(section_name: str) -> Callable:
     
     return section_header_remover
 
-def sections_from_pages(ptree: etree) -> etree:
+def sections_from_pages(ptree: etree) -> Tuple[etree.ElementTree, List[str]]:
     """
     Splice together sections in `ptree` that are separated across pages, 
     and get rid of the `page` level of the `ptree` entirely
@@ -118,9 +120,13 @@ def sections_from_pages(ptree: etree) -> etree:
             </section>
         </docket>
     """
+    errors = []
     # create an empty tree to add all the other sections onto.
     stitched_xml = etree.Element("docket")
-    stitched_xml.append(ptree.xpath("//header[1]")[0])
+    try:
+        stitched_xml.append(ptree.xpath("//header[1]")[0])
+    except:
+        errors.append("In extracting sections from pages, I could not find the header")
     pages = ptree.xpath("//page")
     logging.info(f"    {len(pages)} pages in this docket.")
     # Recombine a section if it carries onto the following page(s).
@@ -152,13 +158,17 @@ def sections_from_pages(ptree: etree) -> etree:
                 combined_sections.append(section)
 
         [stitched_xml.append(section_node)  for section_node in combined_sections]
-    last_page = pages[-1]
-    if len(last_page.xpath(".//section")) == 0:
-        # add the traling <body> lines to the last section in combined_sections
-        last_page_body = last_page.xpath("body")[0].text
-        stitched_xml.xpath("//section[last()]")[0].text += last_page_body
+    try:
+        last_page = pages[-1]
+        if len(last_page.xpath(".//section")) == 0:
+            # add the traling <body> lines to the last section in combined_sections
+            last_page_body = last_page.xpath("body")[0].text
+            stitched_xml.xpath("//section[last()]")[0].text += last_page_body
+    except: 
+        # if the docket doesn't have any pages, it won't have a last page. 
+        pass
     docket_tree = etree.ElementTree(stitched_xml)
-    return docket_tree    
+    return docket_tree, errors
 
 
 def split_first_name(full_name: str) -> Tuple[str, str]:
@@ -355,7 +365,7 @@ def get_case(stree: etree) -> Case:
 
 def parse_pdf(pdf: Union[BinaryIO, str], tempdir = None) -> Tuple[Person, List[Case], List[str], etree.Element]:
     """
-    Parse the a pdf of a criminal record docket. 
+    Parse the a pdf of a Common Please criminal record docket. 
 
     The 'see' references are to the DocketParse library, which also parses pdf dockets. 
 
@@ -372,9 +382,25 @@ def parse_pdf(pdf: Union[BinaryIO, str], tempdir = None) -> Tuple[Person, List[C
     txt = get_text_from_pdf(pdf)
     if txt == "":
         return None, None, ["could not extract text from pdf"], None
+    return parse_cp_pdf_text(txt, errors)
+
+def parse_cp_pdf_text(txt: str, errors=None) -> Tuple[Person, List[Case], List[str], etree.Element]:
+    """
+    Parse the text extracted from a CP docket's pdf.
+
+    Args: 
+        txt (str): Text extracted from a pdf of a Common Pleas docket.
+
+    """
+    if errors is None:
+        errors = []
     # text to xml sections (see DocketParse.sectionize). This handles page breaks.
-    pages_tree = etree.fromstring(text_to_pages(txt))
-    sections_tree = sections_from_pages(pages_tree)
+    pages_tree, new_e = text_to_pages(txt)
+    errors.append(new_e)
+    pages_tree = etree.fromstring(pages_tree)
+
+    sections_tree, new_e = sections_from_pages(pages_tree)
+    errors.append(new_e)
     # parse individual sections with grammars for those sections
     # TODO add try catch blocks that allow for continuing even after certain parts fail, like
     #       if a single section fails to parse.

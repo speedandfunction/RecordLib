@@ -3,7 +3,7 @@ from typing import Union, List
 
 class Decision:
     """
-    Experimental class for keeping the value of a decision and the reason for it together in a single object.
+    Class for keeping the value of a decision and the reason for it together in a single object.
 
     A single decision could be composed out of a bunch of smaller decisions, so that a decision can be, on one hand, made up of a bunch of other decisions, and then on the other, fully explained, including explanations for sub-decisions.
 
@@ -35,3 +35,10 @@ class Decision:
             "value": self.value,
             "reasoning": self.reasoning
         }
+
+
+class PetitionDecision(Decision):
+    """
+    A Decision where the 'value' is a list of `Petitions`. The `reasoning` is a 
+    """
+    pass
