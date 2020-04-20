@@ -446,7 +446,7 @@ md_processors = {"parse_summary": parse_md_summary,
 
 def parse_pdf(pdf: Union[BinaryIO, str]) -> Tuple[Person, List[Case], List[str], etree.Element]:
     """
-    Parser method that can take a source and return a Summary
+    Parser method that can take a CP or MD source and return a Summary
     used to build a CRecord.
     """
     text = get_text_from_pdf(pdf)

@@ -8,7 +8,7 @@ from RecordLib.sourcerecords.summary.utilities import visit_sentence_length
 # Optionally create a list of the sections's nonterminals
 # write any custom node visitor functions
 # add this grammar, nonterminals, terminals, custom visitors as a tuple to 'section_grammars' at the end of this module.
-# edit the section_header_remover function in parse_pdf.py to remove headers from the section on pages 
+# edit the section_header_remover function in parse_cp_pdf.py to remove headers from the section on pages 
 #  after the first page.
 
 common_terminals = [

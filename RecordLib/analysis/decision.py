@@ -39,6 +39,6 @@ class Decision:
 
 class PetitionDecision(Decision):
     """
-    A Decision where the 'value' is a list of `Petitions`. The `reasoning` is a 
+    A Decision where the 'value' is a list of `Petitions`. The `reasoning` is a list of the Decisions that went into compiling the list of Petitions to generate. 
     """
     pass

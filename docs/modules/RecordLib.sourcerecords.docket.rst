@@ -23,7 +23,7 @@ RecordLib.sourcerecords.docket.docket module
 RecordLib.sourcerecords.docket.parse\_pdf module
 ------------------------------------------------
 
-.. automodule:: RecordLib.sourcerecords.docket.parse_pdf
+.. automodule:: RecordLib.sourcerecords.docket.parse_cp_pdf
    :members:
    :undoc-members:
    :show-inheritance:

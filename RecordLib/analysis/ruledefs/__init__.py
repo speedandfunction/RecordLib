@@ -1,3 +1,12 @@
+"""
+Ruledefs are functions that encapsulate legal logic. 
+
+A ruledef takes a criminal record and produces a Decision explaining how a particular rule applies to that criminal record.
+
+These ruledef functions can have a few different signatures. A ruledef might return a PetitionDecision or a regular Decision,
+along with the part of a record that didn't match the rule's requirements.
+"""
+
 from .petition_rules import (
     expunge_nonconvictions,
     expunge_summary_convictions,

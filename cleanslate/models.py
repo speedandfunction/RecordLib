@@ -8,7 +8,7 @@ import uuid
 from typing import Optional
 from dataclasses import dataclass, asdict
 import re 
-from RecordLib.sourcerecords.docket.parse_pdf import parse_pdf as docket_pdf_parser
+from RecordLib.sourcerecords.docket.parse_cp_pdf import parse_cp_pdf
 from RecordLib.sourcerecords.summary.parse_pdf import parse_pdf as summary_pdf_parser
 
 class DocumentTemplate(models.Model):
@@ -170,7 +170,7 @@ class SourceRecord(models.Model):
         """
         return {
             "SUMMARY_PDF": summary_pdf_parser,
-            "DOCKET_PDF": docket_pdf_parser,
+            "DOCKET_PDF": parse_cp_pdf,
         }.get(self.record_type)
 
 

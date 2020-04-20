@@ -363,9 +363,9 @@ def get_case(stree: etree) -> Case:
         judge=judge, affiant=affiant, arresting_agency=arresting_agency, 
         complaint_date=complaint_date)
 
-def parse_pdf(pdf: Union[BinaryIO, str], tempdir = None) -> Tuple[Person, List[Case], List[str], etree.Element]:
+def parse_cp_pdf(pdf: Union[BinaryIO, str], tempdir = None) -> Tuple[Person, List[Case], List[str], etree.Element]:
     """
-    Parse the a pdf of a Common Please criminal record docket. 
+    Parse the a pdf of a Common Pleas criminal record docket. 
 
     The 'see' references are to the DocketParse library, which also parses pdf dockets. 
 

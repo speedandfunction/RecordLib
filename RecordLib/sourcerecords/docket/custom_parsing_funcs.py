@@ -1,7 +1,7 @@
 
 
 """
-The docket parser uses lots of custom NodeVisitor Methods, 
+The docket parser, parse_cp_pdf uses lots of custom NodeVisitor Methods, 
 
 The default NodeVisitor methods just wrap the content of nonterminals in xml tags, and 
 return the text of terminals. 
