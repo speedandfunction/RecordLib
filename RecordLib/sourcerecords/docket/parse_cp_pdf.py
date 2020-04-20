@@ -340,7 +340,8 @@ def get_case(stree: etree) -> Case:
     # TODO I'm not sure this is the right date. Is the 'disposition date' the date the case status changed to 
     #       Completed, or the date of "Sentenced/Penalty Imposed"
     if re.search("close", status, re.IGNORECASE):
-        disposition_date = xpath_date_or_blank(stree, "//section[@name='section_status_info']//status_event[1]/status_date")
+        disposition_date = xpath_date_or_blank(
+            stree, "//section[@name='section_status_info']//status_event[status_type[contains(text(),'Sentenced')]]/status_date")
         #try:
         #    disposition_date = datetime.strptime(disposition_date, r"%m/%d/%Y")
         #except ValueError:

@@ -34,7 +34,6 @@ def test_pdf_factory_bulk(caplog):
     total_dockets = len(files)
     successes = 0
     error_list = []
-    breakpoint()
     for f in files:
         try:
             logging.info(f"Parsing {f}")
