@@ -2,7 +2,7 @@ from __future__ import annotations
 from RecordLib.crecord import Person
 from RecordLib.crecord import Case
 from .parse_cp_pdf import parse_cp_pdf
-from .parse_mdj_pdf import parse_mdf_pdf
+from .parse_mdj_pdf import parse_mdj_pdf
 from typing import Union, BinaryIO
 
 

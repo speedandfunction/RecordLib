@@ -8,6 +8,7 @@ from RecordLib.analysis import Decision
 from RecordLib.crecord import CRecord
 from RecordLib.crecord import Attorney
 from RecordLib.sourcerecords import SourceRecord
+from RecordLib.sourcerecords import Docket, Summary
 from datetime import date, datetime, timedelta
 from lxml import etree
 from lxml.etree import _ElementTree
@@ -64,6 +65,8 @@ def ts_sourcerecord(sr):
 @to_serializable.register(Sealing)
 @to_serializable.register(Expungement)
 @to_serializable.register(Attorney)
+@to_serializable.register(Docket)
+@to_serializable.register(Summary)
 @to_serializable.register(CRecord)
 @to_serializable.register(Address)
 def ts_object(an_object):
