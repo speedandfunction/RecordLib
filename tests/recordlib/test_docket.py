@@ -34,6 +34,7 @@ def test_pdf_factory_bulk(caplog):
     total_dockets = len(files)
     successes = 0
     error_list = []
+    breakpoint()
     for f in files:
         try:
             logging.info(f"Parsing {f}")
@@ -46,8 +47,8 @@ def test_pdf_factory_bulk(caplog):
             logging.error(f"    {f} failed to parse.")
     
     if len(error_list) > 0:
-        logging.error(f"{len(error_list)} cases had non-fatal parsing errors.")
-        pytest.fail(f"{len(error_list)} cases had non-fatal parsing errors.")
+        logging.error(f"{len(error_list)} of {len(files)} cases had non-fatal parsing errors.")
+        pytest.fail(f"{len(error_list)} of {len(files)} cases had non-fatal parsing errors.")
     if successes < total_dockets:
         logging.error(f"Only {successes}/{total_dockets} parsed.")
         pytest.fail(f"Only {successes}/{total_dockets} parsed.")

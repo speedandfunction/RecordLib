@@ -191,3 +191,13 @@ class Case:
         Returns the date of the last action on a case
         """
         return case.last_action()
+
+    def completeness(self):
+        """
+        A ratio of how completely this case's attributes have been filled in.
+
+        A parser will try to collect information about a case, and try to fill in as much info about a case as it can. This method helps indicate how good a job 
+        the parser did.
+        """
+        attrs = self.__dict__.keys()
+        return len([attr for attr in attrs if getattr(self, attr) is not None]) / len(attrs)

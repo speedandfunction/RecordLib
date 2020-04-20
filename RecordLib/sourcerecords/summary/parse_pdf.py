@@ -446,7 +446,7 @@ md_processors = {"parse_summary": parse_md_summary,
 
 def parse_pdf(pdf: Union[BinaryIO, str]) -> Tuple[Person, List[Case], List[str], etree.Element]:
     """
-    Parser method that can take a CP or MD source and return a Summary
+    PEGParser-based parser method that can take a CP or MD source and return a Summary
     used to build a CRecord.
     """
     text = get_text_from_pdf(pdf)
@@ -457,7 +457,6 @@ def parse_pdf(pdf: Union[BinaryIO, str]) -> Tuple[Person, List[Case], List[str],
         parsed_pages = summary_page_grammar.parse(text)
     except Exception as e:
         #slines = text.split("\n")
-        #breakpoint()
         errors.append(f"Grammar cannot parse summary: {str(e)}")
 
     parse_summary = inputs_dictionary["parse_summary"]

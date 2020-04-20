@@ -97,3 +97,11 @@ def test_from_dict(example_case):
     ser = to_serializable(example_case)
     c2 = Case.from_dict(ser)
     assert c2.docket_number == example_case.docket_number
+
+
+def test_case_completenes(example_case):
+    example_case.judge_address = None
+    no_judge_completeness = example_case.completeness()
+    assert no_judge_completeness < 1
+    example_case.judge_address = "1234 Market St."
+    assert example_case.completeness() > no_judge_completeness
