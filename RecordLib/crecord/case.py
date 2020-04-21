@@ -194,10 +194,19 @@ class Case:
 
     def completeness(self):
         """
-        A ratio of how completely this case's attributes have been filled in.
+        A score of how completely this case's attributes have been filled in.
 
         A parser will try to collect information about a case, and try to fill in as much info about a case as it can. This method helps indicate how good a job 
-        the parser did.
+        the parser did. Using 'completeness', we can compare cases to each other to evaluate whether one case is more completed than another.
         """
+        score = 0
         attrs = self.__dict__.keys()
-        return len([attr for attr in attrs if getattr(self, attr) is not None]) / len(attrs)
+        for attr in attrs:
+            # sometimes an attribute is given a blank value, like docket_number='', but that shouldn't count as a filled-in value.
+            val = getattr(self, attr)
+            if val is not None:
+                if isinstance(val, int):
+                    score += 1
+                elif len(val) > 0:
+                    score += 1
+        return score

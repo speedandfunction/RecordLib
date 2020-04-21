@@ -5,16 +5,16 @@ import json
 
 @click.command()
 @click.option("--doctype", required=True, type=click.Choice(["summary","docket"]))
-@click.option("--tempdir", "-td", type=click.Path(), default="tests/data/tmp")
+@click.option("--court", required=False, default=None)
 @click.argument("path")
-def parse(path, doctype, tempdir):
+def parse(path, doctype, court):
     """
     Parse a pdf file. Probably only useful for testing.
     """
     if doctype == "summary":
         print("Not implemented yet")
     elif doctype == "docket":
-        d, errs = Docket.from_pdf(path, tempdir)
+        d, errs = Docket.from_pdf(path, court=court)
         print("---Errors---")
         print(errs)
         print("---Person---")

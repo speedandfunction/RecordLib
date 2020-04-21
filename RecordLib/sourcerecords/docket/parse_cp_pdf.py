@@ -205,6 +205,8 @@ def xpath_or_empty_list(tree: etree, xpath: str) -> List[str]:
 def str_to_money(money: str) -> float:
     """ 
     Turn a money string into a float.
+    
+    TODO This should perhaps return None instead of 0 for a blank input.
     """
     if money.strip() == "": return 0
     return float(money.replace("$", "").replace(",","").replace("(","").replace(")",""))

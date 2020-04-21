@@ -48,7 +48,6 @@ def parse_mdj_pdf_text(txt: str) -> Tuple[Person, List[Case], List[str], etree.E
     person_info["aliases"] = []
     
     lines = txt.split("\n")
-    
     for idx, line in enumerate(lines):
         m = PATTERNS.mdj_district_number.search(line)
         if m:
@@ -131,7 +130,8 @@ def parse_mdj_pdf_text(txt: str) -> Tuple[Person, List[Case], List[str], etree.E
                 if re.search(r"\w", lines[idx2]):
                     person_info["aliases"].append(lines[idx2].strip())
                 idx2 += 1
-                end_of_aliases = PATTERNS.alias_names_end.search(lines[idx + 1])
+
+                end_of_aliases = PATTERNS.alias_names_end.search(lines[idx2])
                 if end_of_aliases: 
                     already_searched_aliases = True
 

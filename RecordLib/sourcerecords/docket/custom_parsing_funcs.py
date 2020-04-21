@@ -4,6 +4,7 @@
 The docket parser, parse_cp_pdf uses lots of custom NodeVisitor Methods, 
 
 The default NodeVisitor methods just wrap the content of nonterminals in xml tags, and 
+        source_rec.parse()
 return the text of terminals. 
 
 The docket parser needs a function for each section that adds a name attribute containing the 

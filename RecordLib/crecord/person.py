@@ -39,6 +39,8 @@ class Person:
 
     def age(self) -> int:
         """ Age in years """
+        if self.date_of_birth is None:
+            return 0
         today = date.today()
         return (
             today.year
