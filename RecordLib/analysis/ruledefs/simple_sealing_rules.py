@@ -24,7 +24,8 @@ import re
 from RecordLib.analysis import Decision
 from RecordLib.petitions import Sealing
 import math
-
+from dateutil.relativedelta import relativedelta
+from datetime import date
 
 def no_danger_to_person_offense(
     item: Union[CRecord, Charge],
@@ -96,14 +97,20 @@ def ten_years_since_last_conviction(crecord: CRecord) -> Decision:
         decision.reasoning = "The person appears to have no convictions."
         return decision
 
-    last_conviction = max(convictions, key=lambda c: c.disposition_date)
-    years_since_last_conviction = min([case.years_passed_disposition() for case in crecord.cases for charge in case.charges if charge.is_conviction()])
+    convictions_with_disposition_dates = [c for c in convictions if getattr(c,"disposition_date", None) is not None]
+    last_conviction = max(convictions_with_disposition_dates, key=lambda c: c.disposition_date)
+    #years_since_last_conviction = min([case.years_passed_disposition() for case in crecord.cases for charge in case.charges if charge.is_conviction()])
+    years_since_last_conviction = relativedelta(date.today(), last_conviction.disposition_date).years
 
 
     decision.reasoning= (
         f"It has been {years_since_last_conviction} years since the last conviction on " + 
         f"{last_conviction.disposition_date} in {last_conviction.docket_number}."
     )
+    if len(convictions) > len(convictions_with_disposition_dates):
+        decision.reasoning += (
+            f" But note that there were {len(convictions) - len(convictions_with_disposition_dates)}" + 
+            " convictions without disposition dates, so our estimate of the last conviction date may be wrong.")
     decision.value = years_since_last_conviction > 10
 
     if decision.value is False:

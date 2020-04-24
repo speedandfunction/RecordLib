@@ -31,7 +31,7 @@ class PATTERNS:
     costs = re.compile(r"Totals:\s+\\$([\d\,]+\.\d{2})\s+-?\(?\\$([\d\,]+\.\d{2})\)?\s+-?\(?\\$([\d\,]+\.\d{2})\)?\s+-?\(?\\$([\d\,]+\.\d{2})\)?\s+-?\(?\\$([\d\,]+\.\d{2})\)?", re.I)
 
 
-def parse_mdj_pdf_text(txt: str) -> Tuple[Person, List[Case], List[str], etree.Element]:
+def parse_mdj_pdf_text(txt: str) -> Tuple[Person, List[Case], List[str]]:
     """
     Parse MDJ docket, given the formatted text of the pdf.
     This function uses the original Expungement Generator's technique: regexes and nested loops, 
@@ -172,9 +172,9 @@ def parse_mdj_pdf_text(txt: str) -> Tuple[Person, List[Case], List[str], etree.E
     case = Case.from_dict(case_info)
     logger.info("Finished parsing MDJ docket")
 
-    return person, [case], [], None
+    return person, [case], []
 
-def parse_mdj_pdf(path: str) -> Tuple[Person, List[Case], List[str], etree.Element]:
+def parse_mdj_pdf(path: str) -> Tuple[Person, List[Case], List[str]]:
     """
     Parse an mdj docket, given the path to the docket pdf.
 
@@ -187,5 +187,5 @@ def parse_mdj_pdf(path: str) -> Tuple[Person, List[Case], List[str], etree.Eleme
     # pdf to raw text
     txt = get_text_from_pdf(path)
     if txt == "":
-        return None, None, ["could not extract text from pdf"], None
+        return None, None, ["could not extract text from pdf"]
     return parse_mdj_pdf_text(txt)

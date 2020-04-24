@@ -1,7 +1,8 @@
-from typing import Union, BinaryIO
+from typing import Union, BinaryIO, Optional
 import os
 import tempfile
 import logging
+from datetime import datetime
 
 
 logger = logging.getLogger(__name__)
@@ -38,3 +39,21 @@ def get_text_from_pdf(pdf: Union[BinaryIO, str]) -> str:
         except IOError as e:
             logger.error("Cannot extract pdf text..")
             return ""
+
+def date_or_none(date_text: str, fmtstr: str = r"%m/%d/%Y") -> datetime:
+    """
+    Return date or None given a string.
+    """
+    try:
+        return datetime.strptime(date_text.strip(), fmtstr).date()
+    except (ValueError, AttributeError):
+        return None
+
+
+def money_or_none(money_str: str) -> Optional[float]:
+    try:
+        return float(
+            money_str.strip().replace(",","")
+        )
+    except:
+        return None

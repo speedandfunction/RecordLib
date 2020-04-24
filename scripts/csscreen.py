@@ -4,7 +4,7 @@ from ujs_search.services.searchujs import search_by_docket, search_by_name
 from RecordLib.utilities.serializers import to_serializable
 from RecordLib.crecord import CRecord, Person
 from RecordLib.sourcerecords import SourceRecord
-from RecordLib.sourcerecords.docket.parse_cp_pdf import parse_cp_pdf_text
+from RecordLib.sourcerecords.docket.re_parse_cp_pdf import parse_cp_pdf_text
 from RecordLib.sourcerecords.docket.parse_mdj_pdf import parse_mdj_pdf_text
 from RecordLib.sourcerecords.parsingutilities import get_text_from_pdf
 from RecordLib.analysis import Analysis

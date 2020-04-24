@@ -32,6 +32,7 @@ def test_SentenceLength():
 
 def test_charge():
     char = Charge(
+        sequence=1,
         offense="Eating w/ mouth open",
         grade="M2",
         statute="24 &sect; 102",
@@ -41,6 +42,36 @@ def test_charge():
     assert char.offense == "Eating w/ mouth open"
     assert char.grade == "M2"
     assert char.disposition == "Guilty Plea"
+
+def test_charge_merge_reduce():
+    charges = [
+        Charge(
+            sequence=1,
+            offense="Eating w/ mouth open",
+            grade="M2",
+            statute="24 &sect; 102",
+            disposition="Held for Court (Lower Court)",
+            disposition_date=None,
+            sentences=[]),
+        Charge(
+            sequence=1,
+            offense="Eating w/ mouth open",
+            grade=None,
+            statute="24 &sect; 102",
+            disposition="Guilty Plea",
+            disposition_date=date(2010,1,1),
+            sentences=[]),
+        Charge(
+            sequence=2,
+            offense="Shoveling snow too exuberantly",
+            grade="F1",
+            statute="24 &sect; 202",
+            disposition="Guilty Plea",
+            disposition_date=date(2010,1,1),
+            sentences=[]),
+    ]
+    reduced_charges = Charge.reduce_merge(charges)
+    assert len(reduced_charges) == 2
 
 
 @pytest.mark.parametrize("disposition, is_a_conviction", (

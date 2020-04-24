@@ -9,6 +9,7 @@ import re
 import logging
 from dateutil.relativedelta import relativedelta
 import json
+import functools
 
 logger = logging.getLogger(__name__)
 
@@ -123,6 +124,7 @@ class Charge:
     disposition: str
     disposition_date: Optional[date] = None
     sentences: Optional[List[Sentence]] = None
+    sequence: Optional[int] = None # A charge on a docket gets a sequence number. Its like an ID for the charge, within the docket. 
 
     @staticmethod
     def grade_GTE(grade_a: str, grade_b: str) -> bool:
@@ -163,6 +165,50 @@ class Charge:
         except Exception as err:
             logger.error(str(err))
             return None
+
+    @staticmethod
+    def reduce_merge(charges: List[Charge]) -> List[Charge]:
+        """
+        Given a list of charges, reduce the list by merging charges with the same sequence number.
+
+        In a Docket, there's often a number of records relating to a single charge. There records explain
+        how a charge proceeded through the case. When we parse a docket, if we find lots of records of 
+        charges, we need to reduce them into a list where each charge only appears once.
+        """
+        def reducer(accumulator, charge):
+            """
+            Add charge to accumulator, if the charge is new. Otherwise combine charge with its pre-existing charge.
+            """
+            if len(accumulator) == 0:
+                return [charge]
+            new_charges = []
+            is_new = True
+            for ch in accumulator:
+                if isinstance(charge.sequence, int) and charge.sequence == ch.sequence:
+                    ch.combine_with(charge)
+                    is_new = False
+            if is_new: accumulator.append(charge)
+            return accumulator
+        reduced = functools.reduce(reducer, charges, [])
+        return  reduced
+    
+    def combine_with(self, charge) -> Charge:
+        """
+        Combine this Charge with another, filling in missing info, or updating certain fields.
+        """
+        for attr in self.__dict__.keys():
+            if getattr(self, attr) is None and getattr(charge,attr) is not None:
+                setattr(self,attr,getattr(charge,attr))
+            elif ((isinstance(getattr(self,attr),str) and getattr(self, attr).strip() == "") and 
+                  (isinstance(getattr(charge,attr),str) and (getattr(charge,attr).strip() != ""))):
+                setattr(self,attr,getattr(charge,attr))
+            elif attr == "disposition":
+                if re.search(r"nolle|guilt|dismiss|withdraw",charge.disposition,re.I):
+                    # the new charge has a disposition that should be saved as the final disposition of this charge.
+                    self.disposition = charge.disposition
+                    self.disposition_date = getattr(charge,"disposition_date",None)
+
+        return self
 
     def is_conviction(self) -> bool:
         """Is this charge a conviction?

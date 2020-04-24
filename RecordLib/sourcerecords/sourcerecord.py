@@ -41,8 +41,13 @@ class SourceRecord:
         """
         self.raw_source = src
         self.parser = parser or null_parser
-        person, cases, errors, parsed_source = self.parser(src)
+        try: 
+            person, cases, errors = self.parser(src)
+            parsed_source=None
+        except ValueError as e:
+            # The PEG parsers also return the xml tree of parsed data, which can be useful to have.
+            person, cases, errors, raw_source = self.parser(src)
+        self.parsed_source = parsed_source
         self.person = person
         self.cases = cases
         self.errors = errors
-        self.parsed_source = parsed_source

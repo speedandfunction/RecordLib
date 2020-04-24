@@ -3,7 +3,7 @@ from dataclasses import asdict
 from .common import Charge, Sentence
 from .person import Person
 from typing import List, Optional
-from datetime import date
+from datetime import date, datetime
 import logging
 from dateutil.relativedelta import relativedelta
 from .helpers import convert_datestring
@@ -206,6 +206,8 @@ class Case:
             val = getattr(self, attr)
             if val is not None:
                 if isinstance(val, int):
+                    score += 1
+                elif isinstance(val,(datetime, date)):
                     score += 1
                 elif len(val) > 0:
                     score += 1

@@ -5,6 +5,7 @@ import pytest
 import os
 import logging
 from RecordLib.sourcerecords.docket.parse_mdj_pdf import parse_mdj_pdf
+from RecordLib.sourcerecords.docket.re_parse_cp_pdf import parse_cp_pdf as re_parse_cp_pdf
 
 def test_pdf_factory_one():
     try:
@@ -66,3 +67,40 @@ def test_mdj_docket_pdf_parser():
         except Exception as e:
             pytest.fail(str(e))
         assert len(sr.cases) == 1 
+
+
+def test_regex_cp_parser(caplog):
+    """
+    Test parsing a whole directory of dockets with the regex-based cp parser.
+
+
+    Run w/ `pytest tests/test_docket.py -k bulk -v -o log_cli=true` to show logging, even when test
+    doesn't fail.
+    """
+    caplog.set_level(logging.INFO)
+    # don't try to parse MDJ dockets here.
+    files = [f for f in os.listdir("tests/data/dockets") if "CP" in f]
+    total_dockets = len(files)
+    successes = 0
+    error_list = []
+    for f in files:
+        try:
+            logging.info(f"Parsing {f}")
+            person, cases, errs = re_parse_cp_pdf(os.path.join("tests/data/dockets", f))
+            logging.info(f"    {f} parsed with {len(errs)} errors reported..")
+            if len(errs) > 0:
+                error_list = error_list + [(f, errs)]
+                logging.info(f"    First error: {errs[0]}.")
+            successes += 1
+        except Exception as e:
+            pytest.fail(f"     {f} failed to parse. Stopping test.")
+            logging.error(f"    {f} failed to parse.")
+            logging.error(e)
+
+    if len(error_list) > 0:
+        logging.error(f"{len(error_list)} of {len(files)} cases had non-fatal parsing errors.")
+        pytest.fail(f"{len(error_list)} of {len(files)} cases had non-fatal parsing errors.")
+    if successes < total_dockets:
+        logging.error(f"Only {successes}/{total_dockets} parsed.")
+        pytest.fail(f"Only {successes}/{total_dockets} parsed.")
+
