@@ -1,34 +1,51 @@
 from RecordLib.crecord import Person, Case
-from lxml import etree
 from RecordLib.sourcerecords.parsingutilities import get_text_from_pdf
 from typing import Union, BinaryIO, Tuple, Callable, List, Optional
 import re
-import logging 
+import logging
 
 
 logger = logging.getLogger(__name__)
 
+
 class PATTERNS:
     mdj_district_number = re.compile(r"Magisterial District Judge\s(.*)", re.I)
-    mdj_county_and_disposition = re.compile(r"County:\s+(.*)\s+Disposition Date:\s+(.*)", re.I)
-    docket_number = re.compile(r"Docket Number:\s+(MJ\-\d{5}\-(\D{2})\-\d*\-\d{4})", re.I)
-    otn = re.compile(r"OTN:\s+(\D(\s)?\d+(\-\d)?)",re.I)
-    dc_number = re.compile(r"District Control Number\s+(\d+)",re.I)
-    arrest_agency_and_date = re.compile(r"Arresting Agency:\s+(.*)\s+Arrest Date:\s+(\d{1,2}\/\d{1,2}\/\d{4})?",re.I)
-    complaint_date = re.compile(r"Issue Date:\s+(\d{1,2}\/\d{1,2}\/\d{4})",re.I)
+    mdj_county_and_disposition = re.compile(
+        r"County:\s+(.*)\s+Disposition Date:\s+(.*)", re.I
+    )
+    docket_number = re.compile(
+        r"Docket Number:\s+(MJ\-\d{5}\-(\D{2})\-\d*\-\d{4})", re.I
+    )
+    otn = re.compile(r"OTN:\s+(\D(\s)?\d+(\-\d)?)", re.I)
+    dc_number = re.compile(r"District Control Number\s+(\d+)", re.I)
+    arrest_agency_and_date = re.compile(
+        r"Arresting Agency:\s+(.*)\s+Arrest Date:\s+(\d{1,2}\/\d{1,2}\/\d{4})?", re.I
+    )
+    complaint_date = re.compile(r"Issue Date:\s+(\d{1,2}\/\d{1,2}\/\d{4})", re.I)
     affiant = re.compile(r"^\s*Arresting Officer (\D+)\s*$", re.I)
-    judge_assigned = re.compile(r"Judge Assigned:\s+(.*)\s+(Date Filed|Issue Date):",re.I)
+    judge_assigned = re.compile(
+        r"Judge Assigned:\s+(.*)\s+(Date Filed|Issue Date):", re.I
+    )
     judge_assigned_overflow = re.compile(r"^\s+(\w+\s*\w*)\s*$", re.I)
-    judge = re.compile(r"Final Issuing Authority:\s+(.*)",re.I)
-    dob = re.compile(r"Date Of Birth:?\s+(\d{1,2}\/\d{1,2}\/\d{4})",re.I)
-    name = re.compile(r"^Defendant\s+(.*), (.*)",re.I)
-    alias_names_start = re.compile(r"Alias Name",re.I)
-    alias_names_end = re.compile(r"CASE PARTICIPANTS",re.I)
+    judge = re.compile(r"Final Issuing Authority:\s+(.*)", re.I)
+    dob = re.compile(r"Date Of Birth:?\s+(\d{1,2}\/\d{1,2}\/\d{4})", re.I)
+    name = re.compile(r"^Defendant\s+(.*), (.*)", re.I)
+    alias_names_start = re.compile(r"Alias Name", re.I)
+    alias_names_end = re.compile(r"CASE PARTICIPANTS", re.I)
     end_of_page = re.compile(r"(CPCMS|AOPC)\s\d{4}", re.I)
-    charges = re.compile(r"^\s*\d\s+((\w|\d|\s(?!\s)|\-|\u00A7|\*)+)\s{2,}(\w{0,2})\s{2,}([\d|\D]+)\s{2,}(\d{1,2}\/\d{1,2}\/\d{4})\s{2,}(\D{2,})", re.U)
-    charges_search_overflow = re.compile(r"^\s+(\w+\s*\w*)\s*$",re.I)
-    bail = re.compile(r"Bail.+\\$([\d\,]+\.\d{2})\s+-?\\$([\d\,]+\.\d{2})\s+-?\\$([\d\,]+\.\d{2})\s+-?\\$([\d\,]+\.\d{2})\s+-?\\$([\d\,]+\.\d{2})", re.I)
-    costs = re.compile(r"Totals:\s+\\$([\d\,]+\.\d{2})\s+-?\(?\\$([\d\,]+\.\d{2})\)?\s+-?\(?\\$([\d\,]+\.\d{2})\)?\s+-?\(?\\$([\d\,]+\.\d{2})\)?\s+-?\(?\\$([\d\,]+\.\d{2})\)?", re.I)
+    charges = re.compile(
+        r"^\s*\d\s+((\w|\d|\s(?!\s)|\-|\u00A7|\*)+)\s{2,}(\w{0,2})\s{2,}([\d|\D]+)\s{2,}(\d{1,2}\/\d{1,2}\/\d{4})\s{2,}(\D{2,})",
+        re.U,
+    )
+    charges_search_overflow = re.compile(r"^\s+(\w+\s*\w*)\s*$", re.I)
+    bail = re.compile(
+        r"Bail.+\\$([\d\,]+\.\d{2})\s+-?\\$([\d\,]+\.\d{2})\s+-?\\$([\d\,]+\.\d{2})\s+-?\\$([\d\,]+\.\d{2})\s+-?\\$([\d\,]+\.\d{2})",
+        re.I,
+    )
+    costs = re.compile(
+        r"Totals:\s+\\$([\d\,]+\.\d{2})\s+-?\(?\\$([\d\,]+\.\d{2})\)?\s+-?\(?\\$([\d\,]+\.\d{2})\)?\s+-?\(?\\$([\d\,]+\.\d{2})\)?\s+-?\(?\\$([\d\,]+\.\d{2})\)?",
+        re.I,
+    )
 
 
 def parse_mdj_pdf_text(txt: str) -> Tuple[Person, List[Case], List[str]]:
@@ -46,14 +63,14 @@ def parse_mdj_pdf_text(txt: str) -> Tuple[Person, List[Case], List[str]]:
     case_info["charges"] = []
     person_info = dict()
     person_info["aliases"] = []
-    
+
     lines = txt.split("\n")
     for idx, line in enumerate(lines):
         m = PATTERNS.mdj_district_number.search(line)
         if m:
             # what's the mdj district number for?
             case_info["mdj_district_number"] = m.group(1)
-        
+
         m = PATTERNS.mdj_county_and_disposition.search(line)
         if m:
             case_info["county"] = m.group(1)
@@ -104,7 +121,6 @@ def parse_mdj_pdf_text(txt: str) -> Tuple[Person, List[Case], List[str]]:
             if "igrated" not in judge:
                 case_info["judge"] = judge
 
-
         m = PATTERNS.judge.search(line)
         if m:
             if len(m.group(1)) > 0 and "igrated" not in m.group(1):
@@ -122,7 +138,7 @@ def parse_mdj_pdf_text(txt: str) -> Tuple[Person, List[Case], List[str]]:
 
         m = PATTERNS.alias_names_start.search(line)
         if already_searched_aliases is False and m:
-            idx2 = idx+1
+            idx2 = idx + 1
             end_of_aliases = False
             while not end_of_aliases:
                 if PATTERNS.end_of_page.search(lines[idx2]):
@@ -132,26 +148,28 @@ def parse_mdj_pdf_text(txt: str) -> Tuple[Person, List[Case], List[str]]:
                 idx2 += 1
 
                 end_of_aliases = PATTERNS.alias_names_end.search(lines[idx2])
-                if end_of_aliases: 
+                if end_of_aliases:
                     already_searched_aliases = True
 
-        m = PATTERNS.charges.search(line) # Arrest.php;595
+        m = PATTERNS.charges.search(line)  # Arrest.php;595
         if m:
             charge_info = dict()
             charge_info["statute"] = m.group(1)
             charge_info["grade"] = m.group(3)
             charge_info["offense"] = m.group(4)
             charge_info["disposition"] = m.group(6)
-            m2 = PATTERNS.charges_search_overflow.search(lines[idx+1])
+            m2 = PATTERNS.charges_search_overflow.search(lines[idx + 1])
             if m2:
-                charge_info["offense"] = f"{charge_info['offense'].strip()} {m2.group(1).strip()}"
-            
+                charge_info[
+                    "offense"
+                ] = f"{charge_info['offense'].strip()} {m2.group(1).strip()}"
+
             ## disposition date is on the next line
             if "disposition_date" in case_info.keys():
                 charge_info["disposition_date"] = case_info["disposition_date"]
-                
+
             case_info["charges"].append(charge_info)
-        
+
         m = PATTERNS.bail.search(line)
         if m:
             # TODO charges won't use the detailed bail info yet.
@@ -166,13 +184,18 @@ def parse_mdj_pdf_text(txt: str) -> Tuple[Person, List[Case], List[str]]:
             case_info["fines_paid"] = m.group(2)
             case_info["costs_adjusted"] = m.group(3)
             case_info["costs_total"] = m.group(5)
-    case_info = {k: (v.strip() if isinstance(v, str) else v) for k,v in case_info.items()}
-    person_info = {k: (v.strip() if isinstance(v, str) else v) for k,v in person_info.items()}
+    case_info = {
+        k: (v.strip() if isinstance(v, str) else v) for k, v in case_info.items()
+    }
+    person_info = {
+        k: (v.strip() if isinstance(v, str) else v) for k, v in person_info.items()
+    }
     person = Person.from_dict(person_info)
     case = Case.from_dict(case_info)
     logger.info("Finished parsing MDJ docket")
 
     return person, [case], []
+
 
 def parse_mdj_pdf(path: str) -> Tuple[Person, List[Case], List[str]]:
     """

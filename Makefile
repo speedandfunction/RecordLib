@@ -69,6 +69,6 @@ push:
 # Assumes that the host is set up to receive this command. 
 .PHONY: deploy
 deploy:
-	ssh ${HOST}; cd recordlib; ./update.sh 
+	ssh ${HOST} "cd recordlib; ./update.sh"
 
 build-push-deploy: build push deploy

@@ -7,48 +7,66 @@ import io
 import uuid
 from typing import Optional
 from dataclasses import dataclass, asdict
-import re 
-from RecordLib.sourcerecords.docket.parse_cp_pdf import parse_cp_pdf
+import re
+from RecordLib.sourcerecords.docket.re_parse_pdf import (
+    re_parse_pdf as docket_pdf_parser,
+)
 from RecordLib.sourcerecords.summary.parse_pdf import parse_pdf as summary_pdf_parser
+
 
 class DocumentTemplate(models.Model):
     """Abstact model for storing a template for expungement or sealing petitions."""
+
     name = models.CharField(max_length=255)
     file = models.FileField(upload_to="templates/")
     default = models.BooleanField(null=True)
 
-
     class Meta:
         abstract = True
+
 
 class ExpungementPetitionTemplate(DocumentTemplate):
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['default'], condition=models.Q(default=True), name='unique_default_expungement_petition')
+            models.UniqueConstraint(
+                fields=["default"],
+                condition=models.Q(default=True),
+                name="unique_default_expungement_petition",
+            )
         ]
+
     pass
+
 
 class SealingPetitionTemplate(DocumentTemplate):
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['default'], condition=models.Q(default=True), name='unique_default_sealing_petition')
+            models.UniqueConstraint(
+                fields=["default"],
+                condition=models.Q(default=True),
+                name="unique_default_sealing_petition",
+            )
         ]
+
     pass
 
 
 class UserProfile(models.Model):
     """Information unrelated to authentication that is relevant to a user. """
+
     user = models.OneToOneField(to=User, on_delete=models.CASCADE)
     expungement_petition_template = models.ForeignKey(
-        ExpungementPetitionTemplate, 
+        ExpungementPetitionTemplate,
         on_delete=models.CASCADE,
-        null=True, 
-        related_name="expugement_template_user_profiles")
+        null=True,
+        related_name="expugement_template_user_profiles",
+    )
     sealing_petition_template = models.ForeignKey(
         SealingPetitionTemplate,
         on_delete=models.CASCADE,
         null=True,
-        related_name="sealing_petition_template_user_profiles")
+        related_name="sealing_petition_template_user_profiles",
+    )
 
 
 def create_profile(sender, **kwargs):
@@ -56,6 +74,8 @@ def create_profile(sender, **kwargs):
     if kwargs["created"]:
         user_profile = UserProfile(user=user)
         user_profile.save()
+
+
 post_save.connect(create_profile, sender=User)
 
 
@@ -67,18 +87,23 @@ def set_default_templates(sender, **kwargs):
     """
     profile = kwargs["instance"]
     if kwargs["created"]:
-        if (profile.expungement_petition_template is None and 
-                ExpungementPetitionTemplate.objects.filter(default__exact=True).count() == 1):
-            profile.expungement_petition_template = (ExpungementPetitionTemplate
-                .objects
-                .filter(default__exact=True)
-                .all()[0])
-        if (profile.sealing_petition_template is None and 
-                SealingPetitionTemplate.objects.filter(default__exact=True).count() == 1):
-            profile.sealing_petition_template = (SealingPetitionTemplate
-                .objects
-                .filter(default__exact=True)
-                .all()[0])
+        if (
+            profile.expungement_petition_template is None
+            and ExpungementPetitionTemplate.objects.filter(default__exact=True).count()
+            == 1
+        ):
+            profile.expungement_petition_template = ExpungementPetitionTemplate.objects.filter(
+                default__exact=True
+            ).all()[
+                0
+            ]
+        if (
+            profile.sealing_petition_template is None
+            and SealingPetitionTemplate.objects.filter(default__exact=True).count() == 1
+        ):
+            profile.sealing_petition_template = SealingPetitionTemplate.objects.filter(
+                default__exact=True
+            ).all()[0]
 
         profile.save()
 
@@ -86,16 +111,15 @@ def set_default_templates(sender, **kwargs):
 post_save.connect(set_default_templates, sender=UserProfile)
 
 
-
-
 @dataclass
 class SourceRecordFileInfo:
     caption: str = ""
-    docket_num: str= ""
-    court: str  = "" 
+    docket_num: str = ""
+    court: str = ""
     url: str = ""
     record_type: str = ""
     fetch_status: str = ""
+
 
 def source_record_info(filename: str):
     """
@@ -107,7 +131,7 @@ def source_record_info(filename: str):
             file_info.record_type = SourceRecord.RecTypes.SUMMARY_PDF
         elif re.search("docket", filename, re.IGNORECASE):
             file_info.record_type = SourceRecord.RecTypes.DOCKET_PDF
-    
+
         if re.search("CP", filename):
             file_info.court = SourceRecord.Courts.CP
         elif re.search("MD", filename):
@@ -133,19 +157,22 @@ class SourceRecord(models.Model):
     """
 
     @classmethod
-    def from_unknown_file(cls, a_file: InMemoryUploadedFile, **kwargs) -> Optional[SourceRecord]:
+    def from_unknown_file(
+        cls, a_file: InMemoryUploadedFile, **kwargs
+    ) -> Optional[SourceRecord]:
         """ Create a SourceRecord from an uploaded file, or return None if we cannot tell what the file is. """
-        try: 
+        try:
             file_info = source_record_info(a_file.name)
-            if file_info:   
+            if file_info:
                 return cls(**asdict(file_info), file=a_file, **kwargs)
-            else: 
+            else:
                 return None
         except:
             return None
 
     class Courts:
         """ Documents may come from one of these courts. """
+
         CP = "CP"
         MDJ = "MDJ"
         __choices__ = [
@@ -156,6 +183,7 @@ class SourceRecord(models.Model):
     class RecTypes:
         """ These types of records may be stored in this class. 
         """
+
         SUMMARY_PDF = "SUMMARY_PDF"
         DOCKET_PDF = "DOCKET_PDF"
         __choices__ = [
@@ -170,21 +198,21 @@ class SourceRecord(models.Model):
         """
         return {
             "SUMMARY_PDF": summary_pdf_parser,
-            "DOCKET_PDF": parse_cp_pdf,
+            "DOCKET_PDF": docket_pdf_parser,
         }.get(self.record_type)
-
 
     class FetchStatuses:
         """
         Documents have to be fetched and saved locally. 
         Has a particular document been fetched?
         """
+
         NOT_FETCHED = "NOT_FETCHED"
         FETCHING = "FETCHING"
         FETCHED = "FETCHED"
         FETCH_FAILED = "FETCH_FAILED"
         __choices__ = [
-            ("NOT_FETCHED","NOT_FETCHED"),
+            ("NOT_FETCHED", "NOT_FETCHED"),
             ("FETCHING", "FETCHING"),
             ("FETCHED", "FETCHED"),
             ("FETCH_FAILED", "FETCH_FAILED"),
@@ -194,9 +222,10 @@ class SourceRecord(models.Model):
         """
         Track whether the source record could be successfully parsed or not.
         """
+
         UNKNOWN = "UNKNOWN"
         SUCCESS = "SUCESSFULLY_PARSED"
-        FAILURE= "PARSE_FAILED"
+        FAILURE = "PARSE_FAILED"
         __choices__ = [
             ("UNKNOWN", "UNKNOWN"),
             ("SUCCESSFULLY_PARSED", "SUCCESSFULLY_PARSED"),
@@ -204,29 +233,25 @@ class SourceRecord(models.Model):
         ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    
+
     caption = models.CharField(blank=True, max_length=300)
-    
+
     docket_num = models.CharField(blank=True, max_length=50)
-    
-    court = models.CharField(
-        max_length=3, 
-        choices=Courts.__choices__,
-        blank=True)
-    
+
+    court = models.CharField(max_length=3, choices=Courts.__choices__, blank=True)
+
     url = models.URLField(blank=True, default="")
-    
+
     record_type = models.CharField(
-        max_length=30, 
-        blank=True,
-        choices=RecTypes.__choices__)
-        
+        max_length=30, blank=True, choices=RecTypes.__choices__
+    )
+
     fetch_status = models.CharField(
         max_length=100,
         choices=FetchStatuses.__choices__,
         default=FetchStatuses.NOT_FETCHED,
     )
-    
+
     parse_status = models.CharField(
         max_length=100,
         choices=ParseStatuses.__choices__,

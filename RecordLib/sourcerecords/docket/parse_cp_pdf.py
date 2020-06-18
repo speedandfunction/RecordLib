@@ -3,8 +3,11 @@ from RecordLib.crecord import Charge, Sentence, SentenceLength
 from RecordLib.crecord import Person
 from RecordLib.crecord import Case
 from .grammars import (
-    docket_sections, docket_sections_nonterminals, common_terminals, 
-    section_grammars)
+    docket_sections,
+    docket_sections_nonterminals,
+    common_terminals,
+    section_grammars,
+)
 from RecordLib.sourcerecords.customnodevisitorfactory import CustomVisitorFactory
 from .custom_parsing_funcs import docket_sections_custom_nodevisitors
 from RecordLib.sourcerecords.parsingutilities import get_text_from_pdf
@@ -14,6 +17,9 @@ from lxml import etree
 import logging
 import re
 from datetime import datetime, date
+
+logger = logging.getLogger(__name__)
+
 
 def text_to_pages(txt: str) -> Tuple[str, List[str]]:
     """ Convert raw text of a docket to an xml-string, where the nodes are the pages and sections of the docket.
@@ -37,12 +43,15 @@ def text_to_pages(txt: str) -> Tuple[str, List[str]]:
     grammar = Grammar(docket_sections)
     try:
         nodes = grammar.parse(txt)
-        visitor = CustomVisitorFactory(common_terminals, 
-        docket_sections_nonterminals, docket_sections_custom_nodevisitors).create_instance()
+        visitor = CustomVisitorFactory(
+            common_terminals,
+            docket_sections_nonterminals,
+            docket_sections_custom_nodevisitors,
+        ).create_instance()
         return visitor.visit(nodes), errors
     except Exception as e:
         slines = txt.split("\n")
-        logging.error("text_to_pages failed.")
+        logger.error("text_to_pages failed.")
         errors.append("Could not extract pages from docket text.")
         return "<docket></docket>", errors
 
@@ -75,21 +84,24 @@ def create_section_header_remover(section_name: str) -> Callable:
         lines_to_remove = [
             re.compile(r"\s*Seq..*"),
         ]
+
     def section_header_remover(section_text):
         slines = section_text.split("\n")
         keep_going = True
         while keep_going:
             any_matched = False
-            if len(slines) == 0: 
+            if len(slines) == 0:
                 break
             for patt in lines_to_remove:
                 if patt.match(slines[0]):
                     del slines[:1]
                     any_matched = True
-            if any_matched is False: keep_going = False
+            if any_matched is False:
+                keep_going = False
         return "\n".join(slines)
-    
+
     return section_header_remover
+
 
 def sections_from_pages(ptree: etree) -> Tuple[etree.ElementTree, List[str]]:
     """
@@ -128,44 +140,50 @@ def sections_from_pages(ptree: etree) -> Tuple[etree.ElementTree, List[str]]:
     except:
         errors.append("In extracting sections from pages, I could not find the header")
     pages = ptree.xpath("//page")
-    logging.info(f"    {len(pages)} pages in this docket.")
+    logger.info(f"    {len(pages)} pages in this docket.")
     # Recombine a section if it carries onto the following page(s).
     combined_sections = []
     for page_num, page in enumerate(pages):
         sections = page.xpath(".//section")
         for section in sections:
             if len(combined_sections) != 0:
-                #if the section last added to combined sections is the same kind of
+                # if the section last added to combined sections is the same kind of
                 # section, then add the current section's text to the most recent
                 # combined section's text.
                 if section.xpath("@name")[0] == combined_sections[-1].xpath("@name")[0]:
                     # here is where we'd remove the overflowing header lines from this section, before
                     # appending it to the previous section.
-                    section_header_remover = create_section_header_remover(section.xpath("@name")[0])
-                    # strip() removes empty lines at the beginning of the section, 
+                    section_header_remover = create_section_header_remover(
+                        section.xpath("@name")[0]
+                    )
+                    # strip() removes empty lines at the beginning of the section,
                     # which is good. But it also removes spaces at the beginning of the first line with text.
                     # some grammar pieces rely on the indentation of a line to know what kind of line it is.
                     # this strip() removes that indentation.
-                    section_text = "\n".join([ln for ln in section.text.split("\n") if ln.strip()]) 
+                    section_text = "\n".join(
+                        [ln for ln in section.text.split("\n") if ln.strip()]
+                    )
                     section_text = section_header_remover(section_text)
-                    # now combine the previous section with this section, because this section 
+                    # now combine the previous section with this section, because this section
                     # is just the overflow of the last on a different page.
-                    combined_sections[-1].text = "\n".join([combined_sections[-1].text.strip(), section_text])
-                #else the current section is new, so add the current section to the end of combined_sections
+                    combined_sections[-1].text = "\n".join(
+                        [combined_sections[-1].text.strip(), section_text]
+                    )
+                # else the current section is new, so add the current section to the end of combined_sections
                 else:
                     combined_sections.append(section)
             else:
                 combined_sections.append(section)
 
-        [stitched_xml.append(section_node)  for section_node in combined_sections]
+        [stitched_xml.append(section_node) for section_node in combined_sections]
     try:
         last_page = pages[-1]
         if len(last_page.xpath(".//section")) == 0:
             # add the traling <body> lines to the last section in combined_sections
             last_page_body = last_page.xpath("body")[0].text
             stitched_xml.xpath("//section[last()]")[0].text += last_page_body
-    except: 
-        # if the docket doesn't have any pages, it won't have a last page. 
+    except:
+        # if the docket doesn't have any pages, it won't have a last page.
         pass
     docket_tree = etree.ElementTree(stitched_xml)
     return docket_tree, errors
@@ -180,6 +198,7 @@ def split_first_name(full_name: str) -> Tuple[str, str]:
     names = full_name.split(" ")
     return " ".join(names[:-1]), names[-1]
 
+
 def xpath_or_blank(stree: etree, xpath: str) -> str:
     """ given an etree and an xpath expression, return the value of the expression, or 
     an empty string. 
@@ -190,6 +209,7 @@ def xpath_or_blank(stree: etree, xpath: str) -> str:
     except IndexError:
         return ""
 
+
 def xpath_date_or_blank(tree: etree, xpath: str) -> Optional[date]:
     """ Given an etree and an xpath expression, return the value of the expression 
     as a date, or None"""
@@ -198,9 +218,11 @@ def xpath_date_or_blank(tree: etree, xpath: str) -> Optional[date]:
     except (IndexError, ValueError) as e:
         return None
 
+
 def xpath_or_empty_list(tree: etree, xpath: str) -> List[str]:
     """ Given an etree, find a list of strings, or return an empty list."""
     return [el.text.strip() for el in tree.xpath(xpath)]
+
 
 def str_to_money(money: str) -> float:
     """ 
@@ -208,8 +230,12 @@ def str_to_money(money: str) -> float:
     
     TODO This should perhaps return None instead of 0 for a blank input.
     """
-    if money.strip() == "": return 0
-    return float(money.replace("$", "").replace(",","").replace("(","").replace(")",""))
+    if money.strip() == "":
+        return 0
+    return float(
+        money.replace("$", "").replace(",", "").replace("(", "").replace(")", "")
+    )
+
 
 def get_person(stree: etree) -> Person:
     """
@@ -228,14 +254,18 @@ def get_person(stree: etree) -> Person:
         first_name, last_name = split_first_name(name)
     except IndexError:
         first_name = ""
-        last_name = ""    
+        last_name = ""
 
     aliases = xpath_or_empty_list(stree, "//alias")
     date_of_birth = xpath_date_or_blank(stree, "//birth_date")
-    return Person(first_name = first_name, last_name = last_name, 
-                  date_of_birth = date_of_birth,
-                  aliases = aliases)
-    
+    return Person(
+        first_name=first_name,
+        last_name=last_name,
+        date_of_birth=date_of_birth,
+        aliases=aliases,
+    )
+
+
 def get_sentences(stree: etree) -> List[Sentence]:
     """Find the sentences in a sequence (as an xml tree) from a disposition section of a docket.
     """
@@ -243,18 +273,19 @@ def get_sentences(stree: etree) -> List[Sentence]:
     sentences = stree.xpath("//sentence_info")
     sentences = [
         Sentence(
-            sentence_date = sequence_date,
-            sentence_type = xpath_or_blank(s, "//program"),
-            sentence_period = "...",
-            sentence_length = SentenceLength(
-                min_time = (
+            sentence_date=sequence_date,
+            sentence_type=xpath_or_blank(s, "//program"),
+            sentence_period="...",
+            sentence_length=SentenceLength(
+                min_time=(
                     s.xpath("//sentence_length/min_length/time")[0].text,
-                    s.xpath("//sentence_length/min_length/unit")[0].text),
-                max_time = ( 
+                    s.xpath("//sentence_length/min_length/unit")[0].text,
+                ),
+                max_time=(
                     s.xpath("//sentence_length/min_length/time")[0].text,
-                    s.xpath("//sentence_length/min_length/unit")[0].text
-                    ),
-            )
+                    s.xpath("//sentence_length/min_length/unit")[0].text,
+                ),
+            ),
         )
         for s in sentences
     ]
@@ -267,51 +298,57 @@ def get_charges(stree: etree) -> List[Charge]:
     """
     # find the charges in the Charges section
     charges = stree.xpath("//section[@name='section_charges']//charge")
-        # charges is temporarily a list of tuples of [(sequence_num, Charge)]
+    # charges is temporarily a list of tuples of [(sequence_num, Charge)]
     charges = [
         (
             xpath_or_blank(charge, "./seq_num"),
             Charge(
-                offense = xpath_or_blank(charge, "./statute_description"),
-                grade = xpath_or_blank(charge, "./grade"),
-                statute = xpath_or_blank(charge, "./statute"),
-                disposition = "Unknown",
-                disposition_date = None,
-                sentences = [],
-            )
+                offense=xpath_or_blank(charge, "./statute_description"),
+                grade=xpath_or_blank(charge, "./grade"),
+                statute=xpath_or_blank(charge, "./statute"),
+                disposition="Unknown",
+                disposition_date=None,
+                sentences=[],
+            ),
         )
         for charge in charges
     ]
     # figure out the disposition dates by looking for a final disposition date that matches a charge.
-    final_disposition_events = stree.xpath("//section[@name='section_disposition_sentencing']//case_event[case_event_desc_and_date/is_final[contains(text(),'Final Disposition')]]")
+    final_disposition_events = stree.xpath(
+        "//section[@name='section_disposition_sentencing']//case_event[case_event_desc_and_date/is_final[contains(text(),'Final Disposition')]]"
+    )
     for final_disp_event in final_disposition_events:
         final_disp_date = xpath_date_or_blank(final_disp_event, ".//case_event_date")
-        applies_to_sequences = xpath_or_empty_list(final_disp_event, ".//sequence_number")
-        for seq_num in applies_to_sequences:    
+        applies_to_sequences = xpath_or_empty_list(
+            final_disp_event, ".//sequence_number"
+        )
+        for seq_num in applies_to_sequences:
             # set the final_disp date for the charge with sequence number seq_num
             for sn, charge in charges:
                 if sn == seq_num:
                     charge.disposition_date = final_disp_date
 
-
     # Figure out the disposition of each charge from the disposition section.
-    #   Do this by finding the last sequence in the disposition section for 
-    #   the sequence with seq_num. The disposition of the charge is that 
+    #   Do this by finding the last sequence in the disposition section for
+    #   the sequence with seq_num. The disposition of the charge is that
     #   sequence's disposition. Sentence is in that xml element too.
     try:
-        disposition_section = stree.xpath("//section[@name='section_disposition_sentencing']")[0]
+        disposition_section = stree.xpath(
+            "//section[@name='section_disposition_sentencing']"
+        )[0]
         for seq_num, charge in charges:
             try:
                 # seq is the last sequence for the charge seq_num.
                 seq = disposition_section.xpath(
-                    f"./disposition_section/disposition_subsection/disposition_details/case_event/sequences/sequence[sequence_number/text()=' {seq_num} ']")[-1]
+                    f"./disposition_section/disposition_subsection/disposition_details/case_event/sequences/sequence[sequence_number/text()=' {seq_num} ']"
+                )[-1]
                 charge.disposition = xpath_or_blank(seq, "./offense_disposition")
                 charge.sentences = get_sentences(seq)
             except IndexError:
                 continue
     except IndexError:
         pass
-    return [c for i,c in  charges]
+    return [c for i, c in charges]
 
 
 def get_case(stree: etree) -> Case:
@@ -331,42 +368,74 @@ def get_case(stree: etree) -> Case:
     docket_number = xpath_or_blank(stree, "/docket/header/docket_number")
     otn = xpath_or_blank(stree, "//section[@name='section_case_info']//otn")
     dc = xpath_or_blank(stree, "//section[@name='section_case_info']//dc")
-    judge = xpath_or_blank(stree, "//section[@name='section_case_info']//judge_assigned")
+    judge = xpath_or_blank(
+        stree, "//section[@name='section_case_info']//judge_assigned"
+    )
     affiant = xpath_or_blank(stree, "//arresting_officer")
     arresting_agency = xpath_or_blank(stree, "//arresting_agency")
-    complaint_date = xpath_date_or_blank(stree, "//section[@name='section_status_info']//complaint_date")
-    arrest_date = xpath_date_or_blank(stree, "//section[@name='section_status_info']//arrest_date")
-    status = xpath_or_blank(stree, "//section[@name='section_status_info']//case_status")
+    complaint_date = xpath_date_or_blank(
+        stree, "//section[@name='section_status_info']//complaint_date"
+    )
+    arrest_date = xpath_date_or_blank(
+        stree, "//section[@name='section_status_info']//arrest_date"
+    )
+    status = xpath_or_blank(
+        stree, "//section[@name='section_status_info']//case_status"
+    )
 
     # If the case's status is Closed, find the disposition date by finding the last status event date.
-    # TODO I'm not sure this is the right date. Is the 'disposition date' the date the case status changed to 
+    # TODO I'm not sure this is the right date. Is the 'disposition date' the date the case status changed to
     #       Completed, or the date of "Sentenced/Penalty Imposed"
     if re.search("close", status, re.IGNORECASE):
         disposition_date = xpath_date_or_blank(
-            stree, "//section[@name='section_status_info']//status_event[status_type[contains(text(),'Sentenced')]]/status_date")
-        #try:
+            stree,
+            "//section[@name='section_status_info']//status_event[status_type[contains(text(),'Sentenced')]]/status_date",
+        )
+        # try:
         #    disposition_date = datetime.strptime(disposition_date, r"%m/%d/%Y")
-        #except ValueError:
+        # except ValueError:
         #    #logging.error(f"disposition date {disposition_date} did not parse.")
         #    disposition_date = None
-    else: 
+    else:
         disposition_date = None
-    
-    
+
     # fines and costs
-    total_fines = str_to_money(xpath_or_blank(stree, "//section[@name='section_case_financal_info']/case_financial_info/grand_toals/assessed"))
-    fines_paid = str_to_money(xpath_or_blank(stree, "//section[@name='section_case_financial_info']/case_financial_info/grant_totals/payments"))
+    total_fines = str_to_money(
+        xpath_or_blank(
+            stree,
+            "//section[@name='section_case_financal_info']/case_financial_info/grand_toals/assessed",
+        )
+    )
+    fines_paid = str_to_money(
+        xpath_or_blank(
+            stree,
+            "//section[@name='section_case_financial_info']/case_financial_info/grant_totals/payments",
+        )
+    )
     # charges
-    charges = get_charges(stree) 
+    charges = get_charges(stree)
 
     return Case(
-        status=status, county=county, docket_number=docket_number, otn=otn, 
-        dc=dc, charges=charges,total_fines=total_fines, fines_paid=fines_paid,
-        arrest_date=arrest_date, disposition_date=disposition_date, 
-        judge=judge, affiant=affiant, arresting_agency=arresting_agency, 
-        complaint_date=complaint_date)
+        status=status,
+        county=county,
+        docket_number=docket_number,
+        otn=otn,
+        dc=dc,
+        charges=charges,
+        total_fines=total_fines,
+        fines_paid=fines_paid,
+        arrest_date=arrest_date,
+        disposition_date=disposition_date,
+        judge=judge,
+        affiant=affiant,
+        arresting_agency=arresting_agency,
+        complaint_date=complaint_date,
+    )
 
-def parse_cp_pdf(pdf: Union[BinaryIO, str], tempdir = None) -> Tuple[Person, List[Case], List[str], etree.Element]:
+
+def parse_cp_pdf(
+    pdf: Union[BinaryIO, str], tempdir=None
+) -> Tuple[Person, List[Case], List[str], etree.Element]:
     """
     Parse the a pdf of a Common Pleas criminal record docket. 
 
@@ -387,7 +456,10 @@ def parse_cp_pdf(pdf: Union[BinaryIO, str], tempdir = None) -> Tuple[Person, Lis
         return None, None, ["could not extract text from pdf"], None
     return parse_cp_pdf_text(txt, errors)
 
-def parse_cp_pdf_text(txt: str, errors=None) -> Tuple[Person, List[Case], List[str], etree.Element]:
+
+def parse_cp_pdf_text(
+    txt: str, errors=None
+) -> Tuple[Person, List[Case], List[str], etree.Element]:
     """
     Parse the text extracted from a CP docket's pdf.
 
@@ -407,33 +479,45 @@ def parse_cp_pdf_text(txt: str, errors=None) -> Tuple[Person, List[Case], List[s
     # parse individual sections with grammars for those sections
     # TODO add try catch blocks that allow for continuing even after certain parts fail, like
     #       if a single section fails to parse.
-    for section_name, grammar, terminals, nonterminals, custom_visitors in section_grammars:
+    for (
+        section_name,
+        grammar,
+        terminals,
+        nonterminals,
+        custom_visitors,
+    ) in section_grammars:
         try:
             section = sections_tree.xpath(f"//section[@name='{section_name}']")[0]
             # remove blank lines at the ends of the section.
-            section_text = "\n".join([ln for ln in section.text.split("\n") if ln.strip()]) 
+            section_text = "\n".join(
+                [ln for ln in section.text.split("\n") if ln.strip()]
+            )
             grammar = Grammar(grammar)
             try:
                 nodes = grammar.parse(section_text)
             except Exception as e:
                 slines = section_text.split("\n")
                 errors.append(f"    Text for {section_name} failed to parse.")
-                logging.error(f"    Text for {section_name} failed to parse.")
+                logger.error(f"    Text for {section_name} failed to parse.")
                 continue
-            visitor = CustomVisitorFactory(terminals, nonterminals, custom_visitors).create_instance()
+            visitor = CustomVisitorFactory(
+                terminals, nonterminals, custom_visitors
+            ).create_instance()
             parsed_section_text = visitor.visit(nodes)
             parsed_section_xml = etree.fromstring(parsed_section_text)
             # replace original unparsed section's text w/ the parsed xml.
             sections_tree.xpath(f"//section[@name='{section_name}']")[0].text = ""
-            sections_tree.xpath(f"//section[@name='{section_name}']")[0].append(parsed_section_xml)
+            sections_tree.xpath(f"//section[@name='{section_name}']")[0].append(
+                parsed_section_xml
+            )
         except (Exception, IndexError) as e:
             # not all dockets have all sections, so not being able to find a section is not
             # necessarily an error.
-            #slines = section_text.split("\n")
-            logging.info(f"    Could not find section {section_name}")
-            #slines = etree.tostring(sections_tree, encoding="unicode").split("\n")
+            # slines = section_text.split("\n")
+            logger.info(f"    Could not find section {section_name}")
+            # slines = etree.tostring(sections_tree, encoding="unicode").split("\n")
     # extract Person and Case information from xml.
     # i.e. defendant_name = section_tree.xpath("//caption/name")[0].text
     defendant = get_person(sections_tree)
     case = get_case(sections_tree)
-    return  defendant, [case], errors, sections_tree
+    return defendant, [case], errors, sections_tree
