@@ -5,11 +5,14 @@ import os
 from RecordLib.utilities.number_generator import create_docket_numbers
 import pytest
 import csv
+from ujs_search.services import searchujs
+from datetime import datetime
 
 
 @click.group()
 def cli():
     return
+
 
 def download(url, dest_path, name, doc_type):
     """ Download something from a url """
@@ -20,12 +23,11 @@ def download(url, dest_path, name, doc_type):
             downloaded.write(resp.content)
     return
 
-def download_docket(scraper_url: str, court: str, docket_number: str, doc_type: str):
-    """ Download a single docket using the DocketScraperAPI.
+
+def download_docket(docket_number: str, doc_type: str):
+    """ Download a single docket from the UJS portal..
 
     Args:
-        scraper_url: the first part of the url to the DocketScraperAPI app.
-        court: the initials of the court this docket is from. CP or MDJ.
         docket_number: the docket number.
         doc_type: summary or docket.
 
@@ -33,43 +35,56 @@ def download_docket(scraper_url: str, court: str, docket_number: str, doc_type: 
         If successful, a tuple with the url of the downloaded file
         as well as the downloaded file. Otherwise, a tuple (None, None)
     """
-    resp = requests.post(
-        f"{scraper_url}/lookupDocket/{court}", json={"docket_number": docket_number})
-    if "Error" in resp.json().get("status"):
-        logging.error("Error from ScraperAPI:" + resp.json().get("status"))
+    try:
+
+        resp = searchujs.search_by_docket(docket_number)
+    except Exception as e:
+        logging.error(str(e))
         return None, None
-    if resp.status_code == 200 and resp.json().get("docket") is not None:
+    if len(resp) > 0:
         logging.info("... URL found. Downloading file.")
         if doc_type.lower() in ["s", "summary", "summaries"]:
             # download the summary
-            url = resp.json()["docket"]["summary_url"]
+            url = resp[0]["summary_url"]
         else:
-            url = resp.json()["docket"]["docket_sheet_url"]
+            url = resp[0]["docket_sheet_url"]
 
         resp = requests.get(url, headers={"User-Agent": "DocketAnalyzerTesting"})
         if resp.status_code == 200:
+            logging.info("Docket found and downloaded.")
             return url, resp.content
         else:
             logging.error(
                 f"...request for url failed. Status code: { resp.status_code }"
             )
-            logging.error(
-                f"   URL was { url }"
-            )
-        logging.info("... Downloading complete. Moving on.")
+            logging.error(f"   URL was { url }")
     else:
-        logging.info("Request failed. Moving on.")
+        logging.info("No docket found.")
+
     return None, None
 
 
 @cli.command()
 @click.option("-p", "--dest-path", default="tests/data", show_default=True)
-@click.option("-u", "--scraper-url", default="http://localhost:5000", show_default=True)
-@click.option("-dt", "--doc-type", default="summary", show_default=True, type=click.Choice(["summary", "docket", "both"]))
+@click.option(
+    "-dt",
+    "--doc-type",
+    default="summary",
+    show_default=True,
+    type=click.Choice(["summary", "docket", "both"]),
+)
 @click.option("-i", "--input-csv", required=True)
 @click.option("-o", "--output-csv", default=None)
-@click.option("-c", "--court", default="CP", show_default=True, type=click.Choice(["CP","MDJ", "both"]))
-def names(dest_path: str, scraper_url: str, doc_type: str, input_csv: str, output_csv: str, court: str) -> None:
+@click.option(
+    "-c",
+    "--court",
+    default="CP",
+    show_default=True,
+    type=click.Choice(["CP", "MDJ", "both"]),
+)
+def names(
+    dest_path: str, doc_type: str, input_csv: str, output_csv: str, court: str,
+) -> None:
     """Download dockets from a list of names.
     TODO need to be able to search both CP and MDJ dockets in one call of this cli.
     """
@@ -86,11 +101,13 @@ def names(dest_path: str, scraper_url: str, doc_type: str, input_csv: str, outpu
         logging.warning(f"{dest_path} does not already exist. Creating it")
         os.mkdir(dest_path)
 
-    with open(input_csv, 'r') as input_file:
+    with open(input_csv, "r") as input_file:
         reader = csv.DictReader(input_file)
         if output_csv:
             output_file = open(output_csv, "a+")
-            writer = csv.DictWriter(output_file, reader.fieldnames + ["Name", "DOB", "url", "doctype"])
+            writer = csv.DictWriter(
+                output_file, reader.fieldnames + ["Name", "DOB", "url", "doctype"]
+            )
         if "Name" not in reader.fieldnames or "DOB" not in reader.fieldnames:
             logging.error("Input-file must have the columns 'Name' and 'DOB'")
             return
@@ -99,56 +116,91 @@ def names(dest_path: str, scraper_url: str, doc_type: str, input_csv: str, outpu
             name = row["Name"].split(" ")
             first_name = name[0]
             last_name = name[-1]
+            dob = datetime.strptime(row["DOB"], r"%m/%d/%Y")
             for court_to_search in courts:
-                resp = requests.post(f"{scraper_url}/searchName/{court_to_search}",
-                    json={
-                        "first_name": first_name,
-                        "last_name": last_name,
-                        "dob": row["DOB"]
-                    })
-                if resp.status_code == 200:
+                results = searchujs.search_by_name(
+                    first_name, last_name, dob, court=court_to_search
+                )
+                if len(results[court_to_search]) > 0:
                     logging.info(f"Successful search for {row['Name']}")
                     if doc_type.lower() in ["s", "summary", "summaries", "both"]:
-                        # download the summary
-                        try:
-                            logging.info("... Downloading summary")
-                            row["url"] = resp.json()["dockets"][0]["summary_url"]
-                            row["doctype"] = "summary"
-                            if output_csv: writer.writerow(row)
-                            download(row["url"], dest_path, row["Name"], doc_type)
-                        except:
-                            logging.error(f"... No summary found for {row['Name']}.")
-                            row["url"] = ""
-                            row["doctype"] = "none"
+                        # download the summaries
+                        for result in results[court_to_search]:
+                            try:
+                                logging.info("... Downloading summary")
+                                row["url"] = result["summary_url"]
+                                row["doctype"] = "summary"
+                                if output_csv:
+                                    writer.writerow(row)
+                                download(row["url"], dest_path, row["Name"], "summary")
+                            except:
+                                logging.error(
+                                    f"... No summary found for {row['Name']}."
+                                )
+                                row["url"] = ""
+                                row["doctype"] = "none"
                     if doc_type.lower() in ["d", "docket", "both"]:
                         logging.info("... Downloading dockets")
-                        try:
-                            for i, docket in enumerate(resp.json()["dockets"]):
-                                logging.info(f"... ({ str(i) })")
-                                row["url"] = docket["docket_sheet_url"]
+                        for i, result in enumerate(results[court_to_search]):
+                            try:
+                                row["url"] = result["docket_sheet_url"]
                                 row["doctype"] = "docket"
-                                if output_csv: writer.writerow(row)
-                                download(row["url"], dest_path, row["Name"] + "_" + str(i), doc_type)
-                        except:
-                            logging.error(f" No dockets found for {row['Name']}.")
-                            row["url"] = ""
-                            row["doctype"] = "none"
+                                if output_csv:
+                                    writer.writerow(row)
+                                download(
+                                    row["url"],
+                                    dest_path,
+                                    row["Name"] + "_" + str(i),
+                                    "docket",
+                                )
+                            except:
+                                logging.error(f" No dockets found for {row['Name']}.")
+                                row["url"] = ""
+                                row["doctype"] = "none"
                 else:
                     logging.warning(f"Did not find any results for {row['Name']}")
-                if output_csv: writer.writerow(row)
+                if output_csv:
+                    writer.writerow(row)
 
-    if output_csv: output_file.close()
+    if output_csv:
+        output_file.close()
     logging.info("Complete.")
     return
 
 
 @cli.command()
+@click.option("-dn", "--docket-number", required=True)
+@click.option(
+    "-dt",
+    "--doc-type",
+    default="summary",
+    show_default=True,
+    type=click.Choice(["summary", "docket"]),
+)
+@click.option("-o", "--output", required=True)
+def docket_number(docket_number: str, doc_type: str, output: str):
+    url, resp_content = download_docket(docket_number, doc_type)
+    if resp_content is not None:
+        click.echo("Downloaded docket.")
+        with open(output, "wb") as f:
+            f.write(resp_content)
+        click.echo(f"Saved docket to {output}")
+
+
+@cli.command()
 @click.option("-p", "--dest-path", default="tests/data", show_default=True)
-@click.option("-u", "--scraper-url", default="http://localhost:5000", show_default=True)
-@click.option("-dt", "--doc-type", default="summary", show_default=True, type=click.Choice(["summary","docket"]))
+@click.option(
+    "-dt",
+    "--doc-type",
+    default="summary",
+    show_default=True,
+    type=click.Choice(["summary", "docket"]),
+)
 @click.option("-i", "--input-csv", required=True)
 @click.option("-o", "--output-csv", default=None)
-def docket_numbers(dest_path: str, scraper_url: str, doc_type: str, input_csv: str, output_csv: str) -> None:
+def docket_number_file(
+    dest_path: str, doc_type: str, input_csv: str, output_csv: str
+) -> None:
     """
     Download dockets or summary sheets for the docket numbers listed in <input-csv>
 
@@ -158,7 +210,7 @@ def docket_numbers(dest_path: str, scraper_url: str, doc_type: str, input_csv: s
     if not os.path.exists(dest_path):
         logging.warning(f"{dest_path} does not already exist. Creating it")
         os.mkdir(dest_path)
-    with open(input_csv, 'r') as input_file:
+    with open(input_csv, "r") as input_file:
         if output_csv:
             output_file = open(output_csv, "a+")
             writer = csv.DictWriter(output_file, ["Docket Number", "url"])
@@ -169,7 +221,7 @@ def docket_numbers(dest_path: str, scraper_url: str, doc_type: str, input_csv: s
         for row in reader:
             docket_number = row["Docket Number"]
             court = "CP" if "CP-" in docket_number else "MDJ"
-            url, resp_content = download_docket(scraper_url, court, docket_number, doc_type)
+            url, resp_content = download_docket(docket_number, doc_type)
             if resp_content is not None:
                 with open(
                     os.path.join(dest_path, f"{ docket_number }_{ doc_type }.pdf"),
@@ -177,7 +229,8 @@ def docket_numbers(dest_path: str, scraper_url: str, doc_type: str, input_csv: s
                 ) as f:
                     f.write(resp_content)
                     row["url"] = url
-                    if output_csv: writer.writerow(row)
+                    if output_csv:
+                        writer.writerow(row)
             else:
                 logging.error(f"Could not find {docket_number}.")
         if output_csv:
@@ -185,16 +238,12 @@ def docket_numbers(dest_path: str, scraper_url: str, doc_type: str, input_csv: s
         logging.info("Complete.")
 
 
-
 @cli.command()
 @click.argument("DOCUMENT_TYPE")
 @click.option("--number", "-n", default=1, show_default=True)
 @click.option("--dest-path", default="tests/data", show_default=True)
-@click.option("--scraper-url", default="http://localhost:5000", show_default=True)
 @click.option("--court", default="CP", type=click.Choice(["CP", "MDJ", "either"]))
-def random(
-    document_type: str, number: int, dest_path: str, scraper_url: str, court: str
-) -> None:
+def random(document_type: str, number: int, dest_path: str, court: str) -> None:
     """
     Download <n> random "summary" documents or "docket" documents to <dest-path>.
 
@@ -213,7 +262,7 @@ def random(
             logging.info("court is now " + court_to_search)
         else:
             court_to_search = court
-        url_to_fetch, resp_content = download_docket(scraper_url, court_to_search, docket_number, document_type)
+        url_to_fetch, resp_content = download_docket(docket_number, document_type)
         if resp_content is not None:
             with open(
                 os.path.join(dest_path, f"{ docket_number }_{ document_type }.pdf"),
@@ -221,8 +270,8 @@ def random(
             ) as f:
                 f.write(resp_content)
 
-
     logging.info("Complete.")
+
 
 @cli.command()
 @click.option("--url-file", "-u", type=click.Path())
@@ -244,11 +293,9 @@ def urls(url_file: str, dest_dir: str, nest_dirs: bool):
 
     with open(url_file, "r") as f:
         reader = csv.DictReader(f)
-        assert reader.fieldnames == [
-            "name", "url", "type"
-        ]
+        assert reader.fieldnames == ["name", "url", "type"]
         for row in reader:
-            person_name = row["name"].replace(" ","_")
+            person_name = row["name"].replace(" ", "_")
             if nest_dirs:
                 file_dest = os.path.join(dest_dir, person_name)
                 if not os.path.exists(file_dest):
@@ -256,4 +303,4 @@ def urls(url_file: str, dest_dir: str, nest_dirs: bool):
             else:
                 file_dest = dest_dir
             download(row["url"], file_dest, person_name, row["type"])
-   
+

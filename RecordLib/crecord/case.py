@@ -37,22 +37,24 @@ class Case:
         """Create a Case from a dict"""
         try:
             return Case(
-                status = dct.get("status"),
-                county = dct.get("county"),
-                docket_number = dct["docket_number"], # if there's no docket_number at least, this should fail
-                otn = dct.get("otn"),
-                dc = dct.get("dc"),
-                charges = [Charge.from_dict(c) for c in (dct.get("charges") or [])],
-                total_fines = dct.get("total_fines"),
-                fines_paid = dct.get("fines_paid"),
-                complaint_date = dct.get("complaint_date"),
-                arrest_date = convert_datestring(dct.get("arrest_date")),
-                disposition_date = convert_datestring(dct.get("disposition_date")),
-                judge = dct.get("judge"),
-                judge_address = dct.get("judge_address"),
-                affiant = dct.get("affiant"),
-                arresting_agency = dct.get("arresting_agency"),
-                arresting_agency_address = dct.get("arresting_agency_address"),
+                status=dct.get("status"),
+                county=dct.get("county"),
+                docket_number=dct[
+                    "docket_number"
+                ],  # if there's no docket_number at least, this should fail
+                otn=dct.get("otn"),
+                dc=dct.get("dc"),
+                charges=[Charge.from_dict(c) for c in (dct.get("charges") or [])],
+                total_fines=dct.get("total_fines"),
+                fines_paid=dct.get("fines_paid"),
+                complaint_date=dct.get("complaint_date"),
+                arrest_date=convert_datestring(dct.get("arrest_date")),
+                disposition_date=convert_datestring(dct.get("disposition_date")),
+                judge=dct.get("judge"),
+                judge_address=dct.get("judge_address"),
+                affiant=dct.get("affiant"),
+                arresting_agency=dct.get("arresting_agency"),
+                arresting_agency_address=dct.get("arresting_agency_address"),
             )
         except:
             return None
@@ -65,16 +67,16 @@ class Case:
         otn,
         dc,
         charges,
-        total_fines = None,
-        fines_paid = None,
-        arrest_date = None,
-        disposition_date = None,
-        judge = None,
-        judge_address = None,
-        affiant = None,
-        arresting_agency = None,
-        arresting_agency_address = None,
-        complaint_date = None,
+        total_fines=None,
+        fines_paid=None,
+        arrest_date=None,
+        disposition_date=None,
+        judge=None,
+        judge_address=None,
+        affiant=None,
+        arresting_agency=None,
+        arresting_agency_address=None,
+        complaint_date=None,
     ) -> None:
         self.docket_number = docket_number
         self.otn = otn
@@ -84,7 +86,7 @@ class Case:
         self.fines_paid = fines_paid
         self.status = status
         self.county = county
-        
+
         self.arrest_date = arrest_date
         self.complaint_date = complaint_date
         self.disposition_date = disposition_date
@@ -94,7 +96,6 @@ class Case:
         self.affiant = affiant
         self.arresting_agency = arresting_agency
         self.arresting_agency_address = arresting_agency_address
-        
 
     def years_passed_disposition(self) -> int:
         """ The number of years that have passed since the disposition date of this case."""
@@ -120,7 +121,9 @@ class Case:
             elif self.arrest_date is not None and self.disposition_date is None:
                 return self.arrest_date
             else:
-                logging.warning(f"Neither an arrest date nor a disposition date for {self.docket_number}. Returning datetime.min")
+                logging.warning(
+                    f"Neither an arrest date nor a disposition date for {self.docket_number}. Returning datetime.min"
+                )
                 return date.min
 
     def was_confined(self) -> bool:
@@ -149,22 +152,22 @@ class Case:
         This method is used in rules a lot for building analyses of records.
         """
         return Case(
-            docket_number = self.docket_number,
-            otn = self.otn,
-            charges = [],
-            total_fines = self.total_fines,
-            fines_paid = self.fines_paid,
-            status = self.status,
-            county = self.county,
-            complaint_date = self.complaint_date,
-            arrest_date = self.arrest_date,
-            disposition_date = self.disposition_date,
-            judge = self.judge,
-            judge_address = self.judge_address,
-            dc = self.dc,
-            affiant = self.affiant,
-            arresting_agency = self.arresting_agency,
-            arresting_agency_address = self.arresting_agency_address,
+            docket_number=self.docket_number,
+            otn=self.otn,
+            charges=[],
+            total_fines=self.total_fines,
+            fines_paid=self.fines_paid,
+            status=self.status,
+            county=self.county,
+            complaint_date=self.complaint_date,
+            arrest_date=self.arrest_date,
+            disposition_date=self.disposition_date,
+            judge=self.judge,
+            judge_address=self.judge_address,
+            dc=self.dc,
+            affiant=self.affiant,
+            arresting_agency=self.arresting_agency,
+            arresting_agency_address=self.arresting_agency_address,
         )
 
     def fines_remaining(self) -> Optional[int]:
@@ -205,9 +208,9 @@ class Case:
             # sometimes an attribute is given a blank value, like docket_number='', but that shouldn't count as a filled-in value.
             val = getattr(self, attr)
             if val is not None:
-                if isinstance(val, int):
+                if isinstance(val, (int, float)):
                     score += 1
-                elif isinstance(val,(datetime, date)):
+                elif isinstance(val, (datetime, date)):
                     score += 1
                 elif len(val) > 0:
                     score += 1
