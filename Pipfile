@@ -14,6 +14,7 @@ pyyaml = "==5.1.2"
 sphinx = "==2.4.1"
 sphinx-js = "*"
 recordlib = {path = ".",editable = true}
+pylint = "*"
 
 [packages]
 mysql-connector-python = "==8.0.18"

@@ -1,32 +1,34 @@
-import axios from 'axios';
+import axios from "axios";
 
 // Without declaring a BASE_URL, axios just calls to its own domain.
 //const API_BASE_URL = 'http://localhost';
 
-axios.defaults.xsrfCookieName = 'csrftoken'
-axios.defaults.xsrfHeaderName = 'X-CSRFTOKEN'
+axios.defaults.xsrfCookieName = "csrftoken";
+axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 
 /**
- * Utility to remove keys with `null` values from objects sent to the 
- * api. 
- * 
+ * Utility to remove keys with `null` values from objects sent to the
+ * api.
+ *
  * So if an object has null keys in the ui, let the server handle defaults,
  * rather than sending null.
- * @param {} object 
+ * @param {} object
  */
 export function removeNullValues(object) {
-        Object.keys(object).forEach((key) => {
-                if (!object[key]) {delete object[key]}
-        })
-        return(object)
+  Object.keys(object).forEach((key) => {
+    if (!object[key]) {
+      delete object[key];
+    }
+  });
+  return object;
 }
 
 const client = axios.create({
-        //baseURL: API_BASE_URL,
-        headers: {
-                'Content-Type': 'application/json',
-        },
-        maxRedirects: 5,
+  //baseURL: API_BASE_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+  maxRedirects: 5,
 });
 
 /**
@@ -35,106 +37,100 @@ const client = axios.create({
  * @return {Object} a promise
  */
 export function uploadRecords(files) {
-        const data = new FormData();
-        files.forEach((file) => data.append('files', file))
+  const data = new FormData();
+  files.forEach((file) => data.append("files", file));
 
-        return client.post(
-                "/api/record/sourcerecords/upload/", data, 
-                {headers: {'Content-Type': 'multipart/form-data'}});
+  return client.post("/api/record/sourcerecords/upload/", data, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
 }
 
 /**
  * POST a CRecord to the server and retrieve an analysis.
  */
 export function analyzeCRecord(data) {
-        return client.post(
-                "/api/record/analysis/",
-                removeNullValues(data)
-        )
+  return client.post("/api/record/analysis/", removeNullValues(data));
 }
 
-
 export function fetchPetitions(petitions, attorney) {
-        // Send a POST to transform a set of petitions into 
-        // rendered petition files, and return the generated files 
-        // in a zip file.
-        petitions.forEach(p => p.attorney = attorney)
-        
-        const config = {
-                responseType: 'blob',
-        }
+  // Send a POST to transform a set of petitions into
+  // rendered petition files, and return the generated files
+  // in a zip file.
+  petitions.forEach((p) => (p.attorney = attorney));
 
-        return client.post(
-                "/api/record/petitions/",
-                {petitions: petitions},
-                config,
-        )
+  const config = {
+    responseType: "blob",
+  };
+
+  return client.post(
+    "/api/record/petitions/",
+    { petitions: petitions },
+    config
+  );
 }
 
 export function login(username, password) {
-        const data = new FormData()
-        data.append('username', username)
-        data.append('password', password)
-        client.post(
-                "/api/accounts/login/",
-                data,
-                {headers: {'Content-Type': 'multipart/form-data'}},
-        ).then(response => {
-                if (response.data.username) {
-                    let date = new Date();
-                    date.setTime(date.getTime() + (14 * 24 * 60 * 60 * 1000));
-                    document.cookie = "username = " + response.data.username + "; expires = " + date.toGMTString() + "; path=/";
-                }
+  const data = new FormData();
+  data.append("username", username);
+  data.append("password", password);
+  client
+    .post("/api/accounts/login/", data, {
+      headers: { "Content-Type": "multipart/form-data" },
+    })
+    .then((response) => {
+      if (response.data.username) {
+        let date = new Date();
+        date.setTime(date.getTime() + 14 * 24 * 60 * 60 * 1000);
+        document.cookie =
+          "username = " +
+          response.data.username +
+          "; expires = " +
+          date.toGMTString() +
+          "; path=/";
+      }
 
-                window.location = "/"
-        })
+      window.location = "/";
+    });
 }
 
 export function logout() {
-        client.get("/api/accounts/logout/");
-        window.location = '/accounts/login';
-        document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
+  client.get("/api/accounts/logout/");
+  window.location = "/accounts/login";
+  document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
 }
 
-
 export function fetchUserProfileData() {
-        return client.get("/api/record/profile/") // TODO thats a bad api endpoint for a user profile.
+  return client.get("/api/record/profile/"); // TODO thats a bad api endpoint for a user profile.
 }
 
 export function searchUJSByName(first_name, last_name, date_of_birth) {
-        return client.post(
-                "/api/ujs/search/name/", 
-                {
-                        first_name: first_name,
-                        last_name: last_name,
-                        dob: date_of_birth,
-                }
-        )
+  return client.post("/api/ujs/search/name/", {
+    first_name: first_name,
+    last_name: last_name,
+    dob: date_of_birth,
+  });
 }
 
 export function uploadUJSDocs(source_records) {
-        return client.post(
-                "/api/record/sourcerecords/fetch/", {source_records: source_records}
-        )
+  return client.post("/api/record/sourcerecords/fetch/", {
+    source_records: source_records,
+  });
 }
 
 export function integrateDocsWithRecord(crecord, sourceRecords) {
-        return client.put(
-                "/api/record/cases/",
-                { crecord, source_records: sourceRecords}
-        )
+  console.log("integrateDocsWithRecord");
+  return client.put("/api/record/cases/", {
+    crecord,
+    source_records: sourceRecords,
+  });
 }
 
-
 export function guessGrade(offense, statuteComponents) {
-        console.log("searching for ")
-        console.log(offense)
-        console.log(statuteComponents)
-        console.log({offense, ...statuteComponents})
-        return client.get(
-                "/api/grades/guess/",
-                {
-                        params: {offense, ...statuteComponents }
-                }
-        )
+  console.log("searching for ");
+  console.log(offense);
+  console.log(statuteComponents);
+  console.log({ offense, ...statuteComponents });
+  return client.get("/api/grades/guess/", {
+    params: { offense, ...statuteComponents },
+  });
 }

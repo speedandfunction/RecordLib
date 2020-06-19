@@ -141,7 +141,6 @@ class IntegrateCRecordWithSources(APIView):
 
                 for source_record in source_records:
                     try:
-                        breakpoint()
                         rlsource = RLSourceRecord(
                             source_record.file.path, parser=source_record.get_parser()
                         )

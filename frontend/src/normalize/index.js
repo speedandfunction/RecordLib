@@ -24,7 +24,7 @@
  * the list of charge ids, has not changed.
  */
 
-import { normalize, denormalize, schema } from 'normalizr';
+import { normalize, denormalize, schema } from "normalizr";
 
 export const CRECORD_ID = "root";
 
@@ -39,20 +39,17 @@ export const CRECORD_ID = "root";
  * @return {string}        the unique id
  */
 const generateId = (value, parent, key) => {
-    // Cases use their docket number as id.
-    if (value.docket_number)
-            return value.docket_number;
-    // Defendants use their last name as id.
-    if (value.last_name)
-            return value.last_name;
-    if (!key)
-            return CRECORD_ID;
+  // Cases use their docket number as id.
+  if (value.docket_number) return value.docket_number;
+  // Defendants use their last name as id.
+  if (value.last_name) return value.last_name;
+  if (!key) return CRECORD_ID;
 
-    // An object in an array starts with the parent's id,
-    // then appends the key of the array containing the object
-    // and then the object's index in the array.
-    const index = parent[key].indexOf(value);
-    return `${parent.id}${key}@${index}`
+  // An object in an array starts with the parent's id,
+  // then appends the key of the array containing the object
+  // and then the object's index in the array.
+  const index = parent[key].indexOf(value);
+  return `${parent.id}${key}@${index}`;
 };
 
 /**
@@ -64,61 +61,74 @@ const generateId = (value, parent, key) => {
  * @type {Object}
  */
 const options = {
-    // copy an entity and add an id
-    processStrategy: (value, parent, key) => {
-            const newValue = Object.assign({}, value, {
-                    id: generateId(value, parent, key)
-            });
-            if (key === 'cases') {
-                newValue.editing = false;
-            }
-
-            return newValue;
-    },
-    idAttribute: (value, parent, key) => {
-            return generateId(value, parent, key);
+  // copy an entity and add an id
+  processStrategy: (value, parent, key) => {
+    const newValue = Object.assign({}, value, {
+      id: generateId(value, parent, key),
+    });
+    if (key === "cases") {
+      newValue.editing = false;
     }
+
+    return newValue;
+  },
+  idAttribute: (value, parent, key) => {
+    return generateId(value, parent, key);
+  },
 };
 
 // Schema for the normalized CRecord.
-const sentenceSchema = new schema.Entity('sentences', {} ,options);
-const chargeSchema = new schema.Entity('charges', {sentences: [sentenceSchema]}, options);
-const caseSchema = new schema.Entity('cases', {charges: [chargeSchema]},  options);
+const sentenceSchema = new schema.Entity("sentences", {}, options);
+const chargeSchema = new schema.Entity(
+  "charges",
+  { sentences: [sentenceSchema] },
+  options
+);
+const caseSchema = new schema.Entity(
+  "cases",
+  { charges: [chargeSchema] },
+  options
+);
 //const defendantSchema = new schema.Entity('defendant', {}, options);
 //const cRecordSchema = new schema.Entity('cRecord', { defendant: defendantSchema, cases: [caseSchema]}, options);
-const cRecordSchema = new schema.Entity('cRecord', { cases: [caseSchema]}, options);
+const cRecordSchema = new schema.Entity(
+  "cRecord",
+  { cases: [caseSchema] },
+  options
+);
 
 export function normalizeCRecord(data) {
-        return normalize(data, cRecordSchema);
+  return normalize(data, cRecordSchema);
 }
-
 
 export function denormalizeCRecord(crecordNormalized) {
-        const cRecord = denormalize(crecordNormalized.result, cRecordSchema, crecordNormalized.entities);
-        cRecord.cases.forEach(caseObject => {
-                delete caseObject.id;
-                delete caseObject.editing;
-                caseObject.charges.forEach(charge => {
-                        delete charge.id;
-                        charge.sentences.forEach(sentence => {
-                                delete sentence.id;
-                        });
-                });
-        });
-        return (cRecord)
+  const cRecord = denormalize(
+    crecordNormalized.result,
+    cRecordSchema,
+    crecordNormalized.entities
+  );
+  cRecord.cases.forEach((caseObject) => {
+    delete caseObject.id;
+    delete caseObject.editing;
+    caseObject.charges.forEach((charge) => {
+      delete charge.id;
+      charge.sentences.forEach((sentence) => {
+        delete sentence.id;
+      });
+    });
+  });
+  return cRecord;
 }
-
-
 
 /**
  * Normalize a nested Analysis object.
- * 
+ *
  * Petitions will get separated out into their own key in state.
- * 
- * The analysis will also just get stored as-is in state. 
- * 
- * It starts with a structure like 
- * {analysis: 
+ *
+ * The analysis will also just get stored as-is in state.
+ *
+ * It starts with a structure like
+ * {analysis:
  *      decisions: [
  *              {name: str.
  *               value: [Petition],
@@ -126,20 +136,22 @@ export function denormalizeCRecord(crecordNormalized) {
  *                      {
  *                              name: str,
  *                              value: bool or [Decision],
- *                              reasoning: bool or [Decision]                     
- *                      }                     
+ *                              reasoning: bool or [Decision]
+ *                      }
  * ]}
  *      ]}
  * @param {} analysis The petitions that can be generated from a criminal record, and explanations of why.
  */
 export function normalizeAnalysis(analysis) {
-        const petitions = analysis.decisions.map(decision => {
-                return(decision.value)
-        }).flat()
-        return {petitions: petitions, analysis: analysis}
+  const petitions = analysis.decisions
+    .map((decision) => {
+      return decision.value;
+    })
+    .flat();
+  return { petitions: petitions, analysis: analysis };
 }
 
 export function denormalizeSourceRecords(sourceRecords) {
-        const { allIds, allSourceRecords } = sourceRecords;
-        return allIds.map(i => allSourceRecords[i])
+  const { allIds, allSourceRecords } = sourceRecords;
+  return allIds.map((i) => allSourceRecords[i]);
 }
