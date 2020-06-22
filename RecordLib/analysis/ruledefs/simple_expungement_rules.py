@@ -18,65 +18,65 @@ Decision:
 The rules in this module all relate to expungemnts.
 
 """
-from RecordLib.crecord import (
-    CRecord, Charge, Person
-)
+from RecordLib.crecord import CRecord, Charge, Person
 from RecordLib.analysis import Decision
-from RecordLib.petitions import Expungement, Sealing
-import copy
-from typing import Tuple
-from dateutil.relativedelta import relativedelta
-from datetime import date
-import re
+
 
 def is_over_age(person: Person, age_limit: int) -> Decision:
     return Decision(
         name=f"Is {person.first_name} over {age_limit}?",
         value=person.age() > age_limit,
-        reasoning=f"{person.first_name} is {person.age()}"
+        reasoning=f"{person.first_name} is {person.age()}",
     )
+
 
 def years_since_last_contact(crec: CRecord, year_min: int) -> Decision:
     return Decision(
         name=f"Has {crec.person.first_name} been free of arrest or prosecution for {year_min} years?",
         value=crec.years_since_last_arrested_or_prosecuted() >= 10,
-        reasoning=f"It has been {crec.years_since_last_arrested_or_prosecuted()} years."
+        reasoning=f"It has been {crec.years_since_last_arrested_or_prosecuted()} years.",
     )
+
 
 def years_since_final_release(crec: CRecord, year_min: int) -> Decision:
     return Decision(
         name=f"Has it been at least {year_min} years since {crec.person.first_name}'s final release from custody?",
         value=crec.years_since_final_release() > year_min,
-        reasoning=f"It has been {crec.years_since_final_release()}."
+        reasoning=f"It has been {crec.years_since_final_release()}.",
     )
 
 
-def arrest_free_for_n_years(crec: CRecord, year_min = 5) -> Decision:
+def arrest_free_for_n_years(crec: CRecord, year_min=5) -> Decision:
     return Decision(
-            name=f"Has {crec.person.first_name} been arrest free and prosecution free for five years?",
-            value=crec.years_since_last_arrested_or_prosecuted() > year_min,
-            reasoning=f"It has been {crec.years_since_last_arrested_or_prosecuted()} since the last arrest or prosecection."
-        )
+        name=f"Has {crec.person.first_name} been arrest free and prosecution free for five years?",
+        value=crec.years_since_last_arrested_or_prosecuted() > year_min,
+        reasoning=f"It has been {crec.years_since_last_arrested_or_prosecuted()} since the last arrest or prosecection.",
+    )
+
 
 def is_summary(charge: Charge) -> Decision:
     return Decision(
-        name=f"Is this charge for {charge.offense} a summary?", 
+        name=f"Is this charge for {charge.offense} a summary?",
         value=charge.grade.strip() == "S",
-        reasoning=f"The charge's grade is {charge.grade.strip()}")
+        reasoning=f"The charge's grade is {charge.grade.strip()}",
+    )
+
 
 def is_conviction(charge: Charge) -> Decision:
     return Decision(
         name=f"Is this charge for {charge.offense} a conviction?",
         value=charge.is_conviction(),
-        reasoning=f"The charge's disposition {charge.disposition} indicates a conviction" if charge.is_conviction() else f"The charge's disposition {charge.disposition} indicates its not a conviction.")
+        reasoning=f"The charge's disposition {charge.disposition} indicates a conviction"
+        if charge.is_conviction()
+        else f"The charge's disposition {charge.disposition} indicates its not a conviction.",
+    )
+
 
 def is_summary_conviction(charge: Charge) -> Decision:
     charge_d = Decision(
         name=f"Is this charge for {charge.offense} a summary conviction?",
-        reasoning=[
-            is_summary(charge),
-            is_conviction(charge) 
-            ])
+        reasoning=[is_summary(charge), is_conviction(charge)],
+    )
     charge_d.value = all(charge_d.reasoning)
     return charge_d
 

@@ -33,7 +33,7 @@ psycopg2 = "==2.8.4"
 django-webpack-loader = "==0.6.0"
 django-csp = "==3.5"
 uritemplate = "==3.0.0"
-django-docketsearch = {git = "https://github.com/clsphila/django-docketsearch.git",ref = "738aedba7dab8689b3ea94db447e7e628954b4fb",editable = true}
+django-docketsearch = {git = "https://github.com/clsphila/django-docketsearch.git",ref = "bc5685674ef2056de1726d198845945de5a2d786",editable = true}
 aiohttp = "*" 
 yarl = "==1.4.2"
 recordlib = {editable = true,path = "."}

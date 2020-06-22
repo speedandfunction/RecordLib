@@ -10,24 +10,19 @@ from RecordLib.sourcerecords.summary.parse_pdf import parse_pdf as summary_parse
 from datetime import date
 from RecordLib.utilities.redis_helper import RedisHelper
 import os
-#from django.test import Client 
+
+# from django.test import Client
 from rest_framework.test import APIClient
 
 
 @pytest.fixture
 def example_address():
-    return Address(
-        line_one="1234 Main St.",
-        city_state_zip="Philadelphia, PA 19103"
-    )
+    return Address(line_one="1234 Main St.", city_state_zip="Philadelphia, PA 19103")
 
 
 @pytest.fixture
 def example_attorney_address():
-    return Address(
-        line_one="1234 Main St.",
-        city_state_zip="Big City, NY 10002"
-    )
+    return Address(line_one="1234 Main St.", city_state_zip="Big City, NY 10002")
 
 
 @pytest.fixture
@@ -43,19 +38,19 @@ def example_attorney(example_attorney_address):
 
 @pytest.fixture
 def example_summary():
-    return Summary.from_pdf(
-        pdf="tests/data/CourtSummaryReport.pdf")
+    summary, _ = Summary.from_pdf(pdf="tests/data/CourtSummaryReport.pdf")
+    return summary
+
 
 @pytest.fixture
 def example_sourcerecord():
     return SourceRecord("tests/data/CourtSummaryReport.pdf", parser=summary_parser)
 
 
-
 @pytest.fixture
 def example_docket():
     docket_path = os.listdir("tests/data/dockets")[0]
-    d, errs = Docket.from_pdf(os.path.join("tests","data","dockets",docket_path))
+    d, errs = Docket.from_pdf(os.path.join("tests", "data", "dockets", docket_path))
     return d
 
 
@@ -73,19 +68,16 @@ def example_person(example_address):
 
 @pytest.fixture
 def example_sentencelength():
-    return SentenceLength.from_tuples(
-        min_time=("10", "Year"),
-        max_time=("25", "Year")
-    )
+    return SentenceLength.from_tuples(min_time=("10", "Year"), max_time=("25", "Year"))
 
 
 @pytest.fixture
 def example_sentence(example_sentencelength):
     return Sentence(
-        sentence_date=date(2000,1,1),
+        sentence_date=date(2000, 1, 1),
         sentence_type="Confinement",
         sentence_period="180 days",
-        sentence_length=example_sentencelength
+        sentence_length=example_sentencelength,
     )
 
 
@@ -96,8 +88,9 @@ def example_charge(example_sentence):
         "M2",
         "14 section 23",
         "Guilty Plea",
-        disposition_date=date(2010,1,1),
-        sentences=[example_sentence])
+        disposition_date=date(2010, 1, 1),
+        sentences=[example_sentence],
+    )
 
 
 @pytest.fixture
@@ -118,15 +111,13 @@ def example_case(example_charge):
         judge_address="1234 Judge St.,",
         affiant="Officer Bland",
         arresting_agency_address="1234 Grey St.",
-        arresting_agency="Monochrome County PD."
+        arresting_agency="Monochrome County PD.",
     )
 
 
 @pytest.fixture
 def example_crecord(example_person, example_case):
-    return CRecord(
-        person=example_person,
-        cases=[example_case])
+    return CRecord(person=example_person, cases=[example_case])
 
 
 @pytest.fixture
@@ -148,7 +139,9 @@ def redis_helper():
 
     N.B. I don't know a way for this fixture to yield r and the rollback whatever a test does with the database. So tests using this fixture need to roll themselves back.
     """
-    redis_helper = RedisHelper(host='localhost', port=6379, db=0,decode_responses=True, env="test")
+    redis_helper = RedisHelper(
+        host="localhost", port=6379, db=0, decode_responses=True, env="test"
+    )
     yield redis_helper
     for key in redis_helper.r.scan_iter("test:*"):
         redis_helper.r.delete(key)

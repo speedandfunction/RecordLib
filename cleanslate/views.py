@@ -154,39 +154,13 @@ class IntegrateCRecordWithSources(APIView):
                             case_merge_strategy="overwrite_old",
                             override_person=True,
                         )
-                    except:
+                    except Exception:
                         source_record.parse_status = SourceRecord.ParseStatuses.FAILURE
                         nonfatal_errors.append(
                             f"Could not parse {source_record.docket_num} ({source_record.record_type})"
                         )
                     finally:
                         source_record.save()
-                    # if source_record.record_type == SourceRecord.RecTypes.SUMMARY_PDF:
-                    #     try:
-                    #         summary = Summary.from_pdf(source_record.file.path)
-                    #         source_record.parse_status = SourceRecord.ParseStatuses.SUCCESS
-                    #         source_record.save()
-                    #         crecord.add_summary(summary, case_merge_strategy="overwrite_old", override_person=True)
-                    #     except:
-                    #         source_record.parse_status = SourceRecord.ParseStatuses.FAILURE
-                    #         source_record.save()
-                    #         nonfatal_errors.append(f"Could not parse {source_record.docket_num} ({source_record.record_type})")
-                    # elif source_record.record_type == SourceRecord.RecTypes.DOCKET_PDF:
-                    #     try:
-                    #         docket, errs = Docket.from_pdf(source_record.file.path)
-                    #         source_record.parse_status = SourceRecord.ParseStatuses.SUCCESS
-                    #         source_record.docket_num = docket._case.docket_number
-                    #         source_record.save()
-                    #         crecord.add_docket(docket)
-                    #     except:
-                    #         source_record.parse_status = SourceRecord.ParseStatuses.FAILURE
-                    #         source_record.save()
-                    #         nonfatal_errors.append(f"Could not parse {source_record.docket_num} ({source_record.record_type})")
-                    # else:
-                    #     source_record.parse_status = SourceRecord.ParseStatuses.FAILURE
-                    #     source_record.save()
-                    #     logger.error(f"Cannot parse a source record with type {source_record.record_type}")
-                    #     nonfatal_errors.append(f"Cannot parse a source record with type {source_record.record_type}")
                 return Response(
                     {
                         "crecord": CRecordSerializer(crecord).data,
@@ -208,6 +182,10 @@ class IntegrateCRecordWithSources(APIView):
 
 
 class AnalysisView(APIView):
+    """
+    Views related to an analysis of a CRecord.
+    """
+
     # noinspection PyMethodMayBeStatic
     def post(self, request, *args, **kwargs):
         """ Analyze a Criminal Record for expungeable and sealable cases and charges.
@@ -231,13 +209,12 @@ class AnalysisView(APIView):
                     .rule(seal_convictions)
                 )
                 return Response(to_serializable(analysis))
-            else:
-                return Response(
-                    {"validation_errors": serializer.errors},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                )
-        except Exception as e:
-            logger.error(e)
+            return Response(
+                {"validation_errors": serializer.errors},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+        except Exception as err:
+            logger.error(err)
             return Response("Something went wrong", status=status.HTTP_400_BAD_REQUEST)
 
 

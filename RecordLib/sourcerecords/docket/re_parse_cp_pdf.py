@@ -5,9 +5,7 @@ Regex parsing functions for Common Pleas pdf dockets.
 import logging
 import re
 from typing import Union, BinaryIO, Tuple, List, Optional
-from RecordLib.crecord import Charge
-from RecordLib.crecord import Person
-from RecordLib.crecord import Case
+from RecordLib.crecord import Charge, Person, Case, Address
 from RecordLib.sourcerecords.parsingutilities import (
     get_text_from_pdf,
     date_or_none,
@@ -97,7 +95,7 @@ def parse_person(txt: str) -> Tuple[Person, List[str]]:
             "address", r"City/State/Zip:\s*(?P<addr>.*)\s*", defendant_info_text
         )
         if addr_search is not None:
-            person.address.line_one = addr_search.group("addr")
+            person.address = Address(addr_search.group("addr"), "")
         else:
             errs.extend(addr_errs)
     else:

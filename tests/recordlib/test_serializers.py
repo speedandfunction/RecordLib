@@ -1,7 +1,13 @@
+"""
+We can serialize RecordLib objects into JSON representations
+"""
+# pylint: disable=no-member
+
 from RecordLib.utilities.serializers import to_serializable
 
 
 def test_case_serialize(example_case):
+    """ Serialize a case."""
     serialized = to_serializable(example_case)
     assert "docket_number" in serialized.keys()
     assert "otn" in serialized.keys()

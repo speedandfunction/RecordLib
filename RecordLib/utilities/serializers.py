@@ -1,4 +1,14 @@
+"""
+Transform RecordLib objects into json representations.
+
+"""
+
+
 import functools
+from typing import Union
+from datetime import date, datetime, timedelta
+from lxml import etree
+from lxml.etree import _ElementTree
 from RecordLib.crecord import Charge, Sentence, SentenceLength, Address
 from RecordLib.crecord import Person
 from RecordLib.crecord import Case
@@ -7,19 +17,16 @@ from RecordLib.petitions import Expungement, Sealing
 from RecordLib.analysis import Decision
 from RecordLib.crecord import CRecord
 from RecordLib.crecord import Attorney
-from RecordLib.sourcerecords import SourceRecord
-from RecordLib.sourcerecords import Docket, Summary
-from datetime import date, datetime, timedelta
-from lxml import etree
-from lxml.etree import _ElementTree
+from RecordLib.sourcerecords import Docket, Summary, SourceRecord
 
 
 @functools.singledispatch
-def to_serializable(val):
+def to_serializable(val) -> Union[dict, str]:
     """
     single_dispatch is for letting me define how different classes should serialize.
 
-    There's a single default serializer (this method), and then additional methods that replace this method
+    There's a single default serializer (this method), and then additional
+    methods that replace this method
     depending on the type sent to the method.
     """
     return str(val)

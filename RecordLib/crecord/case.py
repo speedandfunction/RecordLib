@@ -101,7 +101,7 @@ class Case:
         """ The number of years that have passed since the disposition date of this case."""
         try:
             return relativedelta(date.today(), self.disposition_date).years
-        except:
+        except Exception:
             return 0
 
     def last_action(self) -> date:
@@ -118,13 +118,13 @@ class Case:
         except TypeError:
             if self.arrest_date is None and self.disposition_date is not None:
                 return self.disposition_date
-            elif self.arrest_date is not None and self.disposition_date is None:
+            if self.arrest_date is not None and self.disposition_date is None:
                 return self.arrest_date
-            else:
-                logging.warning(
-                    f"Neither an arrest date nor a disposition date for {self.docket_number}. Returning datetime.min"
-                )
-                return date.min
+            logging.warning(
+                "Neither an arrest date nor a disposition date for %s. Returning datetime.min",
+                self.docket_number,
+            )
+            return date.min
 
     def was_confined(self) -> bool:
         """

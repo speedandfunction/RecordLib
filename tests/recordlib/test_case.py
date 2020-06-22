@@ -12,7 +12,8 @@ def test_case(example_sentence):
         "M2",
         "14 section 23",
         "Guilty Plea",
-        sentences=[example_sentence])
+        sentences=[example_sentence],
+    )
     case = Case(
         status="Open",
         county="Erie",
@@ -35,20 +36,24 @@ def test_case(example_sentence):
 
 
 def test_case_todict(example_case):
+    """ to_serializable transforms a RecordLib case into a json object"""
     assert to_serializable(example_case)["county"] == example_case.county
 
+
 @pytest.mark.parametrize(
-        "arrest, disp, last",
+    "arrest, disp, last",
     [
         (date(2019, 3, 1), date(2019, 4, 15), date(2019, 4, 15)),
         (date(2019, 4, 15), date(2019, 3, 1), date(2019, 4, 15)),
         (date(2019, 1, 1), None, date(2019, 1, 1)),
-        (None, None, None)
-    ])
+        (None, None, None),
+    ],
+)
 def test_case_last_action(example_case, arrest, disp, last):
     example_case.arrest_date = arrest
     example_case.disposition_date = disp
     example_case.last_action() == last
+
 
 def test_order_cases_by_last_action(example_case):
     # sorting when a case has no last_action puts the case with no action
@@ -64,25 +69,27 @@ def test_order_cases_by_last_action(example_case):
         fines_paid=1,
         judge="Smooth Operator",
         judge_address="1234 Other st.",
-        disposition_date=date(2019,1,1),
+        disposition_date=date(2019, 1, 1),
         arrest_date=None,
-        complaint_date=date(2018,2,1),
+        complaint_date=date(2018, 2, 1),
         arresting_agency="Happy County",
         arresting_agency_address="1234 Main St.",
-        affiant="Officer Happy"
+        affiant="Officer Happy",
     )
     s = sorted([example_case, case2], key=Case.order_cases_by_last_action)
     s[0] == case2
 
-    example_case.arrest_date = date(2019,2,1)
+    example_case.arrest_date = date(2019, 2, 1)
     s = sorted([example_case, case2], key=Case.order_cases_by_last_action)
     s[1] == case2
+
 
 def test_partialcopy(example_case):
     new_case = example_case.partialcopy()
     assert id(new_case) != id(example_case)
     assert len(example_case.charges) > 0
     assert len(new_case.charges) == 0
+
 
 def test_years_passed_disposition(example_case):
     example_case.disposition_date = date(2000, 1, 1)
@@ -100,8 +107,9 @@ def test_from_dict(example_case):
 
 
 def test_case_completenes(example_case):
+    original_completeness = example_case.completeness()
     example_case.judge_address = None
     no_judge_completeness = example_case.completeness()
-    assert no_judge_completeness < 1
+    assert no_judge_completeness > 1
     example_case.judge_address = "1234 Market St."
-    assert example_case.completeness() > no_judge_completeness
+    assert original_completeness > no_judge_completeness
