@@ -24,12 +24,20 @@ These are env vars so you can test with real names
     UJS_SEARCH_TEST_DOB=2000-01-01
 
 
+Private tests
+==============
+
+Its really, really useful to run tests on specific records. But that also raises some privacy issues, because specific records identify real people. 
+
+The .gitignore file ignores anything under a `private/` directory. So you can put tests under a `private/` directory that won't get checked into source control.
+
+
 Grammars
 =========
 
 One of the core functions of this project is to parse criminal records dockets. 
 
-We use Context-Free-Grammars for parsing. 
+Some of the parsers user Context Free Grammars.
 
 Grammars need to be tested on lots of different source documents. The tests include tests that will try to parse all the dockets in a folder `tests/data/[summaries|dockets]`. If you want those tests to be meaningful, you need to put dockets there.
 
