@@ -1,11 +1,16 @@
-from rest_framework.response import Response
-from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
-from rest_framework.views import APIView
-from rest_framework import permissions
-from rest_framework import status
+"""
+Views for the Recordlib webapp.
+
+"""
+
 import logging
+from django.http import HttpResponse
+from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.views import APIView
+from rest_framework import permissions, status
 from RecordLib.crecord import CRecord
-from RecordLib.sourcerecords import Docket, Summary
+from RecordLib.sourcerecords import SourceRecord as RLSourceRecord
 from RecordLib.analysis import Analysis
 from RecordLib.utilities.serializers import to_serializable
 from RecordLib.analysis.ruledefs import (
@@ -29,51 +34,45 @@ from .serializers import (
 from .compressor import Compressor
 from .services import download
 from .models import SourceRecord
-from RecordLib.sourcerecords import SourceRecord as RLSourceRecord
-import json
-import os
-import os.path
-import zipfile
-import tempfile
-from django.http import HttpResponse
 
 logger = logging.getLogger(__name__)
 
 
 class FileUploadView(APIView):
+    """
+    Handle uploads of source records.
+    """
 
     parser_classes = [MultiPartParser, FormParser]
 
     # noinspection PyMethodMayBeStatic
     def post(self, request, *args, **kwargs):
-        """Accept dockets and summaries locally uploaded by a user, save them to the server, 
-        and return SourceRecords pointing to those files..
+        """Accept dockets and summaries locally uploaded by a user, save them to the server,
+        and return SourceRecords relating to those files..
 
 
-        This POST needs to be a FORM post, not a json post. 
-
-        
+        This POST needs to be a FORM post, not a json post.
         """
         file_serializer = FileUploadSerializer(data=request.data)
         if file_serializer.is_valid():
-            files = [f for f in file_serializer.validated_data.get("files")]
+            files = file_serializer.validated_data.get("files")
             results = []
             try:
-                for f in files:
+                for upload in files:
                     source_record = SourceRecord.from_unknown_file(
-                        f, owner=request.user
+                        upload, owner=request.user
                     )
                     source_record.save()
                     if source_record is not None:
                         results.append(source_record)
-                        # TODO FileUploadView should also report errors in turning uploaded pdfs into SourceRecords.
+                        # TODO FileUploadView should report errors in turning uploaded pdfs into SourceRecords.
                 return Response(
                     {"source_records": SourceRecordSerializer(results, many=True).data},
                     status=status.HTTP_200_OK,
                 )
-            except Exception as e:
+            except Exception as err:
                 return Response(
-                    {"error_message": f"Parsing failed: {str(e)}"},
+                    {"error_message": f"Parsing failed: {str(err)}"},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
         else:
@@ -84,13 +83,21 @@ class FileUploadView(APIView):
 
 
 class SourceRecordsFetchView(APIView):
+    """
+    Views for handling fetching source records that are sent as urls
+    """
 
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         """
-        API endpoint that takes a set of cases with urls to docket or summary sheets, downloads them, 
-        and returns SourceRecords, which point to the documents' ids in the database.        
+        API endpoint that takes a set of cases with urls to docket or summary sheets, downloads them,
+        and returns SourceRecords, which point to the documents' ids in the database.
+
+        This is for accepting the UJS Search results, and creating SourceRecord objects describing each of those search results. 
+        
+        This view does _not_ attempt download the source records, or parse them.
+
         """
         try:
             posted_data = DownloadDocsSerializer(data=request.data)
@@ -100,11 +107,9 @@ class SourceRecordsFetchView(APIView):
                 return Response(
                     DownloadDocsSerializer({"source_records": records}).data,
                 )
-
-            else:
-                return Response({"errors": posted_data.errors})
-        except Exception as e:
-            return Response({"errors": [str(e)]})
+            return Response({"errors": posted_data.errors})
+        except Exception as err:
+            return Response({"errors": [str(err)]})
 
 
 class IntegrateCRecordWithSources(APIView):

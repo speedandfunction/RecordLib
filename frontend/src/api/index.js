@@ -112,6 +112,8 @@ export function searchUJSByName(first_name, last_name, date_of_birth) {
 }
 
 export function uploadUJSDocs(source_records) {
+  console.log("api/record/sourcrecords/fetch/");
+  console.log(source_records);
   return client.post("/api/record/sourcerecords/fetch/", {
     source_records: source_records,
   });

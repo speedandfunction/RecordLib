@@ -1,10 +1,12 @@
 from typing import Any, Callable, Optional
 
-def null_parser(src):
+
+def null_parser(_):
     """
     A blank parser that returns the right shape of nothing for a sourcerecord.
     """
-    return None, None, ["No parser used"], None
+    return None, None, ["No parser used"]
+
 
 class SourceRecord:
     """
@@ -12,9 +14,7 @@ class SourceRecord:
     structured objects.
     """
 
-
-
-    def __init__(self, src: Any, parser: Optional[Callable] = None): 
+    def __init__(self, src: Any, parser: Optional[Callable] = None):
         """
         Create a new SourceRecord with some data and a callable parser that can parse the source data.
 
@@ -41,13 +41,7 @@ class SourceRecord:
         """
         self.raw_source = src
         self.parser = parser or null_parser
-        try: 
-            person, cases, errors = self.parser(src)
-            parsed_source=None
-        except ValueError as e:
-            # The PEG parsers also return the xml tree of parsed data, which can be useful to have.
-            person, cases, errors, raw_source = self.parser(src)
-        self.parsed_source = parsed_source
+        person, cases, errors = self.parser(src)
         self.person = person
         self.cases = cases
         self.errors = errors

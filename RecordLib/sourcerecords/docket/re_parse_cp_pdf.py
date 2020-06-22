@@ -1,5 +1,11 @@
-from typing import Union, BinaryIO, Tuple, Callable, List, Optional
-from RecordLib.crecord import Charge, Sentence, SentenceLength
+"""
+Regex parsing functions for Common Pleas pdf dockets.
+"""
+
+import logging
+import re
+from typing import Union, BinaryIO, Tuple, List, Optional
+from RecordLib.crecord import Charge
 from RecordLib.crecord import Person
 from RecordLib.crecord import Case
 from RecordLib.sourcerecords.parsingutilities import (
@@ -7,10 +13,6 @@ from RecordLib.sourcerecords.parsingutilities import (
     date_or_none,
     money_or_none,
 )
-import logging
-import re
-from datetime import datetime, date
-
 
 logger = logging.getLogger(__name__)
 
@@ -95,13 +97,11 @@ def parse_person(txt: str) -> Tuple[Person, List[str]]:
             "address", r"City/State/Zip:\s*(?P<addr>.*)\s*", defendant_info_text
         )
         if addr_search is not None:
-            # TODO assign the person's address and intelligently break up lines.
             person.address.line_one = addr_search.group("addr")
         else:
             errs.extend(addr_errs)
     else:
         errs.extend(d_section_errs)
-        aliases = None
 
     return person, errs
 
@@ -152,7 +152,7 @@ def parse_charges(txt: str) -> Tuple[Optional[List[Charge]], List[str]]:
                     idx_copy += 1
                 try:
                     sequence = int(charge_line_search.group("sequence").strip())
-                except:
+                except Exception:
                     sequence = None
                 charge = Charge(
                     sequence=sequence,
@@ -197,6 +197,7 @@ def parse_charges(txt: str) -> Tuple[Optional[List[Charge]], List[str]]:
         for c in charges
         if c.disposition_date is None
     ]
+    errs += missing_disposition_dates
     return charges, errs
 
 
@@ -240,8 +241,10 @@ def parse_case(txt: str) -> Tuple[Case, List[str]]:
     costs_search, costs_errs = find_pattern(
         "costs",
         (
-            r"Totals:\s+\$(?P<charged>[\d\,]+\.\d{2})\s+-?\(?\$(?P<paid>[\d\,]+\.\d{2})\)?\s+-?\(?\$"
-            + r"(?P<adjusted>[\d\,]+\.\d{2})\)?\s+-?\(?\$([\d\,]+\.\d{2})\)?\s+-?\(?\$(?P<total>[\d\,]+\.\d{2})\)?"
+            r"Totals:\s+\$(?P<charged>[\d\,]+\.\d{2})\s+"
+            + r"-?\(?\$(?P<paid>[\d\,]+\.\d{2})\)?\s+-?\(?\$"
+            + r"(?P<adjusted>[\d\,]+\.\d{2})\)?\s+-?\(?\$([\d\,]+"
+            + r"\.\d{2})\)?\s+-?\(?\$(?P<total>[\d\,]+\.\d{2})\)?"
         ),
         txt,
     )
@@ -249,7 +252,7 @@ def parse_case(txt: str) -> Tuple[Case, List[str]]:
         case.total_fines = money_or_none(costs_search.group("charged"))
         case.fines_paid = money_or_none(costs_search.group("paid"))
         if case.total_fines is None or case.fines_paid is None:
-            errs.append(f"Found costs and fines, but could not convert to a number.")
+            errs.append("Found costs and fines, but could not convert to a number.")
     else:
         errs.extend(costs_errs)
 
@@ -299,9 +302,12 @@ def parse_case(txt: str) -> Tuple[Case, List[str]]:
     else:
         errs.extend(arrest_date_errs)
 
-    disp_date_search, disp_date_errs = find_pattern(
+    disp_date_search, _ = find_pattern(
         "disposition_date",
-        r"(?:Plea|Status|Status of Restitution|Status - Community Court|Status Listing|Migrated Dispositional Event|Trial|Preliminary Hearing|Pre-Trial Conference)\s+(?P<disposition_date>\d{1,2}\/\d{1,2}\/\d{4})\s+Final Disposition",
+        r"(?:Plea|Status|Status of Restitution|Status - Community Court|"
+        + r"Status Listing|Migrated Dispositional Event|Trial|Preliminary Hearing|"
+        + r"Pre-Trial Conference)\s+(?P<disposition_date>\d{1,2}\/\d{1,2}\/\d{4})\s+"
+        + r"Final Disposition",
         txt,
     )
     if disp_date_search is not None:
@@ -310,9 +316,11 @@ def parse_case(txt: str) -> Tuple[Case, List[str]]:
             case.disposition_date = disp_date
         else:
             errs.append(
-                f"Found disposition date, but could not understand date format: {disp_date_search.group('disposition_date')}"
+                "Found disposition date, but could not understand date format: "
+                + f"{disp_date_search.group('disposition_date')}"
             )
-    # its not necessarily an error, to not find a disposition date this way. There might not actually be a disposition date.
+    # its not necessarily an error, to not find a disposition date this way.
+    # There might not actually be a disposition date.
     # else:
     #    errs.extend(disp_date_errs)
     # judge_address = self.judge_address,
@@ -336,7 +344,7 @@ def parse_case(txt: str) -> Tuple[Case, List[str]]:
         # a new_line, and the overflow pattern.
 
         # N.B. the EG only searches for overflow if "Magisterial District Judge" was in the assigned judge name. is that necessary?
-        judge_overflow_search, judge_overflow_errs = find_pattern(
+        judge_overflow_search, _ = find_pattern(
             "judge_overflow_info",
             judge_assignment_pattern + "\n" + r"^\s+(?P<judge_overflow>\w+\s*\w*)\s*$",
             txt,
@@ -352,7 +360,7 @@ def parse_case(txt: str) -> Tuple[Case, List[str]]:
         errs.extend(judge_assigned_errs)
 
     # sometimes the judge is identified as the Final Issuing Authority.
-    final_issue_auth_search, final_issue_auth_errs = find_pattern(
+    final_issue_auth_search, _ = find_pattern(
         "final_issuing_authority", r"Final Issuing Authority:\s+(?P<judge_name>.*)", txt
     )
     if final_issue_auth_search is not None:
@@ -360,9 +368,7 @@ def parse_case(txt: str) -> Tuple[Case, List[str]]:
         if not re.search("migrated", judge_name, re.I):
             case.judge = judge_name
 
-    dc_search, dc_errs = find_pattern(
-        "dc", r"District Control Number\s+(?P<dc>\d+)", txt
-    )
+    dc_search, _ = find_pattern("dc", r"District Control Number\s+(?P<dc>\d+)", txt)
     if dc_search is not None:
         case.dc = dc_search.group("dc")
     # The District Control Number actually seems pretty rare,
@@ -387,9 +393,10 @@ def parse_case(txt: str) -> Tuple[Case, List[str]]:
     return case, errs
 
 
-def parse_cp_pdf_text(txt: str, errors=None) -> Tuple[Person, List[Case], List[str]]:
+def parse_cp_pdf_text(txt: str) -> Tuple[Person, List[Case], List[str]]:
     """
-    Regex-based parser for dockets from the Court of Common Pleas, including both Common Pleas and Municpal Court dockets.
+    Regex-based parser for dockets from the Court of Common Pleas,
+     including both Common Pleas and Municpal Court dockets.
 
     This function takes the text of the docket, extracted from a pdf.
     """
@@ -402,19 +409,21 @@ def parse_cp_pdf(pdf: Union[BinaryIO, str]) -> Tuple[Person, List[Case], List[st
     """
     Regex-based parser for CP dockets, including MC and CP.
 
-    This parser is essentially a Python re-implementation of the original Expungement Generator's parsing methods. 
-    The only differences are that this function only handles CP/MC dockets (not MDJ dockets); it only parses, it doesn't include any of Arrest.php's logic
-    related to generating petitions; it abstracts its components into smaller functions; and it reports errors that came up during the parsing process. 
+    This parser is essentially a Python re-implementation of the original
+    Expungement Generator's parsing methods. 
+    The only differences are that this function only handles CP/MC dockets (not MDJ dockets);
+    it only parses, it doesn't include any of Arrest.php's logic
+    related to generating petitions; it abstracts its components into smaller functions; and it
+    reports errors that came up during the parsing process.
 
-    This function takes the pdf file as a binary or a path, and extracts the text. It sends the text to a more 
-    specialized function that does the actual parsing. 
+    This function takes the pdf file as a binary or a path, and extracts the text.
+    It sends the text to a more
+    specialized function that does the actual parsing.
 
     """
-    # a list of strings
-    errors = []
     # pdf to raw text
     txt = get_text_from_pdf(pdf)
     if txt == "":
-        return None, None, ["could not extract text from pdf"], None
-    return parse_cp_pdf_text(txt, errors)
+        return None, None, ["could not extract text from pdf"]
+    return parse_cp_pdf_text(txt)
 

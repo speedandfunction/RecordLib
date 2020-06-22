@@ -13,6 +13,7 @@ from datetime import date, datetime, timedelta
 from lxml import etree
 from lxml.etree import _ElementTree
 
+
 @functools.singledispatch
 def to_serializable(val):
     """
@@ -23,21 +24,26 @@ def to_serializable(val):
     """
     return str(val)
 
+
 @to_serializable.register(bytes)
 def td_bytes(bt):
     return "<bytes>"
+
 
 @to_serializable.register(_ElementTree)
 def td_etree(tree):
     return etree.tostring(tree)
 
+
 @to_serializable.register(type(None))
 def td_none(n):
     return ""
 
+
 @to_serializable.register(list)
 def ts_list(a_list):
     return [to_serializable(i) for i in a_list]
+
 
 @to_serializable.register(list)
 def ts_list(l):
@@ -45,16 +51,17 @@ def ts_list(l):
         return []
     return [to_serializable(el) for el in l]
 
+
 @to_serializable.register(SourceRecord)
 def ts_sourcerecord(sr):
     return {
-            "parser": sr.parser.__name__,
-            "person": to_serializable(sr.person),
-            "cases": to_serializable(sr.cases),
-            "errors": sr.errors,
-            "raw_source": to_serializable(sr.raw_source),
-            "parsed_source": to_serializable(sr.parsed_source),
-        }
+        "parser": sr.parser.__name__,
+        "person": to_serializable(sr.person),
+        "cases": to_serializable(sr.cases),
+        "errors": sr.errors,
+        "raw_source": to_serializable(sr.raw_source),
+    }
+
 
 @to_serializable.register(Case)
 @to_serializable.register(Charge)
@@ -70,7 +77,9 @@ def ts_sourcerecord(sr):
 @to_serializable.register(CRecord)
 @to_serializable.register(Address)
 def ts_object(an_object):
-    return {k:to_serializable(v) for k, v in an_object.__dict__.items() if v is not None}
+    return {
+        k: to_serializable(v) for k, v in an_object.__dict__.items() if v is not None
+    }
     # return {k: to_serializable(v) for k, v in an_object.__dict__.items()}
 
 
@@ -84,13 +93,13 @@ def ts_date(a_date):
 def ts_date(a_delta):
     return str(a_delta)
 
-    
+
 @to_serializable.register(SentenceLength)
 def ts_sentencelength(sentence_length):
-     return {
-         "min_time": sentence_length.min_time.days,
-         "min_unit": "days",
-         "max_time": sentence_length.max_time.days,
-         "max_unit": "days"
-     }
+    return {
+        "min_time": sentence_length.min_time.days,
+        "min_unit": "days",
+        "max_time": sentence_length.max_time.days,
+        "max_unit": "days",
+    }
 

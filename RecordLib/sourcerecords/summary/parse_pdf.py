@@ -5,6 +5,8 @@ The most important thing is that this module provides a method, `parse_pdf`.
 This method returns a Summary object.
 
 """
+import re
+import logging
 from typing import Dict, Tuple, List, Union, BinaryIO
 from lxml import etree
 from parsimonious.nodes import Node  # type: ignore
@@ -12,6 +14,12 @@ from RecordLib.crecord import Case
 from RecordLib.crecord import Charge, Sentence, SentenceLength
 from RecordLib.crecord import Person
 from RecordLib.sourcerecords.customnodevisitorfactory import CustomVisitorFactory
+from RecordLib.sourcerecords.parsingutilities import get_text_from_pdf
+from RecordLib.sourcerecords.summary.utilities import *
+from RecordLib.sourcerecords.overflow import (
+    MDJFirstCoupleLinesOverflow,
+    MDJOverflowInChargeList,
+)
 from .grammars import (
     summary_page_terminals,
     summary_page_nonterminals,
@@ -23,17 +31,13 @@ from .grammars import (
     md_summary_body_grammar,
     md_summary_body_nonterminals,
 )
-from RecordLib.sourcerecords.parsingutilities import get_text_from_pdf
-from RecordLib.sourcerecords.overflow import (
-    MDJFirstCoupleLinesOverflow, MDJOverflowInChargeList)
-import os
-import logging
-import re
-
-from RecordLib.sourcerecords.summary.utilities import *
 
 
 def get_processors(text: str) -> Dict:
+    """
+    Get the functions for processing this text. It will be a set of processers either for MDJ court
+    summaries or CP Court summaries.
+    """
     try:
         text.index("Magisterial", 0, 100)
         return md_processors
@@ -94,11 +98,14 @@ def parse_md_summary(parsed_pages: Node) -> Tuple[etree.Element, etree.Element]:
             prev_line2 = previous_sec_lines[-2].strip()
             if any([re.match(start, prev_line) for start in case_line_starts]):
                 lines_to_remove += 2
-            elif (prev_line == "") and any([re.match(start, prev_line2)  for start in case_line_starts]):
+            elif (prev_line == "") and any(
+                [re.match(start, prev_line2) for start in case_line_starts]
+            ):
                 lines_to_remove += 2
                 previous_lines_to_remove += 1
             elif re.search("§", prev_nonblank_line) and any(
-                    [re.search("Program Type", ln) for ln in sec_lines[2:6]]):
+                [re.search("Program Type", ln) for ln in sec_lines[2:6]]
+            ):
                 # Catch when page overflows from the end of the list of charges to
                 # the list of sentences.
                 lines_to_remove += 2
@@ -111,12 +118,18 @@ def parse_md_summary(parsed_pages: Node) -> Tuple[etree.Element, etree.Element]:
                 # Catch the overflow case when the only overflow lines are repeated lines. I think if there are fewer than 4 lines on the page, then they're not important.
                 lines_to_remove = len(sec_lines)
             elif MDJFirstCoupleLinesOverflow.condition(previous_sec_lines, sec_lines):
-                previous_sec_lines_filtered, sec_lines = MDJFirstCoupleLinesOverflow.remove_overflow(
-                    previous_sec_lines, sec_lines)
+                (
+                    previous_sec_lines_filtered,
+                    sec_lines,
+                ) = MDJFirstCoupleLinesOverflow.remove_overflow(
+                    previous_sec_lines, sec_lines
+                )
                 # this len() - len() operation only needed while the conditions above
                 # don't use OverflowFilters. OverflowFilters directly return the
                 # lines of the next and previous sectinos.
-                previous_lines_to_remove = len(previous_sec_lines) - len(previous_sec_lines_filtered)
+                previous_lines_to_remove = len(previous_sec_lines) - len(
+                    previous_sec_lines_filtered
+                )
             elif MDJOverflowInChargeList.condition(previous_sec_lines, sec_lines):
                 _, sec_lines = MDJOverflowInChargeList.remove_overflow(
                     slines, sec_lines
@@ -204,34 +217,50 @@ def parse_cp_summary(parsed_pages: Node) -> Tuple[etree.Element, etree.Element]:
                 lines_to_remove += 1
                 if line_count > 2:
                     line = sec_lines[2]
-                    pattern = r'(CP\S+)\s'
+                    pattern = r"(CP\S+)\s"
                     match = re.search(pattern, line)
                     if match:
                         cp_id = match.group(1)
                         # print(cp_id)
                         if find_in_lines(previous_sec_lines, cp_id):
                             lines_to_remove += 1
-                            if line_count > 3 and 'Arrest Dt' in sec_lines[3]:
+                            if line_count > 3 and "Arrest Dt" in sec_lines[3]:
                                 lines_to_remove += 1
-                                if line_count > 4 and 'Def Atty' in sec_lines[4]:
+                                if line_count > 4 and "Def Atty" in sec_lines[4]:
                                     lines_to_remove += 1
-                                    if line_count > 5 and 'Seq No' in sec_lines[5]:
+                                    if line_count > 5 and "Seq No" in sec_lines[5]:
                                         lines_to_remove += 1
-                                        if line_count > 6 and 'Sentence' in sec_lines[6]:
+                                        if (
+                                            line_count > 6
+                                            and "Sentence" in sec_lines[6]
+                                        ):
                                             lines_to_remove += 1
-                            elif line_count > 3 and 'Seq No' in sec_lines[3]:
+                            elif line_count > 3 and "Seq No" in sec_lines[3]:
                                 p_line = previous_sec_lines[-1]
-                                test = 'Def' in p_line or 'Arrest' in p_line or 'Next' in p_line or 'Disp ' in p_line
+                                test = (
+                                    "Def" in p_line
+                                    or "Arrest" in p_line
+                                    or "Next" in p_line
+                                    or "Disp " in p_line
+                                )
                                 if not test:
                                     lines_to_remove += 1
-                                    if 'Sentence' in sec_lines[4] and 'Seq No' not in p_line:
+                                    if (
+                                        "Sentence" in sec_lines[4]
+                                        and "Seq No" not in p_line
+                                    ):
                                         lines_to_remove += 1
-                    elif 'Seq No' in line:
+                    elif "Seq No" in line:
                         p_line = previous_sec_lines[-1]
-                        test = 'Def' in p_line or 'Arrest' in p_line or 'Next' in p_line or 'Disp ' in p_line
+                        test = (
+                            "Def" in p_line
+                            or "Arrest" in p_line
+                            or "Next" in p_line
+                            or "Disp " in p_line
+                        )
                         if not test:
                             lines_to_remove += 1
-                            if 'Sentence' in sec_lines[3] and 'Seq No' not in p_line:
+                            if "Sentence" in sec_lines[3] and "Seq No" not in p_line:
                                 lines_to_remove += 1
 
         for ln in sec_lines[lines_to_remove:]:
@@ -270,10 +299,12 @@ def get_defendant(summary_xml: etree.Element) -> Person:
         def_dob = None
     return Person(last_first[1], last_first[0], def_dob, aliases=aliases)
 
-def either(a,b):
+
+def either(a, b):
     if a is not None:
         return a
     return b
+
 
 def get_cp_cases(summary_xml: etree.Element) -> List:
     """
@@ -298,9 +329,7 @@ def get_cp_cases(summary_xml: etree.Element) -> List:
                     Sentence(
                         sentence_date=date_or_none(sentence.find("sentence_date")),
                         sentence_type=text_or_blank(sentence.find("sentence_type")),
-                        sentence_period=text_or_blank(
-                            sentence.find("program_period")
-                        ),
+                        sentence_period=text_or_blank(sentence.find("program_period")),
                         sentence_length=SentenceLength.from_tuples(
                             min_time=(
                                 text_or_blank(
@@ -339,9 +368,7 @@ def get_cp_cases(summary_xml: etree.Element) -> List:
                     Sentence(
                         sentence_date=date_or_none(sentence.find("sentence_date")),
                         sentence_type=text_or_blank(sentence.find("sentence_type")),
-                        sentence_period=text_or_blank(
-                            sentence.find("program_period")
-                        ),
+                        sentence_period=text_or_blank(sentence.find("program_period")),
                         sentence_length=SentenceLength.from_tuples(
                             min_time=(
                                 text_or_blank(
@@ -364,24 +391,28 @@ def get_cp_cases(summary_xml: etree.Element) -> List:
                 )
             open_charges.append(charge)
         new_case = Case(
-                status=text_or_blank(case.getparent().getparent()),
-                county=text_or_blank(case.getparent().find("county")),
-                docket_number=text_or_blank(case.find("case_basics/docket_num")),
-                otn=text_or_blank(case.find("case_basics/otn_num")),
-                dc=text_or_blank(case.find("case_basics/dc_num")),
-                charges=closed_charges + open_charges,
-                total_fines=None,  # a summary docket never has info about this.
-                fines_paid=None,
-                arrest_date=date_or_none(
-                    either(case.find("arrest_disp_actions/arrest_disp/arrest_date"),
-                           case.find("arrest_disp_actions/arrest_trial/arrest_date"))
-                ),
-                disposition_date=date_or_none(
-                    case.find("arrest_disp_actions/arrest_disp/disp_date")
-                ),
-                judge=text_or_blank(case.find("arrest_disp_actions/arrest_disp/disp_judge")),
-            )
-        # In Summaries, the Disposition Date is set on a Case, but it is set on a Charge in Dockets. 
+            status=text_or_blank(case.getparent().getparent()),
+            county=text_or_blank(case.getparent().find("county")),
+            docket_number=text_or_blank(case.find("case_basics/docket_num")),
+            otn=text_or_blank(case.find("case_basics/otn_num")),
+            dc=text_or_blank(case.find("case_basics/dc_num")),
+            charges=closed_charges + open_charges,
+            total_fines=None,  # a summary docket never has info about this.
+            fines_paid=None,
+            arrest_date=date_or_none(
+                either(
+                    case.find("arrest_disp_actions/arrest_disp/arrest_date"),
+                    case.find("arrest_disp_actions/arrest_trial/arrest_date"),
+                )
+            ),
+            disposition_date=date_or_none(
+                case.find("arrest_disp_actions/arrest_disp/disp_date")
+            ),
+            judge=text_or_blank(
+                case.find("arrest_disp_actions/arrest_disp/disp_judge")
+            ),
+        )
+        # In Summaries, the Disposition Date is set on a Case, but it is set on a Charge in Dockets.
         # So when processing a Summary sheet, if there is a date on the Case, the Charges should
         # inherit the date on the case.
         for charge in new_case.charges:
@@ -428,23 +459,29 @@ def get_md_cases(summary_xml: etree.Element) -> List:
                 disposition_date=date_or_none(
                     case.find("arrest_disp_actions/arrest_disp/disp_date")
                 ),
-                judge=text_or_blank(case.find("arrest_disp_actions/arrest_disp/disp_judge")),
+                judge=text_or_blank(
+                    case.find("arrest_disp_actions/arrest_disp/disp_judge")
+                ),
             )
         )
     return cases
 
 
-cp_processors = {"parse_summary": parse_cp_summary,
-                 "summary_page_grammar": cp_summary_page_grammar,
-                 "get_cases": get_cp_cases}
+cp_processors = {
+    "parse_summary": parse_cp_summary,
+    "summary_page_grammar": cp_summary_page_grammar,
+    "get_cases": get_cp_cases,
+}
 
 
-md_processors = {"parse_summary": parse_md_summary,
-                 "summary_page_grammar": md_summary_page_grammar,
-                 "get_cases": get_md_cases}
+md_processors = {
+    "parse_summary": parse_md_summary,
+    "summary_page_grammar": md_summary_page_grammar,
+    "get_cases": get_md_cases,
+}
 
 
-def parse_pdf(pdf: Union[BinaryIO, str]) -> Tuple[Person, List[Case], List[str], etree.Element]:
+def parse_pdf(pdf: Union[BinaryIO, str]) -> Tuple[Person, List[Case], List[str]]:
     """
     PEGParser-based parser method that can take a CP or MD source and return a Summary
     used to build a CRecord.
@@ -456,7 +493,7 @@ def parse_pdf(pdf: Union[BinaryIO, str]) -> Tuple[Person, List[Case], List[str],
     try:
         parsed_pages = summary_page_grammar.parse(text)
     except Exception as e:
-        #slines = text.split("\n")
+        # slines = text.split("\n")
         errors.append(f"Grammar cannot parse summary: {str(e)}")
 
     parse_summary = inputs_dictionary["parse_summary"]
@@ -469,5 +506,5 @@ def parse_pdf(pdf: Union[BinaryIO, str]) -> Tuple[Person, List[Case], List[str],
     defendant = get_defendant(summary_xml)
     get_cases = inputs_dictionary["get_cases"]
     cases = get_cases(summary_xml)
-    return defendant, cases, errors, summary_xml
+    return defendant, cases, errors
 
