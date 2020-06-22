@@ -46,7 +46,7 @@ class FileUploadView(APIView):
     parser_classes = [MultiPartParser, FormParser]
 
     # noinspection PyMethodMayBeStatic
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         """Accept dockets and summaries locally uploaded by a user, save them to the server,
         and return SourceRecords relating to those files..
 
@@ -89,7 +89,7 @@ class SourceRecordsFetchView(APIView):
 
     permission_classes = [permissions.IsAuthenticated]
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         """
         API endpoint that takes a set of cases with urls to docket or summary sheets, downloads them,
         and returns SourceRecords, which point to the documents' ids in the database.
@@ -100,6 +100,7 @@ class SourceRecordsFetchView(APIView):
 
         """
         try:
+            breakpoint()
             posted_data = DownloadDocsSerializer(data=request.data)
             if posted_data.is_valid():
                 records = posted_data.save(owner=request.user)
@@ -115,20 +116,21 @@ class SourceRecordsFetchView(APIView):
 class IntegrateCRecordWithSources(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
-    def put(self, request, *args, **kwargs):
+    def put(self, request):
         """
-        Accept a CRecord and a set of SourceRecords. 
+        Accept a CRecord and a set of SourceRecords.
         
         Parse the SourceRecords, and incorporate the information that the SourceRecords
         contain into the CRecord.
 
-        Two api endpoints of the Django app interact with RecordLib. This one 
-        accepts a serialzed crecord and a list of sourcerecords. It attempts 
-        to parse each source_record, and then integrate the sourcerecords into the crecord. 
+        Two api endpoints of the Django app interact with RecordLib. This one
+        accepts a serialzed crecord and a list of sourcerecords. It attempts
+        to parse each source_record, and then integrate the sourcerecords into the crecord.
 
         TODO IntegrateCRecordWithSources should communicate failures better.
 
         """
+        breakpoint()
         try:
             serializer = IntegrateSourcesSerializer(data=request.data)
             if serializer.is_valid():
@@ -187,7 +189,7 @@ class AnalysisView(APIView):
     """
 
     # noinspection PyMethodMayBeStatic
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         """ Analyze a Criminal Record for expungeable and sealable cases and charges.
         
         POST body should be json-endoded CRecord object. 
@@ -219,15 +221,17 @@ class AnalysisView(APIView):
 
 
 class RenderDocumentsView(APIView):
-    """ Create pettions and an Overview document from an Analysis. 
+    """ Create pettions and an Overview document from an Analysis.
     
-    POST should be a json-encoded object with an 'petitions' property that is a list of 
-    petitions to generate
+    POST should be a json-encoded object with an 'petitions' property that is a list of
     """
 
     permission_classes = [permissions.IsAuthenticated]
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
+        """
+        Accept an object describing petitions to generate, and generate them.
+        """
         try:
             serializer = DocumentRenderSerializer(data=request.data)
             if serializer.is_valid():
@@ -242,11 +246,11 @@ class RenderDocumentsView(APIView):
                                 request.user.userprofile.sealing_petition_template.file
                             )
                             petitions.append(new_petition)
-                        except Exception as e:
+                        except Exception as err:
                             logger.error(
                                 "User has not set a sealing petition template, or "
                             )
-                            logger.error(str(e))
+                            logger.error(str(err))
                             continue
                     else:
                         new_petition = Expungement.from_dict(petition_data)
@@ -255,11 +259,11 @@ class RenderDocumentsView(APIView):
                                 request.user.userprofile.expungement_petition_template.file
                             )
                             petitions.append(new_petition)
-                        except Exception as e:
+                        except Exception as err:
                             logger.error(
                                 "User has not set an expungement petition template, or "
                             )
-                            logger.error(str(e))
+                            logger.error(str(err))
                             continue
                 client_last = petitions[0].client.last_name
                 petitions = [(p.file_name(), p.render()) for p in petitions]
@@ -282,7 +286,7 @@ class RenderDocumentsView(APIView):
 class UserProfileView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request):
         return Response(
             {
                 "user": UserSerializer(request.user).data,

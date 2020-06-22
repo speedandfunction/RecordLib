@@ -1,23 +1,28 @@
+"""
+Serialize models for the RecordLib web app.
+
+"""
 
 from rest_framework import serializers as S
 from cleanslate.models import UserProfile, SourceRecord
 from django.contrib.auth.models import User
-from RecordLib.crecord import (
-    CRecord
-)
+from RecordLib.crecord import CRecord
 from RecordLib.crecord import Case
 from RecordLib.crecord import Person
-from RecordLib.crecord import (Charge, Sentence, SentenceLength)
+from RecordLib.crecord import Charge, Sentence, SentenceLength
+
 
 class UserSerializer(S.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'email']
+        fields = ["username", "email"]
+
 
 class UserProfileSerializer(S.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ['id']
+        fields = ["id"]
+
 
 """
 These serializer classes are only for serializing and deserializing json/dict representations of these 
@@ -27,14 +32,17 @@ classes. Use each class's `from_dict` static method to actually get the object.
 Serializers also act like data validators for data in requests to the api.
 """
 
+
 class FileUploadSerializer(S.Serializer):
     files = S.ListField(child=S.FileField(), allow_empty=True)
 
+
 class SentenceLengthSerializer(S.Serializer):
-    min_time = S.DurationField(required=False) #S.IntegerField(required=False)
+    min_time = S.DurationField(required=False)  # S.IntegerField(required=False)
     min_unit = S.CharField(required=False)
-    max_time = S.DurationField(required=False) #S.IntegerField(required=False)
-    max_unit = S.CharField(required=False) 
+    max_time = S.DurationField(required=False)  # S.IntegerField(required=False)
+    max_unit = S.CharField(required=False)
+
 
 class SentenceSerializer(S.Serializer):
     sentence_date = S.DateField()
@@ -47,7 +55,9 @@ class ChargeSerializer(S.Serializer):
     offense = S.CharField()
     grade = S.CharField(required=False, allow_blank=True, allow_null=True, default="")
     statute = S.CharField(required=False, allow_blank=True, allow_null=True, default="")
-    disposition = S.CharField(required=False, allow_blank=True, allow_null=True, default="")
+    disposition = S.CharField(
+        required=False, allow_blank=True, allow_null=True, default=""
+    )
     disposition_date = S.DateField(required=False, allow_null=True)
     sentences = SentenceSerializer(many=True, allow_empty=True)
 
@@ -65,14 +75,22 @@ class CaseSerializer(S.Serializer):
     arrest_date = S.DateField(required=False, allow_null=True)
     disposition_date = S.DateField(required=False, allow_null=True)
     judge = S.CharField(required=False, allow_blank=True, allow_null=True)
-    judge_address = S.CharField(required=False, allow_blank=True, default="", allow_null=True)
+    judge_address = S.CharField(
+        required=False, allow_blank=True, default="", allow_null=True
+    )
     affiant = S.CharField(required=False, allow_blank=True, allow_null=True)
-    arresting_agency = S.CharField(required=False, allow_blank=True, default="", allow_null=True)
-    arresting_agency_address = S.CharField(required=False, allow_blank=True, default="", allow_null=True)
+    arresting_agency = S.CharField(
+        required=False, allow_blank=True, default="", allow_null=True
+    )
+    arresting_agency_address = S.CharField(
+        required=False, allow_blank=True, default="", allow_null=True
+    )
+
 
 class AddressSerializer(S.Serializer):
     line_one = S.CharField(allow_blank=True)
     city_state_zip = S.CharField(allow_blank=True)
+
 
 class AttorneySerializer(S.Serializer):
     organization = S.CharField(required=False)
@@ -81,18 +99,23 @@ class AttorneySerializer(S.Serializer):
     organization_phone = S.CharField(required=False)
     bar_id = S.CharField(required=False)
 
+
 class PersonSerializer(S.Serializer):
     first_name = S.CharField(max_length=200, allow_blank=True)
     last_name = S.CharField(max_length=200, allow_blank=True)
     date_of_birth = S.DateField(required=False, allow_null=True)
     date_of_death = S.DateField(required=False, allow_null=True)
-    aliases = S.ListField(child=S.CharField(), required=False) # CharField() doesn't seem to take many=True. 
+    aliases = S.ListField(
+        child=S.CharField(), required=False
+    )  # CharField() doesn't seem to take many=True.
     ssn = S.CharField(max_length=15, required=False, allow_blank=True)
     address = AddressSerializer(required=False)
+
 
 class CRecordSerializer(S.Serializer):
     person = PersonSerializer()
     cases = CaseSerializer(many=True)
+
 
 class PetitionSerializer(S.Serializer):
     attorney = AttorneySerializer()
@@ -105,35 +128,50 @@ class PetitionSerializer(S.Serializer):
     include_crim_hist_report = S.CharField(required=False, allow_blank=True)
     ifp_message = S.CharField(required=False, allow_blank=True)
 
+
 class DocumentRenderSerializer(S.Serializer):
+    """
+    Validate data involving json objects describing petitions to generate.
+    """
+
     petitions = PetitionSerializer(many=True)
+
 
 class SourceRecordSerializer(S.ModelSerializer):
     """ 
     Validate json that represents a criminal record source document, e.g., a summary pdf or docket pdf.
     """
+
     class Meta:
         model = SourceRecord
         exclude = [
-            "owner", # only the database knows who owns what files
-            "file"]  # the file itself isn't sent back and forth as a SourceRecord. The SourceRecord is a pointer to a file in the server.
-    id = S.UUIDField(format='hex_verbose', required=False)
+            "owner",  # only the database knows who owns what files
+            "file",
+        ]  # the file itself isn't sent back and forth as a SourceRecord. The SourceRecord is a pointer to a file in the server.
+
+    id = S.UUIDField(format="hex_verbose", required=False)
 
 
 class IntegrateSourcesSerializer(S.Serializer):
+    """
+    Validate data where we've got a CRecord and source records that will be parsed and integrated into the crecord.
+    """
+
     crecord = CRecordSerializer()
     source_records = SourceRecordSerializer(many=True, allow_empty=True)
-
-
-
 
 
 class DownloadDocsSerializer(S.Serializer):
     """
     Validate json of a POST that contains source records (a collection of objects validated by SourceRecordSerializer)
     """
+
     source_records = SourceRecordSerializer(many=True)
 
     def create(self, validated_data):
         owner = validated_data.pop("owner")
-        return [SourceRecord.objects.create(**rec, owner=owner) for rec in validated_data["source_records"]]
+        return [
+            SourceRecord.objects.create(**rec, owner=owner)
+            for rec in validated_data["source_records"]
+        ]
+

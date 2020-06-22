@@ -78,7 +78,7 @@ export function uploadUJSDocs() {
   /**
    * Send the information about selected ujs search results to the server,
    *
-   * The server will create SoureRecords for each, and return objects describing
+   * The server will create SourceRecords for each, and return objects describing
    * these SoureReocrds.
    *
    * Note that each UJS Search result described two documents. One is a 'docket', and
