@@ -1,18 +1,25 @@
-import click
-import logging
-import requests
-import os
-from RecordLib.utilities.number_generator import create_docket_numbers
-import csv
-from ujs_search.services import searchujs
-from datetime import datetime
+""" Command line tools for downloading dockets """
 
+
+import csv
+import logging
+import os
+from datetime import datetime
+import click
+import requests
+from ujs_search.services import searchujs
+from RecordLib.utilities.number_generator import create_docket_numbers
+
+# pylint: disable=no-member
 requests.packages.urllib3.disable_warnings()
 requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS += ":HIGH:!DH:!aNULL"
 
 
 @click.group()
 def cli():
+    """
+    Root of the cli for downloading dockets
+    """
     return
 
 
@@ -20,17 +27,17 @@ def download(url, dest_path, name, doc_type):
     """ Download something from a url """
     resp = requests.get(url, headers={"User-Agent": "DocketAnalyzerTesting"})
     if resp.status_code == 200:
-        logging.info(f"Downloaded {doc_type}")
+        logging.info("Downloaded %s", doc_type)
         with open(f"{dest_path}/{name}_{doc_type}.pdf", "wb") as downloaded:
             downloaded.write(resp.content)
     return
 
 
-def download_docket(docket_number: str, doc_type: str):
+def download_docket(docket_num: str, doc_type: str):
     """ Download a single docket from the UJS portal..
 
     Args:
-        docket_number: the docket number.
+        docket_num: the docket number.
         doc_type: summary or docket.
 
     Returns:
@@ -38,10 +45,9 @@ def download_docket(docket_number: str, doc_type: str):
         as well as the downloaded file. Otherwise, a tuple (None, None)
     """
     try:
-
-        resp = searchujs.search_by_docket(docket_number)
-    except Exception as e:
-        logging.error(str(e))
+        resp = searchujs.search_by_docket(docket_num)
+    except Exception as err:
+        logging.error(str(err))
         return None, None
     if len(resp) > 0:
         logging.info("... URL found. Downloading file.")
@@ -54,11 +60,8 @@ def download_docket(docket_number: str, doc_type: str):
         if resp.status_code == 200:
             logging.info("Docket found and downloaded.")
             return url, resp.content
-        else:
-            logging.error(
-                f"...request for url failed. Status code: { resp.status_code }"
-            )
-            logging.error(f"   URL was { url }")
+        logging.error("...request for url failed. Status code: %s", resp.status_code)
+        logging.error("   URL was %s", url)
     else:
         logging.info("No docket found.")
 
@@ -99,7 +102,7 @@ def names(
         courts = ["MDJ", "CP"]
 
     if not os.path.exists(dest_path):
-        logging.warning(f"{dest_path} does not already exist. Creating it")
+        logging.warning("%s does not already exist. Creating it", dest_path)
         os.mkdir(dest_path)
 
     with open(input_csv, "r") as input_file:
@@ -123,7 +126,7 @@ def names(
                     first_name, last_name, dob, court=court_to_search
                 )
                 if len(results[court_to_search]) > 0:
-                    logging.info(f"Successful search for {row['Name']}")
+                    logging.info("Successful search for %s", row["Name"])
                     if doc_type.lower() in ["s", "summary", "summaries", "both"]:
                         # download the summaries
                         for result in results[court_to_search]:
@@ -134,9 +137,9 @@ def names(
                                 if output_csv:
                                     writer.writerow(row)
                                 download(row["url"], dest_path, row["Name"], "summary")
-                            except:
+                            except Exception:
                                 logging.error(
-                                    f"... No summary found for {row['Name']}."
+                                    "... No summary found for %s.", row["Name"]
                                 )
                                 row["url"] = ""
                                 row["doctype"] = "none"
@@ -154,12 +157,12 @@ def names(
                                     row["Name"] + "_" + str(i),
                                     "docket",
                                 )
-                            except:
-                                logging.error(f" No dockets found for {row['Name']}.")
+                            except Exception:
+                                logging.error(" No dockets found for %s.", row["Name"])
                                 row["url"] = ""
                                 row["doctype"] = "none"
                 else:
-                    logging.warning(f"Did not find any results for {row['Name']}")
+                    logging.warning("Did not find any results for %s", row["Name"])
                 if output_csv:
                     writer.writerow(row)
 
@@ -179,8 +182,8 @@ def names(
     type=click.Choice(["summary", "docket"]),
 )
 @click.option("-o", "--output", required=True)
-def docket_number(docket_number: str, doc_type: str, output: str):
-    _, resp_content = download_docket(docket_number, doc_type)
+def docket_number(docket_num: str, doc_type: str, output: str):
+    _, resp_content = download_docket(docket_num, doc_type)
     if resp_content is not None:
         click.echo("Downloaded docket.")
         with open(output, "wb") as f:
@@ -209,7 +212,7 @@ def docket_number_file(
     """
     logging.basicConfig(level=logging.INFO)
     if not os.path.exists(dest_path):
-        logging.warning(f"{dest_path} does not already exist. Creating it")
+        logging.warning("%s does not already exist. Creating it", dest_path)
         os.mkdir(dest_path)
     with open(input_csv, "r") as input_file:
         if output_csv:
@@ -220,19 +223,18 @@ def docket_number_file(
             logging.error("Input-file must have the column 'Docket Number'")
             return
         for row in reader:
-            docket_number = row["Docket Number"]
-            url, resp_content = download_docket(docket_number, doc_type)
+            docket_num = row["Docket Number"]
+            url, resp_content = download_docket(docket_num, doc_type)
             if resp_content is not None:
                 with open(
-                    os.path.join(dest_path, f"{ docket_number }_{ doc_type }.pdf"),
-                    "wb",
+                    os.path.join(dest_path, f"{ docket_num }_{ doc_type }.pdf"), "wb",
                 ) as f:
                     f.write(resp_content)
                     row["url"] = url
                     if output_csv:
                         writer.writerow(row)
             else:
-                logging.error(f"Could not find {docket_number}.")
+                logging.error("Could not find %s.", docket_num)
         if output_csv:
             output_file.close()
         logging.info("Complete.")
@@ -251,22 +253,21 @@ def random(document_type: str, number: int, dest_path: str, court: str) -> None:
     """
     logging.basicConfig(level=logging.INFO)
     if not os.path.exists(dest_path):
-        logging.warning(f"{dest_path} does not already exist. Creating it")
+        logging.warning("%s does not already exist. Creating it.", dest_path)
         os.mkdir(dest_path)
 
     for _ in range(number):
-        docket_number = next(create_docket_numbers(court))
-        logging.info(f"Finding { docket_number } ... ")
+        docket_num = next(create_docket_numbers(court))
+        logging.info("Finding %s...", docket_num)
         if court == "either":
-            court_to_search = "CP" if "CP-" in docket_number else "MDJ"
-            logging.info("court is now " + court_to_search)
+            court_to_search = "CP" if "CP-" in docket_num else "MDJ"
+            logging.info("court is now %s", court_to_search)
         else:
             court_to_search = court
-        _, resp_content = download_docket(docket_number, document_type)
+        _, resp_content = download_docket(docket_num, document_type)
         if resp_content is not None:
             with open(
-                os.path.join(dest_path, f"{ docket_number }_{ document_type }.pdf"),
-                "wb",
+                os.path.join(dest_path, f"{ docket_num }_{ document_type }.pdf"), "wb",
             ) as f:
                 f.write(resp_content)
 
@@ -288,7 +289,7 @@ def urls(url_file: str, dest_dir: str, nest_dirs: bool):
     """
     logging.basicConfig(level=logging.INFO)
     if not os.path.exists(dest_dir):
-        logging.warning(f"{dest_dir} does not already exist. Creating it")
+        logging.warning("%s does not already exist. Creating it.", dest_dir)
         os.mkdir(dest_dir)
 
     with open(url_file, "r") as f:

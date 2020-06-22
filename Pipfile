@@ -15,6 +15,7 @@ sphinx = "==2.4.1"
 sphinx-js = "*"
 recordlib = {path = ".",editable = true}
 pylint = "*"
+pylint-django = "==2.0.15"
 
 [packages]
 mysql-connector-python = "==8.0.18"
@@ -36,7 +37,7 @@ django-docketsearch = {git = "https://github.com/clsphila/django-docketsearch.gi
 aiohttp = "*" 
 yarl = "==1.4.2"
 recordlib = {editable = true,path = "."}
-mako = "1.1.2"
+mako = "==1.1.2"
 sendgrid = "*"
 
 [requires]

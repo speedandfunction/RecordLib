@@ -33,7 +33,6 @@ from RecordLib.sourcerecords import SourceRecord as RLSourceRecord
 import json
 import os
 import os.path
-from datetime import *
 import zipfile
 import tempfile
 from django.http import HttpResponse
@@ -74,7 +73,7 @@ class FileUploadView(APIView):
                 )
             except Exception as e:
                 return Response(
-                    {"error_message": "Parsing failed."},
+                    {"error_message": f"Parsing failed: {str(e)}"},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
         else:
@@ -136,7 +135,7 @@ class IntegrateCRecordWithSources(APIView):
                         source_records.append(
                             SourceRecord.objects.get(id=source_record_data["id"])
                         )
-                    except:
+                    except Exception:
                         pass
 
                 for source_record in source_records:
