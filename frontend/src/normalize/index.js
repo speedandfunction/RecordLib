@@ -97,6 +97,15 @@ const cRecordSchema = new schema.Entity(
   options
 );
 
+export function normalizeCases(data) {
+  const normalized = normalize(data, caseSchema);
+  return normalized;
+}
+
+/**
+ * Normalize the _cases_ of a crecord.
+ * @param {} data
+ */
 export function normalizeCRecord(data) {
   console.log("normalizing");
   console.log(data);

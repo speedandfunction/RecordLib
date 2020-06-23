@@ -100,7 +100,6 @@ class SourceRecordsFetchView(APIView):
 
         """
         try:
-            breakpoint()
             posted_data = DownloadDocsSerializer(data=request.data)
             if posted_data.is_valid():
                 records = posted_data.save(owner=request.user)
@@ -130,7 +129,6 @@ class IntegrateCRecordWithSources(APIView):
         TODO IntegrateCRecordWithSources should communicate failures better.
 
         """
-        breakpoint()
         try:
             serializer = IntegrateSourcesSerializer(data=request.data)
             if serializer.is_valid():

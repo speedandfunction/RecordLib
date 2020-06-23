@@ -68,11 +68,11 @@ function updateCRecordSucceeded(newCRecord) {
   console.log("in updateCREcordSucceeded");
   console.log("crecord param is");
   console.log(newCRecord);
-  const normalizedCases = normalizeCRecord(newCRecord.cases);
-  console.log("normalizedCRecord");
+  const normalizedCRecord = normalizeCRecord(newCRecord);
+  console.log("normalizedCases");
   return {
     type: UPDATE_CRECORD_SUCCEEDED,
-    payload: { person: newCRecord.person, cases: normalizedCases },
+    payload: { person: newCRecord.person, cRecord: normalizedCRecord },
   };
 }
 

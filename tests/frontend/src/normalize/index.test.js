@@ -1,26 +1,21 @@
 import {
   normalizeCRecord,
   denormalizeSourceRecords,
+  normalizeCases,
 } from "frontend/src/normalize";
-import { initialCrecordState } from "frontend/src/reducers/crecord";
 
 describe("crecord normalizers", () => {
   it("should turn an empty crecord nested object into empty normalized components.", () => {
-    const crecord = initialCrecordState;
+    const crecord = {
+      cases: [],
+    };
     const normalized = normalizeCRecord(crecord);
     expect(normalized).toEqual({
       entities: {
         cRecord: {
           root: {
-            cRecord: {
-              root: {
-                cases: [],
-              },
-            },
-            cases: [],
-            charges: {},
             id: "root",
-            sentences: {},
+            cases: [],
           },
         },
       },
@@ -30,11 +25,9 @@ describe("crecord normalizers", () => {
 
   it("should normalize a crecord response from the server", () => {
     const crecord = {
-      person: {
-        date_of_birth: "1999-12-31",
-      },
       cases: [
         {
+          docket_number: "12-CP-12-CR-1234567",
           affiant: "John",
           status: "closed",
           county: "Montgomery",
@@ -42,21 +35,37 @@ describe("crecord normalizers", () => {
         },
       ],
     };
-
-    const normalized = normalizeCRecord(crecord.cases);
+    console.log("response normalized");
+    const normalized = normalizeCRecord(crecord);
+    console.log(normalized);
+    console.log(normalized.entities.cRecord);
     expect(normalized).toEqual({
       entities: {
         cRecord: {
           root: {
-            cRecord: {
-              root: {
-                cases: [1],
-              },
-            },
-            cases: [1],
+            cases: ["12-CP-12-CR-1234567"],
+            id: "root",
+          },
+        },
+        cases: {
+          "12-CP-12-CR-1234567": {
+            docket_number: "12-CP-12-CR-1234567",
+            editing: false,
+            id: "12-CP-12-CR-1234567",
+            affiant: "John",
+            status: "closed",
+            county: "Montgomery",
+            charges: ["12-CP-12-CR-1234567charges@0"],
+          },
+        },
+        charges: {
+          "12-CP-12-CR-1234567charges@0": {
+            id: "12-CP-12-CR-1234567charges@0",
+            statute: "endangering othrs.",
           },
         },
       },
+      result: "root",
     });
   });
 });
