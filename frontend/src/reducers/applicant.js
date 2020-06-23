@@ -27,19 +27,24 @@ export default applicantInfoReducer;
 function aliasReducer(state = {}, action) {
   switch (action.type) {
     case ADD_OR_REPLACE_APPLICANT: {
+      console.log("ADD OR REpLACE APPLICANT with payload:");
+      console.log(action.payload);
       const callback = (acc, curr) => {
         return Object.assign(acc, curr);
       };
       const { aliases } = action.payload;
-      return Object.assign(
-        {},
-        state,
-        aliases
-          .map((alias) => {
-            return { [alias]: alias };
-          })
-          .reduce(callback, {})
-      );
+      if (aliases) {
+        return Object.assign(
+          {},
+          state,
+          aliases
+            .map((alias) => {
+              return { [alias]: alias };
+            })
+            .reduce(callback, {})
+        );
+      }
+      return state;
     }
     case EDIT_ALIAS:
     case ADD_ALIAS: {
@@ -89,10 +94,12 @@ function applicantReducer(state = initialApplicant, action) {
         }
       });
 
-      const newState = Object.assign({}, state, {
-        ...applicant,
-        aliases: Array.from(new Set([...state.aliases, ...applicant.aliases])),
-      });
+      const newState = { ...applicant };
+      if (applicant.aliases) {
+        newState.aliases = Array.from(
+          new Set([...state.aliases, ...applicant.aliases])
+        );
+      }
 
       // If state already has a name for the applicant, don't overwrite it.
       // (for example, user may have entered it manually)

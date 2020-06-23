@@ -64,7 +64,7 @@ export function analyzeCRecord() {
  * @param {*} newCRecord
  */
 
-function updateCRecordSucceeded(newCRecord) {
+export function updateCRecordSucceeded(newCRecord) {
   console.log("in updateCREcordSucceeded");
   console.log("crecord param is");
   console.log(newCRecord);
@@ -107,6 +107,9 @@ export function updateCRecord() {
         console.log("response of crecord from server");
         console.log(response.data);
         dispatch(updateCRecordSucceeded(response.data.crecord));
+        console.log(
+          "finished updating CRecord case info. Next updating applicant info."
+        );
         dispatch(addOrReplaceApplicant(response.data.crecord.person));
         console.log("upserting source records after calling PUT /cases");
         dispatch(

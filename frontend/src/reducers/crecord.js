@@ -32,7 +32,8 @@ export default function cRecordReducer(state = initialCrecordState, action) {
         charges: Object.assign({}, state.charges, newCases.charges),
         sentences: Object.assign({}, state.sentences, newCases.sentences),
       };
-
+      console.log("newState is");
+      console.log(newState);
       return newState;
     }
 

@@ -98,7 +98,12 @@ const cRecordSchema = new schema.Entity(
 );
 
 export function normalizeCases(data) {
-  const normalized = normalize(data, caseSchema);
+  const caseCollection = new schema.Entity(
+    "caseCollection",
+    [caseSchema],
+    options
+  );
+  const normalized = normalize(data, caseCollection);
   return normalized;
 }
 
