@@ -107,7 +107,7 @@ function SourceRecords(props) {
               {sourceRecords.allIds.map((srID) => {
                 return (
                   <SourceRecordRow
-                    childKey={srID}
+                    key={srID}
                     record={sourceRecords.allSourceRecords[srID]}
                   ></SourceRecordRow>
                 );

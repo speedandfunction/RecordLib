@@ -94,7 +94,7 @@ function applicantReducer(state = initialApplicant, action) {
         }
       });
 
-      const newState = { ...applicant };
+      const newState = { ...state, ...applicant };
       if (applicant.aliases) {
         newState.aliases = Array.from(
           new Set([...state.aliases, ...applicant.aliases])
