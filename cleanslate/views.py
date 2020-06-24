@@ -113,6 +113,10 @@ class SourceRecordsFetchView(APIView):
 
 
 class IntegrateCRecordWithSources(APIView):
+    """
+    View to handle combining the information about a case or cases from source records with a crecord. 
+    """
+
     permission_classes = [permissions.IsAuthenticated]
 
     def put(self, request):
@@ -141,8 +145,14 @@ class IntegrateCRecordWithSources(APIView):
                             SourceRecord.objects.get(id=source_record_data["id"])
                         )
                     except Exception:
-                        pass
-
+                        # create this source record in the database, if it is new.
+                        source_rec = SourceRecord(
+                            **source_record_data, owner=request.user
+                        )
+                        source_rec.save()
+                        # also download it to the server.
+                        download.source_records([source_rec])
+                        source_records.append(source_rec)
                 for source_record in source_records:
                     try:
                         rlsource = RLSourceRecord(
@@ -171,10 +181,9 @@ class IntegrateCRecordWithSources(APIView):
                     },
                     status=status.HTTP_200_OK,
                 )
-            else:
-                return Response(
-                    {"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
-                )
+            return Response(
+                {"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
+            )
         except Exception as err:
             return Response(
                 {"errors": [str(err)]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR

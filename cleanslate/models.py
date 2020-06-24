@@ -1,13 +1,12 @@
 from __future__ import annotations
+import uuid
+import re
+from typing import Optional
+from dataclasses import dataclass, asdict
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db.models.signals import post_save
-import io
-import uuid
-from typing import Optional
-from dataclasses import dataclass, asdict
-import re
 from RecordLib.sourcerecords.docket.re_parse_pdf import (
     re_parse_pdf as docket_pdf_parser,
 )
@@ -224,7 +223,7 @@ class SourceRecord(models.Model):
         """
 
         UNKNOWN = "UNKNOWN"
-        SUCCESS = "SUCESSFULLY_PARSED"
+        SUCCESS = "SUCCESSFULLY_PARSED"
         FAILURE = "PARSE_FAILED"
         __choices__ = [
             ("UNKNOWN", "UNKNOWN"),

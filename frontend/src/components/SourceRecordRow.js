@@ -12,7 +12,7 @@ function SourceRecordRow(props) {
   const { record } = props;
   return (
     <TableRow>
-      ;<TableCell align="left">{record.caption}</TableCell>
+      <TableCell align="left">{record.caption}</TableCell>
       <TableCell align="left">{record.docket_num}</TableCell>
       <TableCell align="left">{record.court}</TableCell>
       <TableCell align="left">
