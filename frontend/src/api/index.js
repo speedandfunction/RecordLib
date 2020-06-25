@@ -18,6 +18,8 @@ export function removeNullValues(object) {
   Object.keys(object).forEach((key) => {
     if (!object[key]) {
       delete object[key];
+    } else if (typeof object[key] == "object") {
+      object[key] = removeNullValues(object[key]);
     }
   });
   return object;
@@ -122,8 +124,8 @@ export function uploadUJSDocs(source_records) {
 export function integrateDocsWithRecord(crecord, sourceRecords) {
   console.log("integrateDocsWithRecord");
   return client.put("/api/record/cases/", {
-    crecord,
-    source_records: sourceRecords,
+    crecord: removeNullValues(crecord),
+    source_records: removeNullValues(sourceRecords),
   });
 }
 
