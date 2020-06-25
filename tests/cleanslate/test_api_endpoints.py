@@ -70,7 +70,9 @@ def test_integrate_sources_with_crecord(dclient, admin_user, example_crecord):
     assert resp.status_code == 200
     assert "crecord" in resp.data
     assert "source_records" in resp.data
-    assert len(resp.data["source_records"]) == len(source_records)
+    # the response source_records list might include new source records, so will be at
+    # least as long as the original source records list.
+    assert len(resp.data["source_records"]) >= len(source_records)
     try:
 
         CRecord.from_dict(resp.data["crecord"])

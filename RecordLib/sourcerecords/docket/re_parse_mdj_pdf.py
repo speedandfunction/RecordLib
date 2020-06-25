@@ -19,7 +19,7 @@ class PATTERNS:
     otn = re.compile(r"OTN:\s+(\D(\s)?\d+(\-\d)?)", re.I)
     dc_number = re.compile(r"District Control Number\s+(\d+)", re.I)
     arrest_agency_and_date = re.compile(
-        r"Arresting Agency:\s+(.*)\s+Arrest Date:\s+(\d{1,2}\/\d{1,2}\/\d{4})?", re.I
+        r"Arresting Agency:\s+(.*)\s+Arrest Date:\s*(\d{1,2}\/\d{1,2}\/\d{4})?", re.I
     )
     complaint_date = re.compile(r"Issue Date:\s+(\d{1,2}\/\d{1,2}\/\d{4})", re.I)
     affiant = re.compile(r"^\s*Arresting Officer (\D+)\s*$", re.I)

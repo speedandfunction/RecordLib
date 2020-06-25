@@ -49,6 +49,6 @@ def test_null_parser():
     except Exception as err:
         pytest.fail(str(err))
     assert src.person is None
-    assert src.cases is None
+    assert src.cases == []
     assert len(src.errors) == 1
 
