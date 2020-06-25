@@ -15,6 +15,7 @@ from datetime import date
 from dateutil.relativedelta import relativedelta
 import logging
 
+
 def years_since_last_arrested_or_prosecuted(crecord: CRecord) -> int:
     """
     How many years since a person was last arrested or prosecuted?
@@ -27,7 +28,9 @@ def years_since_last_arrested_or_prosecuted(crecord: CRecord) -> int:
         return float("Inf")
     if len(crecord.cases) == 0:
         return float("Inf")
-    if any("Active" in case.status for case in crecord.cases if case.status is not None):
+    if any(
+        "Active" in case.status for case in crecord.cases if case.status is not None
+    ):
         return 0
     cases_ordered = sorted(crecord.cases, key=Case.order_cases_by_last_action)
     last_case = cases_ordered[-1]
@@ -54,8 +57,7 @@ def years_since_final_release(crecord: CRecord) -> int:
         # if a is before b, then c is negative. if a is after b, c is positive.
         # relativedelta(today, yesterday) > 0
         # relativedelta(yesterday, today) < 0
-        return max(relativedelta(date.today(),
-                   max(confinement_ends)).years, 0)
+        return max(relativedelta(date.today(), max(confinement_ends)).years, 0)
     except (ValueError, TypeError):
         return 0
 
@@ -70,13 +72,13 @@ class CRecord:
         try:
             try:
                 person = Person.from_dict(dct["person"])
-            except: 
+            except:
                 person = None
-            try: 
+            try:
                 cases = [Case.from_dict(c) for c in dct["cases"]]
             except:
                 cases = []
-            return CRecord(person = person, cases = cases)
+            return CRecord(person=person, cases=cases)
         except:
             return None
 
@@ -102,7 +104,12 @@ class CRecord:
             "cases": [c.to_dict() for c in self.cases],
         }
 
-    def add_summary(self, summary: "Summary", case_merge_strategy: str = "ignore_new", override_person: bool = False) -> CRecord:
+    def add_summary(
+        self,
+        summary: "Summary",
+        case_merge_strategy: str = "ignore_new",
+        override_person: bool = False,
+    ) -> CRecord:
         """
         Add the information of a summary sheet to a CRecord.
 
@@ -130,15 +137,20 @@ class CRecord:
                 self.cases.append(new_case)
                 docket_nums.append(new_case.docket_number)
             elif case_merge_strategy == "ignore_new":
-                logging.info(f"Case with docket { new_case.docket_number } already part of record. Ignoring it.")
+                logging.info(
+                    f"Case with docket { new_case.docket_number } already part of record. Ignoring it."
+                )
             elif case_merge_strategy == "overwrite_old":
-                logging.info(f"Case with docket { new_case.docket_number } already part of record. Using it.")
+                logging.info(
+                    f"Case with docket { new_case.docket_number } already part of record. Using it."
+                )
                 self.cases[i] = new_case
             else:
-                logging.info(f"Case with docket { new_case.docket_number } already part of record, no merge strategy selected. Ignoring duplicate.")
+                logging.info(
+                    f"Case with docket { new_case.docket_number } already part of record, no merge strategy selected. Ignoring duplicate."
+                )
 
         return self
-
 
     def add_docket(self: CRecord, docket: Docket) -> CRecord:
         """
@@ -149,17 +161,24 @@ class CRecord:
 
         Returns:
             This CRecord, with the information from `docket` incorporated into the record.
-        """    
+        """
         replaced = False
         self.person = docket._defendant
         for i, case in enumerate(self.cases):
             if case.docket_number == docket._case.docket_number:
                 replaced = True
                 self.cases[i] = docket._case
-        if replaced is False: self.cases.append(docket._case)
+        if replaced is False:
+            self.cases.append(docket._case)
         return self
 
-    def add_sourcerecord(self, sourcerecord: "SourceRecord", case_merge_strategy: str = "ignore_new", override_person: bool = False) -> CRecord:
+    def add_sourcerecord(
+        self,
+        sourcerecord: "SourceRecord",
+        case_merge_strategy: str = "ignore_new",
+        override_person: bool = False,
+        docket_number: Optional[str] = None,
+    ) -> CRecord:
         """
         Add the information from a SourceRecord to a CRecord.
 
@@ -174,7 +193,11 @@ class CRecord:
 
         Args:
             sourcerecord (SourceRecord): A parsed sourcerecord
-            case_merge_strategy (str): "ignore_new" or "overwrite_old", which indicate whether duplicate new cases should be dropped or should replace the old ones
+            case_merge_strategy (str): "ignore_new" or "overwrite_old", which indicate whether duplicate new cases should be 
+                dropped or should replace the old ones
+            override_person (bool): Should the source record's Person replace the crecord's current Person?
+            docket_number (str or None): If provided, and if the sourcerecord only contains one case (i.e., its a Docket, 
+                not a Summary), then give the case this docket number.
 
         Returns:
             This updated CRecord object.
@@ -189,17 +212,26 @@ class CRecord:
 
         docket_nums = [c.docket_number for c in self.cases]
         for i, new_case in enumerate(sourcerecord.cases):
+            # If we're only adding one case, and have passed in a docket number, give the new case the docket number.
+            if docket_number is not None and len(sourcerecord.cases) == 1:
+                new_case.docket_number = docket_number
             if new_case.docket_number not in docket_nums:
                 logging.info(f"Adding {new_case.docket_number} to record.")
                 self.cases.append(new_case)
                 docket_nums.append(new_case.docket_number)
             elif case_merge_strategy == "ignore_new":
-                logging.info(f"Case with docket { new_case.docket_number } already part of record. Ignoring it.")
+                logging.info(
+                    f"Case with docket { new_case.docket_number } already part of record. Ignoring it."
+                )
             elif case_merge_strategy == "overwrite_old":
-                logging.info(f"Case with docket { new_case.docket_number } already part of record. Using it.")
+                logging.info(
+                    f"Case with docket { new_case.docket_number } already part of record. Using it."
+                )
                 self.cases[i] = new_case
             else:
-                logging.info(f"Case with docket { new_case.docket_number } already part of record, no merge strategy selected. Ignoring duplicate.")
+                logging.info(
+                    f"Case with docket { new_case.docket_number } already part of record, no merge strategy selected. Ignoring duplicate."
+                )
 
         return self
 

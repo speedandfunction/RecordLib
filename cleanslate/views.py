@@ -2,7 +2,7 @@
 Views for the Recordlib webapp.
 
 """
-
+from typing import Tuple, List
 import logging
 from django.http import HttpResponse
 from rest_framework.response import Response
@@ -21,7 +21,7 @@ from RecordLib.analysis.ruledefs import (
     seal_convictions,
 )
 from RecordLib.petitions import Expungement, Sealing
-from .serializers import (
+from cleanslate.serializers import (
     CRecordSerializer,
     DocumentRenderSerializer,
     FileUploadSerializer,
@@ -31,9 +31,9 @@ from .serializers import (
     SourceRecordSerializer,
     DownloadDocsSerializer,
 )
-from .compressor import Compressor
-from .services import download
-from .models import SourceRecord
+from cleanslate.compressor import Compressor
+from cleanslate.services import download as download_service
+from cleanslate.models import SourceRecord
 
 logger = logging.getLogger(__name__)
 
@@ -103,13 +103,89 @@ class SourceRecordsFetchView(APIView):
             posted_data = DownloadDocsSerializer(data=request.data)
             if posted_data.is_valid():
                 records = posted_data.save(owner=request.user)
-                download.source_records(records)
+                download_service.source_records(records)
                 return Response(
                     DownloadDocsSerializer({"source_records": records}).data,
                 )
             return Response({"errors": posted_data.errors})
         except Exception as err:
             return Response({"errors": [str(err)]})
+
+
+def integrate_dockets(
+    crecord: CRecord,
+    docket_source_records: List[SourceRecord],
+    nonfatal_errors: List[str],
+) -> Tuple[CRecord, List[str]]:
+    """ Combine a set of source records representing 'dockets' with a criminal record"""
+    for docket_source_record in docket_source_records:
+        try:
+            # get a RecordLib SourceRecord from the webapp sourcerecord model. The RecordLib SourceRecord has the machinery for
+            # parsing the record to get a Person and Cases out of it.
+            rlsource = RLSourceRecord(
+                docket_source_record.file.path,
+                parser=docket_source_record.get_parser(),
+            )
+            # If we reach this line, the parse succeeded.
+            docket_source_record.parse_status = SourceRecord.ParseStatuses.SUCCESS
+            # Integrate this docket with the full crecord.
+            crecord.add_sourcerecord(
+                rlsource,
+                case_merge_strategy="overwrite_old",
+                override_person=True,
+                docket_number=docket_source_record.docket_num,
+            )
+        except Exception:
+            docket_source_record.parse_status = SourceRecord.ParseStatuses.FAILURE
+            nonfatal_errors.append(
+                f"Could not parse {docket_source_record.docket_num} ({docket_source_record.record_type})"
+            )
+        finally:
+            docket_source_record.save()
+    return crecord, nonfatal_errors
+
+
+def integrate_summaries(
+    crecord: CRecord,
+    summary_source_records: List[SourceRecord],
+    docket_source_records: List[SourceRecord],
+    nonfatal_errors: List[str],
+    owner,
+) -> Tuple[CRecord, List[SourceRecord], List[str]]:
+    """
+    Combine a set of source records representing summary sheets with a criminal record. In addition, 
+    find any cases that the summary sheets mention which are not already in the criminal record. 
+    
+    For these extra cases, find a docket sheet for this case, and add it as a source record and integrate its information
+    into the criminal record. 
+    """
+    dockets_in_summaries = []
+    for summary_source_record in summary_source_records:
+        try:
+            rlsource = RLSourceRecord(
+                summary_source_record.file.path,
+                parser=summary_source_record.get_parser(),
+            )
+            summary_source_record.parse_status = SourceRecord.ParseStatuses.SUCCESS
+            dockets_in_summaries.extend([c.docket_number for c in rlsource.cases])
+        except Exception:
+            summary_source_record.parse_status = SourceRecord.ParseStatuses.FAILURE
+        finally:
+            summary_source_record.save()
+
+    # compare the dockets_in_summaries to dockets already collected as source records
+    # to see what dockets are missing from the set of source records.
+    missing_dockets = [
+        dn for dn in dockets_in_summaries if dn not in docket_source_records
+    ]
+    new_source_dockets = download_service.dockets(missing_dockets, owner=owner)
+    logger.info("Downloaded %d", len(new_source_dockets))
+
+    # now parse and integrate these new source dockets into the crecord.
+    crecord, nonfatal_errors = integrate_dockets(
+        crecord, new_source_dockets, nonfatal_errors
+    )
+    return crecord, new_source_dockets, nonfatal_errors
 
 
 class IntegrateCRecordWithSources(APIView):
@@ -139,6 +215,9 @@ class IntegrateCRecordWithSources(APIView):
                 nonfatal_errors = []
                 crecord = CRecord.from_dict(serializer.validated_data["crecord"])
                 source_records = []
+                # Find the SourceRecords in the database that have been sent in this request,
+                # or if these are new source records, download the files they point to.
+                # TODO this probably doesn't handle a request with a new SoureRecord missing a URL.
                 for source_record_data in serializer.validated_data["source_records"]:
                     try:
                         source_records.append(
@@ -151,26 +230,38 @@ class IntegrateCRecordWithSources(APIView):
                         )
                         source_rec.save()
                         # also download it to the server.
-                        download.source_records([source_rec])
+                        download_service.source_records([source_rec])
                         source_records.append(source_rec)
-                for source_record in source_records:
-                    try:
-                        rlsource = RLSourceRecord(
-                            source_record.file.path, parser=source_record.get_parser()
-                        )
-                        source_record.parse_status = SourceRecord.ParseStatuses.SUCCESS
-                        crecord.add_sourcerecord(
-                            rlsource,
-                            case_merge_strategy="overwrite_old",
-                            override_person=True,
-                        )
-                    except Exception:
-                        source_record.parse_status = SourceRecord.ParseStatuses.FAILURE
-                        nonfatal_errors.append(
-                            f"Could not parse {source_record.docket_num} ({source_record.record_type})"
-                        )
-                    finally:
-                        source_record.save()
+                # Parse the uploaded source records, collecting RecordLib.SourceRecord objects.
+                # These objects are parsing the records and figuring out case information in the SourceRecords.
+                # For any source records that are summaries, find out if the summary describes cases that aren't also
+                # docket source records. Search CPCMS for those, add the missing dockets to the list of source records.
+
+                # First, parse the dockets.
+                # Then we'll parse the summaries to find out if there are cases the summaries mention which the dockets do not.
+                docket_source_records = [
+                    sr
+                    for sr in source_records
+                    if sr.record_type == SourceRecord.RecTypes.DOCKET_PDF
+                ]
+                crecord, nonfatal_errors = integrate_dockets(
+                    crecord, docket_source_records, nonfatal_errors
+                )
+                # Now attempt to parse summary records. Check the cases in each summary record to see if we have a docket for this case yet.
+                # If we dont yet have a docket for this case, fetch it, parse it, integrate it into the CRecord.
+                summary_source_records = [
+                    sr
+                    for sr in source_records
+                    if sr.record_type == SourceRecord.RecTypes.SUMMARY_PDF
+                ]
+                crecord, new_source_records, nonfatal_errors = integrate_summaries(
+                    crecord,
+                    summary_source_records,
+                    docket_source_records,
+                    nonfatal_errors,
+                    owner=request.user,
+                )
+                source_records += new_source_records
                 return Response(
                     {
                         "crecord": CRecordSerializer(crecord).data,

@@ -1,4 +1,5 @@
 from typing import Any, Callable, Optional
+import re
 
 
 def null_parser(_):
@@ -14,7 +15,16 @@ class SourceRecord:
     structured objects.
     """
 
-    def __init__(self, src: Any, parser: Optional[Callable] = None):
+    class RECORD_TYPES:
+        SUMMARY = "SUMMARY"
+        DOCKET = "DOCKET"
+
+    def __init__(
+        self,
+        src: Any,
+        parser: Optional[Callable] = None,
+        record_type: Optional[str] = None,
+    ):
         """
         Create a new SourceRecord with some data and a callable parser that can parse the source data.
 
@@ -32,6 +42,7 @@ class SourceRecord:
         Args: 
             src: data that contains information related to a criminal record.
             parser: a callable that can extract useful structured information from src.
+            record_type: Identifies this source as a docket or a summary.
         Returns:
             A 4-tuple:
                 person: the Person that the source relates to.
@@ -43,5 +54,6 @@ class SourceRecord:
         self.parser = parser or null_parser
         person, cases, errors = self.parser(src)
         self.person = person
-        self.cases = cases
+        self.cases = cases or []
         self.errors = errors
+        self.record_type = record_type
