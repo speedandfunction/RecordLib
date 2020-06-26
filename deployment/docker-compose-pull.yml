@@ -1,16 +1,16 @@
-version: '3.7'
+version: "3.7"
 # Pull the latest versions of the images, without building locally.
 services:
-  frontend: 
+  frontend:
     image: natev/recordlibfrontend:latest
     restart: always
-    ports: 
+    ports:
       - "3000:80"
     depends_on:
       - django_web
     env_file:
       - .docker.env
-    volumes: 
+    volumes:
       - type: volume
         source: staticfiles
         target: /srv/static
@@ -29,7 +29,7 @@ services:
       - "staticfiles:/srv/static"
       - "protectedfiles:/protected"
     networks:
-      recordlib-net: 
+      recordlib-net:
     env_file:
       - .docker.env
     environment:
@@ -40,14 +40,14 @@ services:
     command: bash -c "python manage.py collectstatic --noinput && gunicorn backend.wsgi:application --bind 0.0.0.0:8000 --workers 4"
   migration:
     image: natev/recordlibdjango:latest
-    restart: on-failure 
-    env_file: 
+    restart: on-failure
+    env_file:
       - .docker.env
     environment:
       - PSQL_HOST=pg_db
     networks:
       recordlib-net:
-    command: bash -c "python manage.py migrate --noinput && python manage.py init_admin"
+    command: bash -c "python manage.py migrate --noinput && python manage.py init_petitions && python manage.py init_admin"
     depends_on:
       - pg_db
   pg_db:
@@ -56,7 +56,7 @@ services:
       dockerfile: PG_Dockerfile
     image: natev/recordlibdb:latest
     restart: always
-    env_file: 
+    env_file:
       - .docker.env
     networks:
       recordlib-net:
@@ -65,7 +65,7 @@ services:
     volumes:
       - dbdata:/var/lib/postgresql/data
 networks:
-  recordlib-net: 
+  recordlib-net:
 volumes:
   dbdata:
   staticfiles:

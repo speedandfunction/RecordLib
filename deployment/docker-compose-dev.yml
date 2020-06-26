@@ -1,18 +1,18 @@
-# This docker-compose is for locally building and running the RecordLib web services. 
-# N.B. It currently doesn't rebuild the frontend live. 
-version: '3.7'
+# This docker-compose is for locally building and running the RecordLib web services.
+# N.B. It currently doesn't rebuild the frontend live.
+version: "3.7"
 services:
-  frontend: 
-    build: 
+  frontend:
+    build:
       context: .
       dockerfile: FrontendDockerfile
     image: natev/recordlibfrontend
     restart: always
-    ports: 
+    ports:
       - "3000:80"
     depends_on:
       - django_web
-    volumes: 
+    volumes:
       - type: volume
         source: staticfiles
         target: /srv/static
@@ -41,7 +41,7 @@ services:
         source: ../
         target: /srv
     networks:
-      recordlib-net: 
+      recordlib-net:
     env_file:
       - .docker.env
     environment:
@@ -51,7 +51,7 @@ services:
       - migration
       - pg_db
     command: python manage.py runserver 0.0.0.0:8000
-  migration: 
+  migration:
     build:
       context: ../
       dockerfile: deployment/DjangoDockerfile
@@ -59,10 +59,10 @@ services:
     restart: on-failure
     networks:
       recordlib-net:
-    command: bash -c "python manage.py migrate --noinput && python manage.py init_admin"
-    env_file: 
+    command: bash -c "python manage.py migrate --noinput && python manage.py init_petitions && python manage.py init_admin"
+    env_file:
       - .docker.env
-    environment: 
+    environment:
       - PSQL_HOST=pg_db
     depends_on:
       - pg_db
@@ -81,7 +81,7 @@ services:
     env_file:
       - .docker.env
 networks:
-  recordlib-net: 
+  recordlib-net:
 volumes:
   dbdata:
   staticfiles:
