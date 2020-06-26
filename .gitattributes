@@ -1,0 +1,2 @@
+templates/petitions/790ExpungementTemplate.docx filter=lfs diff=lfs merge=lfs -text
+templates/petitions/791SealingTemplate.docx filter=lfs diff=lfs merge=lfs -text
