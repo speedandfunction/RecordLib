@@ -59,6 +59,19 @@ We'll need a Postgres database set up. Install Postgres and create a database an
    postgres=# \q 
 
 
+yarn 
+-----
+
+Yarn will build the frontend (the javascript, html, etc. that you interact with.) Install _yarn.
+
+.._yarn: https://classic.yarnpkg.com/en/docs/install
+
+Install the frontend's dependencies with `yarn install`. 
+
+Build the frontend once with `yarn run build`. 
+
+Or tell yarn to watch the frontend's files and rebuild the frontend as you edit them: `yarn run watch`.
+
 Python
 -------
 
@@ -66,4 +79,18 @@ You'll need python 3.7 and pipenv installed. See https://pipenv-fork.readthedocs
 
 Install the python dependencies and create a virtual environement with `pipenv install`
 
+Django 
+-------
+
+The web app is a _django based application. There are a couple steps to initialize the application the first time.
+
+.. _django: https://www.djangoproject.com/
+
+First, run database migrations to get the database set up: `./manage.py migrate`
+
+Next, initialize the default petition templates: `./manage.py init_petitions`.
+
+Finally, initialize a superuser: `./manage.py createsuperuser`, and follow the prompts to create your default admin user. 
+
+**All done!** Now visit the app at `http://localhost:8000` and log in with your new superuser credentials.
 
