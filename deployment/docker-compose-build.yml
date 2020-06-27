@@ -27,7 +27,7 @@ services:
     build:
       context: ../
       dockerfile: deployment/DjangoDockerfile
-    image: "{CONTAINER_REGISTRY}/recordlibdjango:${CONTAINER_TAG}"
+    image: "${CONTAINER_REGISTRY}/recordlibdjango:${CONTAINER_TAG}"
     expose:
       - 8000
     volumes:
