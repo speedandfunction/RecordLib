@@ -23,7 +23,7 @@ from RecordLib.analysis.ruledefs import (
 from RecordLib.petitions import Expungement, Sealing
 from cleanslate.serializers import (
     CRecordSerializer,
-    DocumentRenderSerializer,
+    PetitionViewSerializer,
     FileUploadSerializer,
     UserProfileSerializer,
     UserSerializer,
@@ -318,7 +318,7 @@ class AnalysisView(APIView):
             return Response("Something went wrong", status=status.HTTP_400_BAD_REQUEST)
 
 
-class RenderDocumentsView(APIView):
+class PetitionsView(APIView):
     """ Create pettions and an Overview document from an Analysis.
     
     POST should be a json-encoded object with an 'petitions' property that is a list of
@@ -331,7 +331,7 @@ class RenderDocumentsView(APIView):
         Accept an object describing petitions to generate, and generate them.
         """
         try:
-            serializer = DocumentRenderSerializer(data=request.data)
+            serializer = PetitionViewSerializer(data=request.data)
             if serializer.is_valid():
                 petitions = []
                 for petition_data in serializer.validated_data["petitions"]:

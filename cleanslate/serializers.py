@@ -129,9 +129,11 @@ class PetitionSerializer(S.Serializer):
     ifp_message = S.CharField(required=False, allow_blank=True)
 
 
-class DocumentRenderSerializer(S.Serializer):
+class PetitionViewSerializer(S.Serializer):
     """
     Validate data involving json objects describing petitions to generate.
+
+    This serializer describes a very simple object that just has one key: `petitions`, which points to an array of PetitionSerializer objects. 
     """
 
     petitions = PetitionSerializer(many=True)

@@ -94,3 +94,10 @@ Finally, initialize a superuser: `./manage.py createsuperuser`, and follow the p
 
 **All done!** Now visit the app at `http://localhost:8000` and log in with your new superuser credentials.
 
+Ways to use the web app 
+------------------------
+
+There are multiple ways to use the web app. Its designed to be flexible enough to support different needs. 
+
+`Creating petitions by hand`_
+
