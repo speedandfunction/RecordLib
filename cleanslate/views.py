@@ -286,6 +286,7 @@ class AnalysisView(APIView):
     Views related to an analysis of a CRecord.
     """
 
+    permission_classes = [permissions.IsAuthenticated]
     # noinspection PyMethodMayBeStatic
     def post(self, request):
         """ Analyze a Criminal Record for expungeable and sealable cases and charges.
@@ -330,6 +331,7 @@ class PetitionsView(APIView):
         """
         Accept an object describing petitions to generate, and generate them.
         """
+        breakpoint()
         try:
             serializer = PetitionViewSerializer(data=request.data)
             if serializer.is_valid():
