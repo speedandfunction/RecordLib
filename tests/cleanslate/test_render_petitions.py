@@ -55,8 +55,8 @@ def test_download_petition(admin_user, admin_client, example_case):
     resp = admin_client.post(
         "/api/record/petitions/", data=data, content_type="application/json"
     )
-    breakpoint()
     assert resp.status_code == 200
+    assert resp.__getitem__("Content-Type") == "application/zip"
 
 
 @pytest.mark.django_db
@@ -95,4 +95,4 @@ def test_render_petitions(admin_user, admin_client, example_crecord, example_att
         content_type="application/json",
     )
     assert resp.status_code == 200
-
+    assert resp.__getitem__("Content-Type") == "application/zip"
