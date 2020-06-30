@@ -331,7 +331,6 @@ class PetitionsView(APIView):
         """
         Accept an object describing petitions to generate, and generate them.
         """
-        breakpoint()
         try:
             serializer = PetitionViewSerializer(data=request.data)
             if serializer.is_valid():

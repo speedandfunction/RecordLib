@@ -44,7 +44,8 @@ Installing locally without using containers has a few steps and a few dependenci
 Postgres
 ---------
 
-We'll need a Postgres database set up. Install Postgres and create a database and a user for Recordlib.
+We'll need a Postgres database set up. Install Postgres and create a database and a user for Recordlib. 
+This user needs to be able to create new databases because pytest-django needs this ability for the testing suite.
 
 .. code-block:: bash
    me$ sudo apt install postgresql postgresql-contrib
@@ -56,6 +57,7 @@ We'll need a Postgres database set up. Install Postgres and create a database an
    ...
    postgres@home$ psql
    postgres=# grant ALL on DATABASE recordlibdev to recordlibdev;
+   postgres=# ALTER USER recordlibdev CREATEDB
    postgres=# \q 
 
 
@@ -71,6 +73,10 @@ Install the frontend's dependencies with `yarn install`.
 Build the frontend once with `yarn run build`. 
 
 Or tell yarn to watch the frontend's files and rebuild the frontend as you edit them: `yarn run watch`.
+
+Project root:
+-------------
+The project directory needs a /protected directory, where petitions will be generated. 
 
 Python
 -------
