@@ -1,8 +1,8 @@
 import React from "react";
-import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
+import { connect } from "react-redux";
+import PropTypes from "prop-types";
 
-import { addCharge } from "../actions";
+import { addCharge } from "frontend/src/actions";
 
 /**
  * Component for adding a Charge to a Case.
@@ -11,32 +11,42 @@ import { addCharge } from "../actions";
  * enter its data.
  */
 function AddCharge(props) {
-    const { adder } = props;
+  const { adder } = props;
 
-    const handleClick = () => {
-        adder();
-    }
+  const handleClick = () => {
+    adder();
+  };
 
-    return (
-        <div className="addCharge" style={{marginTop: "15px", marginBottom: "10px"}}>
-            <button type="button" style={{marginLeft: "20px"}} onClick={handleClick}>Add Charge</button>
-        </div>
-    );
+  return (
+    <div
+      className="addCharge"
+      style={{ marginTop: "15px", marginBottom: "10px" }}
+    >
+      <button
+        type="button"
+        style={{ marginLeft: "20px" }}
+        onClick={handleClick}
+      >
+        Add Charge
+      </button>
+    </div>
+  );
 }
 
 AddCharge.propTypes = {
-    /**
-     * The callback which adds the charge to state.
-     */
-    adder: PropTypes.func.isRequired
-}
+  /**
+   * The callback which adds the charge to state.
+   */
+  adder: PropTypes.func.isRequired,
+};
 
 function mapDispatchToProps(dispatch, ownProps) {
-    return { adder: () => {
-            dispatch(addCharge(ownProps.caseId));
-        }
-    };
-};
+  return {
+    adder: () => {
+      dispatch(addCharge(ownProps.caseId));
+    },
+  };
+}
 
 const AddChargeWrapper = connect(null, mapDispatchToProps)(AddCharge);
 export default AddChargeWrapper;
