@@ -25,32 +25,8 @@
  */
 
 import { normalize, denormalize, schema } from "normalizr";
-
+import { caseSchema } from "frontend/src/normalize/cases";
 export const CRECORD_ID = "root";
-
-/**
- * This gives each object in the normalized data a unique id.
- * @param  {Object} value  the object needing an id
- * @param  {Object} parent the object containing value
- * or containing the array which holds value
- * (or value itself if there is no containing object)
- * @param  {string | null} key    if present, the key for the field
- * within parent containing value (possibly as an item in an array)
- * @return {string}        the unique id
- */
-const generateId = (value, parent, key) => {
-  // Cases use their docket number as id.
-  if (value.docket_number) return value.docket_number;
-  // Defendants use their last name as id.
-  if (value.last_name) return value.last_name;
-  if (!key) return CRECORD_ID;
-
-  // An object in an array starts with the parent's id,
-  // then appends the key of the array containing the object
-  // and then the object's index in the array.
-  const index = parent[key].indexOf(value);
-  return `${parent.id}${key}@${index}`;
-};
 
 /**
  * options passed to normalizr
@@ -77,18 +53,6 @@ const options = {
   },
 };
 
-// Schema for the normalized CRecord.
-const sentenceSchema = new schema.Entity("sentences", {}, options);
-const chargeSchema = new schema.Entity(
-  "charges",
-  { sentences: [sentenceSchema] },
-  options
-);
-const caseSchema = new schema.Entity(
-  "cases",
-  { charges: [chargeSchema] },
-  options
-);
 //const defendantSchema = new schema.Entity('defendant', {}, options);
 //const cRecordSchema = new schema.Entity('cRecord', { defendant: defendantSchema, cases: [caseSchema]}, options);
 const cRecordSchema = new schema.Entity(
@@ -96,16 +60,6 @@ const cRecordSchema = new schema.Entity(
   { cases: [caseSchema] },
   options
 );
-
-export function normalizeCases(data) {
-  const caseCollection = new schema.Entity(
-    "caseCollection",
-    [caseSchema],
-    options
-  );
-  const normalized = normalize(data, caseCollection);
-  return normalized;
-}
 
 /**
  * Normalize the _cases_ of a crecord.

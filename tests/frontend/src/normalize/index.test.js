@@ -19,30 +19,29 @@ describe("case normalizer", () => {
     const normalized = normalizeCases(cases);
     expect(normalized).toEqual({
       entities: {
-        caseCollection: {
-          root: {
-            0: "12-CP-12-CR-1234567",
-            id: "root",
-          },
-        },
         cases: {
-          "12-CP-12-CR-1234567": {
+          "12-CP-CR-1234567": {
+            id: "12-CP-CR-1234567",
             docket_number: "12-CP-12-CR-1234567",
-            id: "12-CP-12-CR-1234567",
             affiant: "John",
             status: "closed",
             county: "Montgomery",
-            charges: ["12-CP-12-CR-1234567charges@0"],
+            charges: [1],
           },
         },
         charges: {
-          "12-CP-12-CR-1234567charges@0": {
+          1: {
+            id: 1,
             statute: "endangering othrs.",
-            id: "12-CP-12-CR-1234567charges@0",
           },
         },
+        sentences: {},
       },
-      result: "root",
+      result: {
+        cases: ["12-CP-CR-1234567"],
+        charges: [1],
+        sentences: [],
+      },
     });
   });
 });

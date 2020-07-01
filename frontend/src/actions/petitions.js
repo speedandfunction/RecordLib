@@ -1,0 +1,2 @@
+export const NEW_PETITION = "NEW_PETITION";
+export const UPDATE_PETITION = "UPDATE_PETITION";
