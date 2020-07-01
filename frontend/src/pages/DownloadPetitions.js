@@ -24,8 +24,6 @@ function DownloadPetitions(props) {
 
   const submitGetPetitions = (e) => {
     e.preventDefault();
-    console.log("Attorney");
-    console.log(attorney);
     getPetitions(selectedPetitions, attorney);
   };
 
@@ -54,14 +52,6 @@ function DownloadPetitions(props) {
         </h4>
 
         <Button type="submit"> Process Petition Package </Button>
-        <h5> Attorney whose name will appear on petitions </h5>
-        <div className="downloadPetition" style={downloadPetitionStyle}>
-          {attorney.hasOwnProperty("full_name") ? (
-            <AttorneyHolder attorney={attorney} />
-          ) : (
-            <AddAttorney />
-          )}
-        </div>
         <ServiceAgencyList />
       </form>
       <div>

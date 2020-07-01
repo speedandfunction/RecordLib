@@ -2,9 +2,9 @@ import React from "react";
 import Container from "@material-ui/core/Container";
 import Paper from "@material-ui/core/Paper";
 import { makeStyles } from "@material-ui/core/styles";
+import Typography from "@material-ui/core/Typography";
 
 import AttorneyHolderWrapper from "frontend/src/components/AttorneyHolder";
-import NameSearch from "frontend/src/components/NameSearch";
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -24,13 +24,14 @@ function AttorneyPage(props) {
     <Container>
       <Paper className={classes.paper}>
         <div className="gettingStarted">
-          <div style={{ color: "red" }}>
+          <Typography variant="h3">Attorney</Typography>
+          <Typography variant="body1">
             Please enter details of the attorney signing onto this set of
             petitions.
-          </div>
+          </Typography>
+
           <AttorneyHolderWrapper />
         </div>
-        <NameSearch />
       </Paper>
     </Container>
   );

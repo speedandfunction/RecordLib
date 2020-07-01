@@ -1,9 +1,9 @@
 import React from "react";
-import { connect } from 'react-redux';
+import { connect } from "react-redux";
 
-import Attorney from "./Attorney";
-import EditAttorney from "./EditAttorney";
-import { editAttorney, toggleEditingAttorney } from "../actions";
+import Attorney from "frontend/src/components/Attorney";
+import EditAttorney from "frontend/src/components/EditAttorney";
+import { editAttorney, toggleEditingAttorney } from "frontend/src/actions";
 
 /**
  * Connected component for a Attorney, which can be in edit mode.
@@ -14,19 +14,16 @@ import { editAttorney, toggleEditingAttorney } from "../actions";
  * EditAttorney component to send changes to the redux store.
  */
 function AttorneyHolder(props) {
-    return (
-        <div className="attorneyHolder" >
-            { !props.editing?
-                <Attorney {...props} />
-                : <EditAttorney {...props} />
-            }
-        </div>
-    );
-};
+  return (
+    <div className="attorneyHolder">
+      {!props.editing ? <Attorney {...props} /> : <EditAttorney {...props} />}
+    </div>
+  );
+}
 
 function mapStateToProps(state) {
-    return state.attorney
-};
+  return state.attorney;
+}
 
 /**
  * The modifier function takes a key,value pair
@@ -34,13 +31,16 @@ function mapStateToProps(state) {
  * object being edited.  It is used by the EditAttorney component.
  */
 function mapDispatchToProps(dispatch, ownProps) {
-    return {
-        modifier: (key, value) => {
-            dispatch(editAttorney(key, value))
-        },
-        toggleEditing: () => dispatch(toggleEditingAttorney())
-    };
-};
+  return {
+    modifier: (key, value) => {
+      dispatch(editAttorney(key, value));
+    },
+    toggleEditing: () => dispatch(toggleEditingAttorney()),
+  };
+}
 
-const AttorneyHolderWrapper = connect(mapStateToProps, mapDispatchToProps)(AttorneyHolder);
+const AttorneyHolderWrapper = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(AttorneyHolder);
 export default AttorneyHolderWrapper;
