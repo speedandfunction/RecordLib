@@ -14,8 +14,8 @@ import TableCell from "@material-ui/core/TableCell";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
-import { uploadRecords } from "../actions/localFiles";
-import SourceRecordRow from "./SourceRecordRow";
+import { uploadRecords } from "frontend/src/actions/localFiles";
+import SourceRecordRow from "frontend/src/components/SourceRecordRow";
 /*
  *   Step in the Petition analysis and generation process for uploading files for processing.
  *

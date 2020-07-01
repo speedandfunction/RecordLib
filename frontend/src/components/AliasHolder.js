@@ -1,9 +1,9 @@
 import React from "react";
-import { connect } from 'react-redux';
+import { connect } from "react-redux";
 
 import Alias from "./Alias";
 import EditAlias from "./EditAlias";
-import { editAlias } from "../actions/applicant.js";
+import { editAlias } from "frontend/src/actions/applicant.js";
 
 /**
  * Connected component for a Alias, which can be in edit mode.
@@ -14,19 +14,16 @@ import { editAlias } from "../actions/applicant.js";
  * EditAlias component to send changes to the redux store.
  */
 function AliasHolder(props) {
-    return (
-        <div className="aliasHolder" >
-            { !props.editing?
-                <Alias {...props} />
-                : <EditAlias {...props} />
-            }
-        </div>
-    );
-};
+  return (
+    <div className="aliasHolder">
+      {!props.editing ? <Alias {...props} /> : <EditAlias {...props} />}
+    </div>
+  );
+}
 
 function mapStateToProps(state, ownProps) {
-    return { name: state.applicantInfo.aliases[ownProps.aliasId] };
-};
+  return { name: state.applicantInfo.aliases[ownProps.aliasId] };
+}
 
 /**
  * The modifier function takes a key,value pair
@@ -34,12 +31,15 @@ function mapStateToProps(state, ownProps) {
  * object being edited.  It is used by the EditAlias component.
  */
 function mapDispatchToProps(dispatch, ownProps) {
-    return {
-        modifier: (value) => {
-            dispatch(editAlias(ownProps.aliasId, value))
-        }
-    };
-};
+  return {
+    modifier: (value) => {
+      dispatch(editAlias(ownProps.aliasId, value));
+    },
+  };
+}
 
-const AliasHolderWrapper = connect(mapStateToProps, mapDispatchToProps)(AliasHolder);
+const AliasHolderWrapper = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(AliasHolder);
 export default AliasHolderWrapper;
