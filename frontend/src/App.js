@@ -15,6 +15,7 @@ import SourceRecords from "frontend/src/pages/SourceRecords";
 import RecordEdit from "frontend/src/pages/RecordEdit";
 import DownloadPetitions from "frontend/src/pages/DownloadPetitions";
 import Analysis from "frontend/src/pages/Analysis";
+import AttorneyPage from "frontend/src/pages/AttorneyPage";
 
 function App() {
   return (
@@ -32,6 +33,9 @@ function App() {
             </Route>
             <Route path="/applicant">
               <Applicant />
+            </Route>
+            <Route path="/attorney">
+              <AttorneyPage />
             </Route>
             <Route path="/sourcerecords">
               <SourceRecords />

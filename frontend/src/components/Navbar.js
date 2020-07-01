@@ -134,6 +134,16 @@ function Navbar() {
           >
             <Typography color="textSecondary"> Applicant </Typography>
           </Button>
+
+          <Button
+            color="primary"
+            className={classes.buttonText}
+            component={RouterLink}
+            to="/attorney"
+          >
+            <Typography color="textSecondary"> Attorney </Typography>
+          </Button>
+
           <Button
             color="primary"
             className={classes.buttonText}
