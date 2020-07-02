@@ -13,7 +13,7 @@ import {
 import Applicant from "frontend/src/pages/Applicant";
 import SourceRecords from "frontend/src/pages/SourceRecords";
 import RecordEdit from "frontend/src/pages/RecordEdit";
-import DownloadPetitions from "frontend/src/pages/DownloadPetitions";
+import PetitionsPage from "frontend/src/pages/PetitionsPage";
 import Analysis from "frontend/src/pages/Analysis";
 import AttorneyPage from "frontend/src/pages/AttorneyPage";
 
@@ -47,7 +47,7 @@ function App() {
               <Analysis />
             </Route>
             <Route path="/petitions">
-              <DownloadPetitions />
+              <PetitionsPage />
             </Route>
             <Route path="/">
               <Redirect to="/applicant" />

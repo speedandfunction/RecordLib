@@ -1,11 +1,12 @@
-import { combineReducers, bindActionCreators } from "redux";
+import { combineReducers } from "redux";
 import { NEW_PETITION, UPDATE_PETITION } from "frontend/src/actions/petitions";
 
-export default petitionsReducer = combineReducers({
+const petitionsReducer = combineReducers({
   petitionUpdates: petitionsUpdatesReducer,
   petitionCollection: petitionCollectionReducer,
 });
 
+export default petitionsReducer;
 /**
  * Slice of state explaining if petitions are currently being collected from the server.
  * @param {} state
@@ -18,6 +19,7 @@ export function petitionsUpdatesReducer(state = {}, action) {
     default:
       return state;
   }
+  return state;
 }
 
 /**
@@ -27,9 +29,14 @@ export function petitionCollectionReducer(state = {}, action) {
   switch (action.type) {
     case NEW_PETITION: {
       // Add a new petition
+      return state;
     }
     case UPDATE_PETITION: {
       // UPdate a petition.
+      return state;
     }
+    default:
+      return state;
   }
+  return state;
 }
