@@ -3,7 +3,7 @@ import Container from "@material-ui/core/Container";
 import Paper from "@material-ui/core/Paper";
 import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
-
+import ServiceAgencyList from "frontend/src/components/ServiceAgencyList";
 import AttorneyHolderWrapper from "frontend/src/components/AttorneyHolder";
 
 const useStyles = makeStyles((theme) => {
@@ -31,6 +31,11 @@ function AttorneyPage(props) {
           </Typography>
 
           <AttorneyHolderWrapper />
+        </div>
+        <div>
+          <h3> Other defaults</h3>
+
+          <ServiceAgencyList />
         </div>
       </Paper>
     </Container>

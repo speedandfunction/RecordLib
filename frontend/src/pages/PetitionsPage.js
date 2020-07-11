@@ -7,9 +7,8 @@ import Container from "@material-ui/core/Container";
 import Paper from "@material-ui/core/Paper";
 import { fetchPetitions } from "frontend/src/actions";
 import Typography from "@material-ui/core/Typography";
-import Petition from "frontend/src/components/Petition";
-import { NewPetitionForm } from "frontend/src/forms/NewPetition";
-import ServiceAgencyList from "frontend/src/components/ServiceAgencyList";
+import { NewPetitionFormConnected as NewPetitionForm } from "frontend/src/forms/NewPetition";
+import { PetitionsTable } from "frontend/src/components/PetitionsTable";
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -21,7 +20,14 @@ const useStyles = makeStyles((theme) => {
 });
 
 function PetitionsPage(props) {
-  const { petitions } = props;
+  const { petitions, attorney } = props;
+
+  //defaultAttorney is a _copy_ of the attorney from state,
+  // It must be a copy because its being sent as a default
+  // to a NewPetition, and it can change independently
+  // from the attorney in state.
+  // ... note also the deep copy, since attorney has an address obj.
+  const defaultAttorney = { ...attorney, address: { ...attorney.address } };
 
   const styles = useStyles();
 
@@ -54,27 +60,10 @@ function PetitionsPage(props) {
           <Button type="submit" variant="contained" disabled={!isReadyToSubmit}>
             Process Petition Package
           </Button>
-          <ServiceAgencyList />
         </form>
-        <div>
-          <NewPetitionForm
-            petitionId={
-              petitions.result ? (petitions.result.length + 1).toString() : 0
-            }
-          />
-        </div>
-        <div>
-          {petitions.length > 0 ? (
-            petitions.map((petition, idx) => {
-              return <Petition key={idx} petition={petition}></Petition>;
-            })
-          ) : (
-            <p>
-              There are no petitions to display yet. Have you conducted an
-              analysis yet?
-            </p>
-          )}
-        </div>
+        <div></div>
+        <PetitionsTable />
+        <NewPetitionForm />
       </Paper>
     </Container>
   );
@@ -87,6 +76,7 @@ PetitionsPage.propTypes = {
 function mapStateToProps(state) {
   return {
     petitions: state.petitions.petitionCollection,
+    attorney: state.attorney,
   };
 }
 

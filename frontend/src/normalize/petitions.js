@@ -5,6 +5,11 @@ const petitionSchema = new schema.Entity("petitions", {
   cases: [caseSchema],
 });
 
+export const normalizeOnePetition = (petition, newId) => {
+  petition.id = newId;
+  return normalize(petition, petitionSchema);
+};
+
 const petitionListSchema = new schema.Array(petitionSchema);
 
 export const normalizePetitions = (petitions) => {

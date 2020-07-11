@@ -15,7 +15,7 @@ const generateId = (value, parent, key) => {
   if (value.docket_number) return value.docket_number;
   // Defendants use their last name as id.
   if (value.last_name) return value.last_name;
-  if (!key) return CRECORD_ID;
+  if (!key) return "root";
 
   // An object in an array starts with the parent's id,
   // then appends the key of the array containing the object

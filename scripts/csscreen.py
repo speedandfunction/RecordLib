@@ -2,7 +2,7 @@
 Command-line interface for conducting an automated screening of a record.
 """
 from __future__ import annotations
-from typing import Callable, Optional
+from typing import List
 from datetime import datetime
 import tempfile
 import os

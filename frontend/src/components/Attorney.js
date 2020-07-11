@@ -3,14 +3,7 @@ import PropTypes from "prop-types";
 import Address from "frontend/src/components/Address";
 
 function Attorney(props) {
-  const {
-    id,
-    full_name,
-    organization_address,
-    bar_id,
-    organization,
-    toggleEditing,
-  } = props;
+  const { id, full_name, address, bar_id, organization, toggleEditing } = props;
   const attorneyStyle = {
     display: "grid",
     gridTemplateColumns: "270px 270px 270px",
@@ -30,7 +23,7 @@ function Attorney(props) {
       </button>
       <div>Organization: {organization}</div>
       <div>Bar ID: {bar_id}</div>
-      <Address header="Organization Address:" address={organization_address} />
+      <Address header="Organization Address:" address={address} />
     </div>
   );
 }
