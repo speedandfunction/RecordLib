@@ -10,3 +10,11 @@ export const newPetition = (petition) => {
     payload: petition,
   };
 };
+
+/**Update the petition with `petitionId`, by merging the updateObject into it. */
+export const updatePetition = (petitionId, updateObject) => {
+  return {
+    type: UPDATE_PETITION,
+    payload: { petitionId, updateObject },
+  };
+};

@@ -28,6 +28,7 @@ const initialCollectionState = {
     charges: {},
   },
   petitionIds: [],
+  editingPetitionId: null,
 };
 
 /**
@@ -50,13 +51,13 @@ export function petitionCollectionReducer(
   switch (action.type) {
     case NEW_PETITION: {
       // Add a new petition
-      console.log("Adding a new petition:");
       const newPetition = action.payload;
-      console.log("normalize the petition");
-      const newId = state.petitionIds.length.toString();
+      // create a new id for this new petition, only if necessary.
+      // (if the petitions is from the server, it'llneed a local ID.
+      //  but if it was created locally, the New Petition component
+      //  will come up with the new id.)
+      const newId = newPetition.id || state.petitionIds.length.toString();
       const normalizedPetition = normalizeOnePetition(newPetition, newId);
-      console.log(normalizedPetition);
-      console.log("add the petition to the state.");
       const newState = {
         entities: {
           petitions: merge({}, state.entities.petitions, {
@@ -75,14 +76,35 @@ export function petitionCollectionReducer(
           ),
         },
         petitionIds: [...state.petitionIds, newId],
+        editingPetitionId: newId,
       };
-      console.log("newState:");
-      console.log(newState);
       return newState;
     }
     case UPDATE_PETITION: {
+      console.log("updating a petition.");
       // Update a petition.
-      return state;
+
+      // NB - to handle updates to things like cases, do I
+      // normalize the updateObject with the PetitionSchema?
+      const { petitionId, updateObject } = action.payload;
+      const newState = {
+        editingPetitionId: state.editingPetitionId,
+        petitionIds: [...state.petitionIds],
+        entities: {
+          petitions: merge({}, state.entities.petitions, {
+            [petitionId]: merge(
+              {},
+              state.entities.petitions[petitionId],
+              updateObject
+            ),
+          }),
+          cases: { ...state.entities.cases },
+          charges: { ...state.entities.charges },
+        },
+      };
+      console.log("newState");
+      console.log(newState);
+      return newState;
     }
 
     default:
