@@ -87,6 +87,12 @@ export function petitionCollectionReducer(
       // NB - to handle updates to things like cases, do I
       // normalize the updateObject with the PetitionSchema?
       const { petitionId, updateObject } = action.payload;
+
+      const casesUpdate = updateObject.cases || null;
+      if (casesUpdate) {
+        delete updateObject.cases;
+      }
+
       const newState = {
         editingPetitionId: state.editingPetitionId,
         petitionIds: [...state.petitionIds],

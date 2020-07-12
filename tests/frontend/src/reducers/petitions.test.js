@@ -114,6 +114,7 @@ describe("slice of state for the petitionCollection", () => {
     const startingState = {
       petitionUpdates: { updateInProgress: false },
       petitionCollection: {
+        editingPetitionId: "0",
         entities: {
           petitions: {
             "0": {
@@ -165,11 +166,13 @@ describe("slice of state for the petitionCollection", () => {
 
     const updateAction = updatePetition("0", {
       attorney: { organization: "New Org" },
+      cases: { "12-CP-12-CR-1234567": { affiant: "Jill" } },
     });
     const newState = petitionsReducer(startingState, updateAction);
     expect(newState).toEqual({
       petitionUpdates: { updateInProgress: false },
       petitionCollection: {
+        editingPetitionId: "0",
         entities: {
           petitions: {
             "0": {
@@ -199,7 +202,7 @@ describe("slice of state for the petitionCollection", () => {
             "12-CP-12-CR-1234567": {
               id: "12-CP-12-CR-1234567",
               docket_number: "12-CP-12-CR-1234567",
-              affiant: "John",
+              affiant: "Jill",
               status: "closed",
               county: "Montgomery",
               charges: ["12-CP-12-CR-1234567charges@0"],
