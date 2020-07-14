@@ -41,7 +41,7 @@ const initialCollectionState = {
  *     petitions: {}
  *     cases: {}
  *     charges: {}
- *   result: [petition-ids]
+ *   petitionIds: [petition-ids]
  */
 export function petitionCollectionReducer(
   state = initialCollectionState,

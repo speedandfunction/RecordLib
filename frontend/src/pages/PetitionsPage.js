@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme) => {
 });
 
 function PetitionsPage(props) {
-  const { petitions, attorney } = props;
+  const { petitions, petitionIds, attorney } = props;
 
   //defaultAttorney is a _copy_ of the attorney from state,
   // It must be a copy because its being sent as a default
@@ -31,11 +31,7 @@ function PetitionsPage(props) {
 
   const styles = useStyles();
 
-  const [selectedPetitions, setSelectedPetitions] = useState(petitions);
-
-  const [isReadyToSubmit, setIsReadyToSubmit] = useState(
-    petitions && petitions.result && petitions.result.length > 0
-  );
+  const isReadyToSubmit = petitionIds && petitionIds.length > 0;
 
   const submitGetPetitions = (e) => {
     e.preventDefault();
@@ -74,7 +70,8 @@ PetitionsPage.propTypes = {
 
 function mapStateToProps(state) {
   return {
-    petitions: state.petitions.petitionCollection,
+    petitions: state.petitions.petitionCollection.entities.petitions,
+    petitionIds: state.petitions.petitionCollection.petitionIds,
     attorney: state.attorney,
   };
 }
