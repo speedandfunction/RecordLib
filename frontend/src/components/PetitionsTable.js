@@ -1,15 +1,22 @@
 import React from "react";
 import { connect } from "react-redux";
+import { PetitionConnected } from "./Petition";
 
 export const PetitionsTable = (props) => {
   const { petitions = {} } = props;
-  const { petitionCollection = [], petitionUpdates = {} } = petitions;
-
+  console.log("petitions");
+  console.log(petitions);
+  const { petitionCollection = {}, petitionUpdates = {} } = petitions;
+  console.log("petitionCollection");
+  console.log(petitionCollection);
   return (
     <div>
-      {petitionCollection.length > 0 ? (
-        petitionCollection.map((petition, idx) => {
-          return <Petition key={idx} petition={petition}></Petition>;
+      {petitionCollection.petitionIds &&
+      petitionCollection.petitionIds.length > 0 ? (
+        petitionCollection.petitionIds.map((idx) => {
+          return (
+            <PetitionConnected key={idx} petitionId={idx}></PetitionConnected>
+          );
         })
       ) : (
         <p>

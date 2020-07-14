@@ -108,8 +108,6 @@ export function petitionCollectionReducer(
           charges: { ...state.entities.charges },
         },
       };
-      console.log("newState");
-      console.log(newState);
       return newState;
     }
 

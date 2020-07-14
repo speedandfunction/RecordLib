@@ -7,8 +7,8 @@ import Container from "@material-ui/core/Container";
 import Paper from "@material-ui/core/Paper";
 import { fetchPetitions } from "frontend/src/actions";
 import Typography from "@material-ui/core/Typography";
-import { NewPetitionFormConnected as NewPetitionForm } from "frontend/src/forms/NewPetition";
-import { PetitionsTable } from "frontend/src/components/PetitionsTable";
+import { NewPetitionFormConnected as NewPetitionForm } from "frontend/src/components/NewPetition";
+import { PetitionsTableConnected } from "frontend/src/components/PetitionsTable";
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -32,9 +32,6 @@ function PetitionsPage(props) {
   const styles = useStyles();
 
   const [selectedPetitions, setSelectedPetitions] = useState(petitions);
-
-  console.log("petitions");
-  console.log(petitions);
 
   const [isReadyToSubmit, setIsReadyToSubmit] = useState(
     petitions && petitions.result && petitions.result.length > 0
@@ -62,7 +59,9 @@ function PetitionsPage(props) {
           </Button>
         </form>
         <div></div>
-        <PetitionsTable />
+        <PetitionsTableConnected />
+      </Paper>
+      <Paper className={styles.paper}>
         <NewPetitionForm />
       </Paper>
     </Container>

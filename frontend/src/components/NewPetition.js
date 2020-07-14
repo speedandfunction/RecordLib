@@ -13,6 +13,9 @@ export const NewPetitionForm = (props) => {
   const { newPetitionId, editingPetitionId, newPetition } = props;
   const [showEditForm, setShowEditForm] = useState(false);
 
+  console.log("editing petition id");
+  console.log(editingPetitionId);
+
   const handleButtonClick = () => {
     newPetition(newPetitionId);
     setShowEditForm(true);
@@ -21,7 +24,7 @@ export const NewPetitionForm = (props) => {
   return (
     <div>
       <Button onClick={handleButtonClick}>New Petition</Button>
-      {showEditForm ? (
+      {showEditForm && editingPetitionId ? (
         <EditPetitionForm petitionId={editingPetitionId} />
       ) : (
         <></>
@@ -35,6 +38,8 @@ const generatePetitionId = (petitionIds) => {
 };
 
 const mapStateToProps = (state) => {
+  console.log("is editinPetitionID set yet?");
+  console.log(state.petitions.petitionCollection);
   return {
     newPetitionId: generatePetitionId(
       state.petitions.petitionCollection.petitionIds
@@ -46,7 +51,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     newPetition: (newId) => {
-      dispatch(newPetition({ id: newId }));
+      dispatch(newPetition({ id: newId, petition_type: "Expungement" }));
     },
   };
 };
