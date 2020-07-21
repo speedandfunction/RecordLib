@@ -1,11 +1,21 @@
 import { combineReducers } from "redux";
 import { NEW_PETITION, UPDATE_PETITION } from "frontend/src/actions/petitions";
 import { normalizeOnePetition } from "frontend/src/normalize/petitions";
-import { merge } from "lodash";
+import { merge, pull, difference, pick } from "lodash";
 import {
   NEW_CASE_FOR_PETITION,
   SET_PETITION_TO_EDIT,
+  DELETE_PETITION,
 } from "../actions/petitions";
+
+/** Find the ids of charges related to a list of cases
+ * that need to be deleted.
+ */
+function getChargeIdsFromCases(caseIdsToDelete, cases) {
+  return caseIdsToDelete.reduce((acc, caseId) => {
+    return acc.concat(cases[caseId].charges);
+  }, []);
+}
 
 /**
  * Slice of state explaining if petitions are currently being collected from the server.
@@ -157,6 +167,41 @@ export function petitionCollectionReducer(
       return merge({}, state, { editingPetitionId: petitionId });
     }
 
+    case DELETE_PETITION: {
+      console.log("deleting petition");
+      const { petitionId } = action.payload;
+      const newPetitionIds = pull(state.petitionIds, petitionId);
+      console.log(newPetitionIds);
+      const caseIdsToDelete = state.entities.petitions[petitionId].cases || [];
+      const caseIdsToKeep = difference(
+        Object.keys(state.entities.cases),
+        caseIdsToDelete
+      );
+      const chargeIdsToDelete = getChargeIdsFromCases(
+        caseIdsToDelete,
+        state.entities.cases
+      );
+      const chargeIdsToKeep = difference(
+        Object.keys(state.entities.charges),
+        chargeIdsToDelete
+      );
+
+      const newState = {
+        editingPetitionId:
+          state.editingPetitionId === petitionId
+            ? null
+            : state.editingPetitionId,
+        petitionIds: newPetitionIds,
+        entities: {
+          petitions: pick(state.entities.petitions, newPetitionIds),
+          cases: pick(state.entities.cases, caseIdsToKeep),
+          charges: pick(state.entities.charges, chargeIdsToKeep),
+        },
+      };
+      console.log("newstate");
+      console.log(newState);
+      return newState;
+    }
     default:
       return state;
   }

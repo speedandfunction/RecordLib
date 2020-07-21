@@ -9,7 +9,10 @@ import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 import Button from "@material-ui/core/Button";
-import { setPetitionToEdit } from "frontend/src/actions/petitions";
+import {
+  setPetitionToEdit,
+  deletePetition,
+} from "frontend/src/actions/petitions";
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -35,12 +38,15 @@ const useStyles = makeStyles((theme) => {
  * Display information about a petition that could be generated.
  */
 export function Petition(props) {
-  const { petition, setPetitionToEdit } = props;
+  const { petition, setPetitionToEdit, deletePetition } = props;
   const classes = useStyles();
 
   const handleEditPetition = (e) => {
-    e.preventDefault();
     setPetitionToEdit(petition.id);
+  };
+
+  const handleDeletePetition = (e) => {
+    deletePetition(petition.id);
   };
 
   return (
@@ -94,6 +100,7 @@ export function Petition(props) {
           )}
         </List>
         <Button onClick={handleEditPetition}>Edit</Button>
+        <Button onClick={handleDeletePetition}>Delete</Button>
       </CardContent>
     </Card>
   );
@@ -115,6 +122,7 @@ const mapStateToProps = (state, ownProps) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     setPetitionToEdit: (petitionId) => dispatch(setPetitionToEdit(petitionId)),
+    deletePetition: (petitionId) => dispatch(deletePetition(petitionId)),
   };
 };
 

@@ -4,6 +4,7 @@ export const NEW_PETITION = "NEW_PETITION";
 export const UPDATE_PETITION = "UPDATE_PETITION";
 export const NEW_CASE_FOR_PETITION = "NEW_CASE_FOR_PETITION";
 export const SET_PETITION_TO_EDIT = "SET_PETITION_TO_EDIT";
+export const DELETE_PETITION = "DELETE_PETITION";
 
 /** An action to add a new petition to the application state */
 export const newPetition = (petition) => {
@@ -33,6 +34,13 @@ export const newCaseForPetition = (petitionId, caseId, caseDefaults = {}) => {
 export const setPetitionToEdit = (petitionId) => {
   return {
     type: SET_PETITION_TO_EDIT,
+    payload: { petitionId: petitionId },
+  };
+};
+
+export const deletePetition = (petitionId) => {
+  return {
+    type: DELETE_PETITION,
     payload: { petitionId: petitionId },
   };
 };
