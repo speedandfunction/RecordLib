@@ -27,10 +27,15 @@ export const updatePetition = (petitionId, updateObject) => {
 };
 
 /**Add a new case to a petition. */
-export const newCaseForPetition = (petitionId, caseId, caseDefaults = {}) => {
+export const newCaseForPetition = (
+  petitionId,
+  caseId,
+  caseDefaults = {},
+  chargeInfo = {}
+) => {
   return {
     type: NEW_CASE_FOR_PETITION,
-    payload: { petitionId, caseId, caseDefaults },
+    payload: { petitionId, caseId, caseDefaults, chargeInfo },
   };
 };
 

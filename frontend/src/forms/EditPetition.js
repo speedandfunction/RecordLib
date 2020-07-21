@@ -10,7 +10,7 @@ import {
   setPetitionToEdit,
   newCaseForPetition,
 } from "frontend/src/actions/petitions";
-import { pickBy } from "lodash";
+import { pickBy, pick } from "lodash";
 /**
  * Form for adding a new petition
  */
@@ -20,6 +20,7 @@ export const EditPetitionForm = (props) => {
     petitionCases, // obj of cases attached to this petition.
     petitionCaseIds, // convenience list of ids of cases attached to this petition.
     cases,
+    charges,
     setPetitionType,
     setOrganization,
     setAttorneyName,
@@ -47,14 +48,21 @@ export const EditPetitionForm = (props) => {
 
   const [newCaseDocketNumber, setNewCaseDocketNumber] = useState("");
 
-  // Control the value of the new docket number to be added to this petition.
+  // State hook to control the value of the new docket number to be added to this petition.
   const handleNewCaseDocketNumChange = (e) => {
     setNewCaseDocketNumber(e.target.value);
   };
 
+  // Dispatch action to copy a case from crecord into Petition state.
   const handleAddCaseToPetition = (e) => {
     e.preventDefault();
-    addCaseToPetition(newCaseDocketNumber);
+    console.log("handling add case button");
+    const caseInfo = cases[newCaseDocketNumber];
+    console.log(caseInfo);
+    const chargesToAdd = pick(charges, caseInfo.charges);
+    console.log(chargesToAdd);
+    console.log("now dispatching.");
+    addCaseToPetition(newCaseDocketNumber, caseInfo, chargesToAdd);
     setNewCaseDocketNumber("");
   };
 
@@ -218,8 +226,6 @@ const mapStateToProps = (state, ownProps) => {
   const petition =
     state.petitions.petitionCollection.entities.petitions[petitionId];
   const petitionCaseIds = petition.cases || [];
-  console.log("mapping state");
-  console.log(petition.cases);
   const petitionCases = pickBy(
     state.petitions.petitionCollection.entities.cases,
     (val, key) => {
@@ -232,6 +238,7 @@ const mapStateToProps = (state, ownProps) => {
     petitionCases: petitionCases,
     petitionCaseIds: petitionCaseIds,
     cases: cases,
+    charges: state.crecord.charges,
   };
 };
 
@@ -282,8 +289,8 @@ const mapDispatchToProps = (dispatch, ownProps) => {
         updatePetition(petitionId, { include_crim_hist_report: message })
       );
     },
-    addCaseToPetition: (caseId) => {
-      dispatch(newCaseForPetition(petitionId, caseId));
+    addCaseToPetition: (caseId, caseInfo, chargeInfo) => {
+      dispatch(newCaseForPetition(petitionId, caseId, caseInfo, chargeInfo));
     },
     setDoneEditing: () => {
       dispatch(setPetitionToEdit(null));

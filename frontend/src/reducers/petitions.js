@@ -125,7 +125,7 @@ export function petitionCollectionReducer(
 
     case NEW_CASE_FOR_PETITION: {
       // Add a new case to a petition.
-      const { petitionId, caseId, caseDefaults } = action.payload;
+      const { petitionId, caseId, caseDefaults, chargeInfo } = action.payload;
       const newCaseIds = state.entities.petitions[petitionId].cases
         ? // set operation makes sure we're not duplicating cases.
           Array.from(
@@ -153,7 +153,7 @@ export function petitionCollectionReducer(
               caseDefaults
             ),
           }),
-          charges: { ...state.entities.charges },
+          charges: merge({}, state.entities.charges, chargeInfo),
         },
       };
       return newState;
