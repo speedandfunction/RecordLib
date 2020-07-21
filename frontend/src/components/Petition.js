@@ -8,6 +8,8 @@ import Typography from "@material-ui/core/Typography";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
+import Button from "@material-ui/core/Button";
+import { setPetitionToEdit } from "frontend/src/actions/petitions";
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -33,8 +35,14 @@ const useStyles = makeStyles((theme) => {
  * Display information about a petition that could be generated.
  */
 export function Petition(props) {
-  const { petition } = props;
+  const { petition, setPetitionToEdit } = props;
   const classes = useStyles();
+
+  const handleEditPetition = (e) => {
+    e.preventDefault();
+    setPetitionToEdit(petition.id);
+  };
+
   return (
     <Card
       className={
@@ -85,6 +93,7 @@ export function Petition(props) {
             <></>
           )}
         </List>
+        <Button onClick={handleEditPetition}>Edit</Button>
       </CardContent>
     </Card>
   );
@@ -103,4 +112,13 @@ const mapStateToProps = (state, ownProps) => {
   };
 };
 
-export const PetitionConnected = connect(mapStateToProps)(Petition);
+const mapDispatchToProps = (dispatch) => {
+  return {
+    setPetitionToEdit: (petitionId) => dispatch(setPetitionToEdit(petitionId)),
+  };
+};
+
+export const PetitionConnected = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Petition);

@@ -3,6 +3,7 @@ import { normalizePetitions } from "frontend/src/normalize/petitions";
 export const NEW_PETITION = "NEW_PETITION";
 export const UPDATE_PETITION = "UPDATE_PETITION";
 export const NEW_CASE_FOR_PETITION = "NEW_CASE_FOR_PETITION";
+export const SET_PETITION_TO_EDIT = "SET_PETITION_TO_EDIT";
 
 /** An action to add a new petition to the application state */
 export const newPetition = (petition) => {
@@ -25,5 +26,13 @@ export const newCaseForPetition = (petitionId, caseId, caseDefaults = {}) => {
   return {
     type: NEW_CASE_FOR_PETITION,
     payload: { petitionId, caseId, caseDefaults },
+  };
+};
+
+/** Identify the petition that should be edited in the edit form. */
+export const setPetitionToEdit = (petitionId) => {
+  return {
+    type: SET_PETITION_TO_EDIT,
+    payload: { petitionId: petitionId },
   };
 };

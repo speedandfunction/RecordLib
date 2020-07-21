@@ -2,7 +2,10 @@ import { combineReducers } from "redux";
 import { NEW_PETITION, UPDATE_PETITION } from "frontend/src/actions/petitions";
 import { normalizeOnePetition } from "frontend/src/normalize/petitions";
 import { merge } from "lodash";
-import { NEW_CASE_FOR_PETITION } from "../actions/petitions";
+import {
+  NEW_CASE_FOR_PETITION,
+  SET_PETITION_TO_EDIT,
+} from "../actions/petitions";
 
 /**
  * Slice of state explaining if petitions are currently being collected from the server.
@@ -147,6 +150,11 @@ export function petitionCollectionReducer(
         },
       };
       return newState;
+    }
+
+    case SET_PETITION_TO_EDIT: {
+      const { petitionId } = action.payload;
+      return merge({}, state, { editingPetitionId: petitionId });
     }
 
     default:
