@@ -5,7 +5,7 @@ import petitionsReducer, {
 import {
   newPetition,
   updatePetition,
-  newPetitionCase,
+  newCaseForPetition,
 } from "frontend/src/actions/petitions";
 
 describe("slice of state for the petitionCollection", () => {
@@ -173,7 +173,7 @@ describe("slice of state for the petitionCollection", () => {
       },
     };
 
-    const updateAction = newPetitionCase("0", "20-CP-20-CR-1234567");
+    const updateAction = newCaseForPetition("0", "20-CP-20-CR-1234567");
     const modifiedState = petitionsReducer(startingState, updateAction);
     expect(modifiedState).toEqual({
       petitionUpdates: { updateInProgress: false },

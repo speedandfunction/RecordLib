@@ -6,12 +6,17 @@ import InputLabel from "@material-ui/core/InputLabel";
 import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
 import { updatePetition } from "frontend/src/actions/petitions";
-
+import { newCaseForPetition } from "../actions/petitions";
+import { pickBy } from "lodash";
 /**
  * Form for adding a new petition
  */
 export const EditPetitionForm = (props) => {
   const {
+    petition = {},
+    petitionCases, // obj of cases attached to this petition.
+    petitionCaseIds, // convenience list of ids of cases attached to this petition.
+    cases,
     setPetitionType,
     setOrganization,
     setAttorneyName,
@@ -21,6 +26,7 @@ export const EditPetitionForm = (props) => {
     setBarId,
     setIFPMessage,
     setCrimHistReport,
+    addCaseToPetition,
   } = props;
 
   const {
@@ -29,7 +35,24 @@ export const EditPetitionForm = (props) => {
     petition_type,
     ifp_message,
     include_crim_hist_report,
-  } = props.petition;
+  } = petition;
+
+  // All the cases in the CRecord, so the user
+  // can pick which ones to add to petitions.
+  const caseIds = cases ? Object.keys(cases) : [];
+
+  const [newCaseDocketNumber, setNewCaseDocketNumber] = useState("");
+
+  // Control the value of the new docket number to be added to this petition.
+  const handleNewCaseDocketNumChange = (e) => {
+    setNewCaseDocketNumber(e.target.value);
+  };
+
+  const handleAddCaseToPetition = (e) => {
+    e.preventDefault();
+    addCaseToPetition(newCaseDocketNumber);
+    setNewCaseDocketNumber("");
+  };
 
   const handleSetPetitionType = (e) => {
     setPetitionType(e.target.value);
@@ -126,7 +149,7 @@ export const EditPetitionForm = (props) => {
             onChange={handleSetBarId}
           />
         </div>
-        <h4>Extras</h4>
+        <h4>Messages</h4>
         <div>
           <TextField
             label="IFP Message"
@@ -139,22 +162,66 @@ export const EditPetitionForm = (props) => {
             onChange={handleSetCrimHistReport}
           />
         </div>
-        <Button type="submit">Done editing</Button>
+        <h4>Cases</h4>
+        <div>
+          <InputLabel id="case-select-label">Add a case</InputLabel>
+          <Select
+            labelId="case-select-label"
+            id="case-select"
+            value={newCaseDocketNumber}
+            onChange={handleNewCaseDocketNumChange}
+          >
+            {caseIds.map((caseId) => {
+              return (
+                <MenuItem key={caseId} value={caseId}>
+                  {caseId}
+                </MenuItem>
+              );
+            })}
+          </Select>
+        </div>
+        <div>
+          <ul>
+            {petitionCaseIds.map((pid) => {
+              return (
+                <li key={pid}>
+                  Docket Number: {petitionCases[pid].docket_number}{" "}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+        <Button
+          onClick={handleAddCaseToPetition}
+          disabled={newCaseDocketNumber === ""}
+        >
+          Add new case to petition
+        </Button>
       </div>
+      <Button type="submit">Done editing</Button>
     </form>
   );
 };
 
 const mapStateToProps = (state, ownProps) => {
-  console.log("mapping props");
-  console.log(ownProps);
   const { petitionId } = ownProps;
   const petition =
     state.petitions.petitionCollection.entities.petitions[petitionId];
-  console.log("petition");
-  console.log(petition);
+  const petitionCaseIds = petition.cases || [];
+  console.log("mapping state");
+  console.log(petition.cases);
+  const petitionCases = pickBy(
+    state.petitions.petitionCollection.entities.cases,
+    (val, key) => {
+      return petitionCaseIds.includes(key);
+    }
+  );
+  const cases = state.crecord.cases;
   return {
     petition: petition,
+    petitionCases: petitionCases,
+    petitionCaseIds: petitionCaseIds,
+    cases: cases,
   };
 };
 
@@ -204,6 +271,9 @@ const mapDispatchToProps = (dispatch, ownProps) => {
       dispatch(
         updatePetition(petitionId, { include_crim_hist_report: message })
       );
+    },
+    addCaseToPetition: (caseId) => {
+      dispatch(newCaseForPetition(petitionId, caseId));
     },
   };
 };

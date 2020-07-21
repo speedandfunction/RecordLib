@@ -2,6 +2,7 @@ import { combineReducers } from "redux";
 import { NEW_PETITION, UPDATE_PETITION } from "frontend/src/actions/petitions";
 import { normalizeOnePetition } from "frontend/src/normalize/petitions";
 import { merge } from "lodash";
+import { NEW_CASE_FOR_PETITION } from "../actions/petitions";
 
 /**
  * Slice of state explaining if petitions are currently being collected from the server.
@@ -105,6 +106,43 @@ export function petitionCollectionReducer(
             ),
           }),
           cases: { ...state.entities.cases },
+          charges: { ...state.entities.charges },
+        },
+      };
+      return newState;
+    }
+
+    case NEW_CASE_FOR_PETITION: {
+      // Add a new case to a petition.
+      const { petitionId, caseId, caseDefaults } = action.payload;
+      console.log("NEW_CASE_FOR_PETITION");
+      const newCaseIds = state.entities.petitions[petitionId].cases
+        ? // set operation makes sure we're not duplicating cases.
+          Array.from(
+            new Set([...state.entities.petitions[petitionId].cases, caseId])
+          )
+        : [caseId];
+
+      const newState = {
+        editingPetitionId: state.editingPetitionId,
+        petitionIds: [...state.petitionIds],
+        entities: {
+          petitions: merge({}, state.entities.petitions, {
+            [petitionId]: merge({}, state.entities.petitions[petitionId], {
+              cases: newCaseIds,
+            }),
+          }),
+          cases: merge({}, state.entities.cases, {
+            [caseId]: merge(
+              {},
+              {
+                id: caseId,
+                docket_number: caseId,
+                editing: false,
+              },
+              caseDefaults
+            ),
+          }),
           charges: { ...state.entities.charges },
         },
       };
