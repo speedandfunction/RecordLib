@@ -65,6 +65,13 @@ export function fetchPetitions(petitionIds, petitions, cases, charges) {
     cases,
     charges,
   });
+  console.log("fetching petitions");
+  console.log(petitions);
+  console.log(cases);
+  console.log(charges);
+
+  console.log("denormalized petitions:");
+  console.log(denormalized);
 
   return (dispatch, getState) => {
     api

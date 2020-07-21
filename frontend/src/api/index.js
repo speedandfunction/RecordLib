@@ -54,11 +54,10 @@ export function analyzeCRecord(data) {
   return client.post("/api/record/analysis/", removeNullValues(data));
 }
 
-export function fetchPetitions(petitions, attorney) {
+export function fetchPetitions(petitions) {
   // Send a POST to transform a set of petitions into
   // rendered petition files, and return the generated files
   // in a zip file.
-  petitions.forEach((p) => (p.attorney = attorney));
 
   const config = {
     responseType: "blob",

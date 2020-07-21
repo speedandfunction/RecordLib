@@ -42,7 +42,7 @@ function PetitionsPage(props) {
 
   const submitGetPetitions = (e) => {
     e.preventDefault();
-    getPetitions(petitionIds, petitions, cases, charges, attorney);
+    getPetitions(petitionIds, petitions, cases, charges);
   };
 
   const PetitionsPagetyle = {
@@ -87,8 +87,8 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch, ownProps) {
   return {
-    getPetitions: (selectedPetitions, atty) =>
-      dispatch(fetchPetitions(selectedPetitions, atty)),
+    getPetitions: (petitionIds, petitions, cases, charges) =>
+      dispatch(fetchPetitions(petitionIds, petitions, cases, charges)),
   };
 }
 
