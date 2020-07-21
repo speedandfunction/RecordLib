@@ -11,7 +11,7 @@ import { newPetition } from "frontend/src/actions/petitions";
  */
 export const NewPetitionForm = (props) => {
   const { newPetitionId, editingPetitionId, newPetition } = props;
-  const [showEditForm, setShowEditForm] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(editingPetitionId !== null);
 
   console.log("editing petition id");
   console.log(editingPetitionId);

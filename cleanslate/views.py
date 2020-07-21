@@ -376,7 +376,10 @@ class PetitionsView(APIView):
                 resp["X-Accel-Redirect"] = f"/protected/{package.name}"
                 return resp
             else:
-                raise ValueError
+                return Response(
+                    {"validation_errors": serializer.errors},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
         except Exception as e:
             logger.error(str(e))
             return Response("Something went wrong", status=status.HTTP_400_BAD_REQUEST)

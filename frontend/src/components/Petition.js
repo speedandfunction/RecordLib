@@ -108,11 +108,8 @@ export function Petition(props) {
 
 const mapStateToProps = (state, ownProps) => {
   const { petitionId } = ownProps;
-  console.log("finding petition" + petitionId);
   const petition =
     state.petitions.petitionCollection.entities.petitions[petitionId];
-  console.log("found: ");
-  console.log(petition);
 
   return {
     petition: petition,

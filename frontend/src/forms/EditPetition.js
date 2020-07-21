@@ -5,8 +5,11 @@ import TextField from "@material-ui/core/TextField";
 import InputLabel from "@material-ui/core/InputLabel";
 import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
-import { updatePetition } from "frontend/src/actions/petitions";
-import { newCaseForPetition } from "../actions/petitions";
+import {
+  updatePetition,
+  setPetitionToEdit,
+  newCaseForPetition,
+} from "frontend/src/actions/petitions";
 import { pickBy } from "lodash";
 /**
  * Form for adding a new petition
@@ -27,6 +30,7 @@ export const EditPetitionForm = (props) => {
     setIFPMessage,
     setCrimHistReport,
     addCaseToPetition,
+    setDoneEditing,
   } = props;
 
   const {
@@ -88,6 +92,10 @@ export const EditPetitionForm = (props) => {
 
   const handleSetCrimHistReport = (e) => {
     setCrimHistReport(e.target.value);
+  };
+
+  const handleDoneEditing = (e) => {
+    setDoneEditing();
   };
 
   return (
@@ -198,7 +206,9 @@ export const EditPetitionForm = (props) => {
           Add new case to petition
         </Button>
       </div>
-      <Button type="submit">Done editing</Button>
+      <Button type="submit" onClick={handleDoneEditing}>
+        Done editing
+      </Button>
     </form>
   );
 };
@@ -274,6 +284,9 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     },
     addCaseToPetition: (caseId) => {
       dispatch(newCaseForPetition(petitionId, caseId));
+    },
+    setDoneEditing: () => {
+      dispatch(setPetitionToEdit(null));
     },
   };
 };

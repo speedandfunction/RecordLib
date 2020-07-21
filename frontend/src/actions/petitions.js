@@ -1,4 +1,8 @@
-import { normalizePetitions } from "frontend/src/normalize/petitions";
+import {
+  normalizePetitions,
+  denormalizePetitions,
+} from "frontend/src/normalize/petitions";
+import * as api from "../api";
 
 export const NEW_PETITION = "NEW_PETITION";
 export const UPDATE_PETITION = "UPDATE_PETITION";
@@ -44,3 +48,37 @@ export const deletePetition = (petitionId) => {
     payload: { petitionId: petitionId },
   };
 };
+
+function fetchPetitionsSucceeded(petitionPath) {
+  return {
+    type: "FETCH_PETITIONS_SUCCEEDED",
+  };
+}
+
+/**
+ * Create an action that sends a list of petitions to the server, and returns the files.
+ * @param {} petitions
+ */
+export function fetchPetitions(petitionIds, petitions, cases, charges) {
+  const denormalized = denormalizePetitions(petitionIds, {
+    petitions,
+    cases,
+    charges,
+  });
+
+  return (dispatch, getState) => {
+    api
+      .fetchPetitions(denormalized)
+      .then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", "ExpungementPetitions.zip");
+        document.body.appendChild(link);
+        link.click();
+        console.log("fetched petitions successfully");
+        dispatch(fetchPetitionsSucceeded());
+      })
+      .catch((err) => console.log("error fetching petitions."));
+  };
+}

@@ -5,7 +5,7 @@ import PropTypes from "prop-types";
 import Button from "@material-ui/core/Button";
 import Container from "@material-ui/core/Container";
 import Paper from "@material-ui/core/Paper";
-import { fetchPetitions } from "frontend/src/actions";
+import { fetchPetitions } from "frontend/src/actions/petitions";
 import Typography from "@material-ui/core/Typography";
 import { NewPetitionFormConnected as NewPetitionForm } from "frontend/src/components/NewPetition";
 import { PetitionsTableConnected } from "frontend/src/components/PetitionsTable";
@@ -20,7 +20,14 @@ const useStyles = makeStyles((theme) => {
 });
 
 function PetitionsPage(props) {
-  const { petitions, petitionIds, attorney } = props;
+  const {
+    petitionIds,
+    petitions,
+    cases,
+    charges,
+    attorney,
+    getPetitions,
+  } = props;
 
   //defaultAttorney is a _copy_ of the attorney from state,
   // It must be a copy because its being sent as a default
@@ -35,7 +42,7 @@ function PetitionsPage(props) {
 
   const submitGetPetitions = (e) => {
     e.preventDefault();
-    getPetitions(selectedPetitions, attorney);
+    getPetitions(petitionIds, petitions, cases, charges, attorney);
   };
 
   const PetitionsPagetyle = {
@@ -71,6 +78,8 @@ PetitionsPage.propTypes = {
 function mapStateToProps(state) {
   return {
     petitions: state.petitions.petitionCollection.entities.petitions,
+    cases: state.petitions.petitionCollection.entities.cases,
+    charges: state.petitions.petitionCollection.entities.charges,
     petitionIds: state.petitions.petitionCollection.petitionIds,
     attorney: state.attorney,
   };

@@ -61,7 +61,6 @@ export function petitionCollectionReducer(
   state = initialCollectionState,
   action
 ) {
-  console.log("petitionCollectionReducer");
   switch (action.type) {
     case NEW_PETITION: {
       // Add a new petition
@@ -95,7 +94,6 @@ export function petitionCollectionReducer(
       return newState;
     }
     case UPDATE_PETITION: {
-      console.log("updating a petition.");
       // Update a petition.
 
       // NB - to handle updates to things like cases, do I
@@ -128,7 +126,6 @@ export function petitionCollectionReducer(
     case NEW_CASE_FOR_PETITION: {
       // Add a new case to a petition.
       const { petitionId, caseId, caseDefaults } = action.payload;
-      console.log("NEW_CASE_FOR_PETITION");
       const newCaseIds = state.entities.petitions[petitionId].cases
         ? // set operation makes sure we're not duplicating cases.
           Array.from(
@@ -168,10 +165,8 @@ export function petitionCollectionReducer(
     }
 
     case DELETE_PETITION: {
-      console.log("deleting petition");
       const { petitionId } = action.payload;
       const newPetitionIds = pull(state.petitionIds, petitionId);
-      console.log(newPetitionIds);
       const caseIdsToDelete = state.entities.petitions[petitionId].cases || [];
       const caseIdsToKeep = difference(
         Object.keys(state.entities.cases),
@@ -198,8 +193,6 @@ export function petitionCollectionReducer(
           charges: pick(state.entities.charges, chargeIdsToKeep),
         },
       };
-      console.log("newstate");
-      console.log(newState);
       return newState;
     }
     default:
