@@ -10,14 +10,19 @@ import { newPetition } from "frontend/src/actions/petitions";
  * A button. If you click that button, create a form for editing a new petition. Give the new petition an ID.
  */
 export const NewPetitionForm = (props) => {
-  const { newPetitionId, editingPetitionId, newPetition } = props;
+  const {
+    newPetitionId,
+    editingPetitionId,
+    newPetition,
+    defaultAttorney,
+  } = props;
   const [showEditForm, setShowEditForm] = useState(editingPetitionId !== null);
 
   console.log("editing petition id");
   console.log(editingPetitionId);
 
   const handleButtonClick = () => {
-    newPetition(newPetitionId);
+    newPetition(newPetitionId, defaultAttorney);
     setShowEditForm(true);
   };
 
@@ -45,13 +50,20 @@ const mapStateToProps = (state) => {
       state.petitions.petitionCollection.petitionIds
     ),
     editingPetitionId: state.petitions.petitionCollection.editingPetitionId,
+    defaultAttorney: state.attorney,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    newPetition: (newId) => {
-      dispatch(newPetition({ id: newId, petition_type: "Expungement" }));
+    newPetition: (newId, defaultAttorney) => {
+      dispatch(
+        newPetition({
+          id: newId,
+          petition_type: "Expungement",
+          attorney: defaultAttorney,
+        })
+      );
     },
   };
 };

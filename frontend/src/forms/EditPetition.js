@@ -138,19 +138,13 @@ export const EditPetitionForm = (props) => {
           />
           <TextField
             label="Organization Address"
-            value={
-              attorney.organization_address
-                ? attorney.organization_address.line_one
-                : ""
-            }
+            value={attorney.address ? attorney.address.line_one : ""}
             onChange={handleSetStreetAddress}
           />
           <TextField
             label="Organization City/State/Zip"
             defaultValue={
-              attorney.organization_address
-                ? attorney.organization_address.city_state_zip
-                : ""
+              attorney.address ? attorney.address.city_state_zip : ""
             }
             onChange={handleSetCity}
           />
