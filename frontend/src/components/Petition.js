@@ -22,12 +22,6 @@ const useStyles = makeStyles((theme) => {
       paddingBottom: "1em",
       marginBottom: "2em",
     },
-    expungement: {
-      border: "2px #8e24aa",
-    },
-    sealing: {
-      border: "2px #9ccc65",
-    },
     header: {
       fontSize: 18,
     },
@@ -40,7 +34,6 @@ const useStyles = makeStyles((theme) => {
 export function Petition(props) {
   const { petition, setPetitionToEdit, deletePetition } = props;
   const classes = useStyles();
-
   const handleEditPetition = (e) => {
     setPetitionToEdit(petition.id);
   };
@@ -50,15 +43,7 @@ export function Petition(props) {
   };
 
   return (
-    <Card
-      className={
-        classes.card +
-        " " +
-        (petition.petition_type === "Expungement"
-          ? classes.expungement
-          : classes.sealing)
-      }
-    >
+    <Card className={classes.card}>
       <CardContent>
         <Typography className={classes.header} color="textSecondary">
           {petition.petition_type}

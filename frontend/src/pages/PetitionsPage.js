@@ -37,7 +37,6 @@ function PetitionsPage(props) {
   const defaultAttorney = { ...attorney, address: { ...attorney.address } };
 
   const styles = useStyles();
-
   const isReadyToSubmit = petitionIds && petitionIds.length > 0;
 
   const submitGetPetitions = (e) => {

@@ -268,6 +268,12 @@ export const EditPetitionForm = (props) => {
               );
             })}
           </Select>
+          <Button
+            onClick={handleAddCaseToPetition}
+            disabled={newCaseDocketNumber === ""}
+          >
+            Add new case to petition
+          </Button>
         </div>
         <div>
           <ul>
@@ -308,12 +314,6 @@ export const EditPetitionForm = (props) => {
             <></>
           )}
         </div>
-        <Button
-          onClick={handleAddCaseToPetition}
-          disabled={newCaseDocketNumber === ""}
-        >
-          Add new case to petition
-        </Button>
       </div>
       <Button type="submit" onClick={handleDoneEditing}>
         Done editing

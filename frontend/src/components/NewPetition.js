@@ -81,7 +81,9 @@ const mapDispatchToProps = (dispatch) => {
           service_agencies: defaultServiceAgencies,
           client: {
             ...defaultApplicantInfo.applicant,
-            aliases: defaultApplicantInfo.aliases,
+            aliases: Object.entries(defaultApplicantInfo.aliases).map(
+              (id, alias) => alias
+            ),
           },
         })
       );
