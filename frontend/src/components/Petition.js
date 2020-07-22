@@ -77,6 +77,12 @@ export function Petition(props) {
             ? petition.attorney.full_name + " " + petition.attorney.organization
             : ""}
         </Typography>
+        <Typography variant="body2" color="textSecondary">
+          Client:{" "}
+          {petition.client
+            ? `${petition.client.first_name} ${petition.client.last_name}`
+            : ""}
+        </Typography>
         <Typography varian="body2" color="textSecondary">
           {petition.ifp_message}
         </Typography>

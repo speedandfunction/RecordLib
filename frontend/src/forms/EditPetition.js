@@ -34,6 +34,8 @@ export const EditPetitionForm = (props) => {
     addCaseToPetition,
     setDoneEditing,
     setServiceAgenciesOnPetition,
+    updateApplicant,
+    updateApplicantAddress,
   } = props;
 
   const {
@@ -42,6 +44,7 @@ export const EditPetitionForm = (props) => {
     petition_type,
     ifp_message,
     include_crim_hist_report,
+    client = {},
   } = petition;
 
   // All the cases in the CRecord, so the user
@@ -127,6 +130,20 @@ export const EditPetitionForm = (props) => {
     setDoneEditing();
   };
 
+  /** Create a function to handle updates to the applicant info. */
+  const handleSetApplicant = (field) => {
+    return (e) => {
+      updateApplicant(field, e.target.value);
+    };
+  };
+
+  /** Create a function to handle updates to the applicant info. */
+  const handleSetApplicantAddress = (field) => {
+    return (e) => {
+      updateApplicantAddress(field, e.target.value);
+    };
+  };
+
   return (
     <form id={`edit-petition-${id}`}>
       <h3>
@@ -144,7 +161,46 @@ export const EditPetitionForm = (props) => {
           <MenuItem value={"Sealing"}>Sealing</MenuItem>
         </Select>
       </div>
-      <h4> Attorney: </h4>
+      <h4>Client</h4>
+      <div>
+        <TextField
+          label="First Name"
+          value={client.first_name}
+          onChange={handleSetApplicant("first_name")}
+        ></TextField>
+        <TextField
+          label="Last Name"
+          value={client.last_name}
+          onChange={handleSetApplicant("last_name")}
+        ></TextField>
+        <TextField
+          label="Date of birth"
+          value={client.date_of_birth}
+          onChange={handleSetApplicant("date_of_birth")}
+        ></TextField>
+        <TextField
+          label="Date of death"
+          value={client.date_of_death}
+          onChange={handleSetApplicant("date_of_death")}
+        ></TextField>
+        <TextField
+          label="SSN"
+          value={client.ssn}
+          onChange={handleSetApplicant("ssn")}
+        ></TextField>
+        <TextField
+          label="Street address"
+          value={client.address ? client.address.line_one : ""}
+          onChange={handleSetApplicantAddress("line_one")}
+        ></TextField>
+        <TextField
+          label="City/State/Zip"
+          value={client.address ? client.address.city_state_zip : ""}
+          onChange={handleSetApplicantAddress("city_state_zip")}
+        ></TextField>
+        <span>TODO: aliases</span>
+      </div>
+      <h4> Attorney</h4>
       <div>
         <div>
           <TextField
@@ -195,7 +251,9 @@ export const EditPetitionForm = (props) => {
         </div>
         <h4>Cases</h4>
         <div>
-          <InputLabel id="case-select-label">Add a case</InputLabel>
+          <InputLabel id="case-select-label">
+            Copy a case from the full record
+          </InputLabel>
           <Select
             labelId="case-select-label"
             id="case-select"
@@ -282,6 +340,7 @@ const mapStateToProps = (state, ownProps) => {
     petitionCaseIds: petitionCaseIds,
     cases: cases,
     charges: state.crecord.charges,
+    applicantInfo: state.applicantInfo,
   };
 };
 
@@ -330,6 +389,14 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     setCrimHistReport: (message) => {
       dispatch(
         updatePetition(petitionId, { include_crim_hist_report: message })
+      );
+    },
+    updateApplicant: (field, value) => {
+      dispatch(updatePetition(petitionId, { client: { [field]: value } }));
+    },
+    updateApplicantAddress: (field, value) => {
+      dispatch(
+        updatePetition(petitionId, { client: { address: { [field]: value } } })
       );
     },
     addCaseToPetition: (caseId, caseInfo, chargeInfo) => {
