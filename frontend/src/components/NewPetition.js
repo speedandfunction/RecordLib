@@ -15,6 +15,7 @@ export const NewPetitionForm = (props) => {
     editingPetitionId,
     newPetition,
     defaultAttorney,
+    defaultServiceAgencies,
   } = props;
   const [showEditForm, setShowEditForm] = useState(editingPetitionId !== null);
 
@@ -22,7 +23,7 @@ export const NewPetitionForm = (props) => {
   console.log(editingPetitionId);
 
   const handleButtonClick = () => {
-    newPetition(newPetitionId, defaultAttorney);
+    newPetition(newPetitionId, defaultAttorney, defaultServiceAgencies);
     setShowEditForm(true);
   };
 
@@ -51,17 +52,21 @@ const mapStateToProps = (state) => {
     ),
     editingPetitionId: state.petitions.petitionCollection.editingPetitionId,
     defaultAttorney: state.attorney,
+    defaultServiceAgencies: state.serviceAgencies.result.map(
+      (id) => state.serviceAgencies.entities[id].name
+    ),
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    newPetition: (newId, defaultAttorney) => {
+    newPetition: (newId, defaultAttorney, defaultServiceAgencies) => {
       dispatch(
         newPetition({
           id: newId,
           petition_type: "Expungement",
           attorney: defaultAttorney,
+          service_agencies: defaultServiceAgencies,
         })
       );
     },

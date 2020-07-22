@@ -1,11 +1,12 @@
 import { combineReducers } from "redux";
 import { NEW_PETITION, UPDATE_PETITION } from "frontend/src/actions/petitions";
 import { normalizeOnePetition } from "frontend/src/normalize/petitions";
-import { merge, pull, difference, pick } from "lodash";
+import { merge, pull, difference, pick, mergeWith } from "lodash";
 import {
   NEW_CASE_FOR_PETITION,
   SET_PETITION_TO_EDIT,
   DELETE_PETITION,
+  SET_SERVICE_AGENCIES_ON_PETITION,
 } from "../actions/petitions";
 
 /** Find the ids of charges related to a list of cases
@@ -156,6 +157,27 @@ export function petitionCollectionReducer(
           charges: merge({}, state.entities.charges, chargeInfo),
         },
       };
+      return newState;
+    }
+
+    case SET_SERVICE_AGENCIES_ON_PETITION: {
+      console.log("setting service agencies:");
+
+      const { petitionId, serviceAgencies } = action.payload;
+      console.log(serviceAgencies);
+      const newState = mergeWith(
+        {},
+        state,
+        (objValue, srcValue, key, object, source, stack) => {
+          console.log(`${objValue}, ${srcValue}, ${key}`);
+          if (key === "service_agencies") {
+            return serviceAgencies;
+          }
+          return undefined;
+        }
+      );
+      console.log("modified state after setting petitions");
+      console.log(newState);
       return newState;
     }
 

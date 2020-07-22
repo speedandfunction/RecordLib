@@ -9,6 +9,7 @@ import {
   updatePetition,
   setPetitionToEdit,
   newCaseForPetition,
+  setServiceAgenciesOnPetition,
 } from "frontend/src/actions/petitions";
 import { pickBy, pick } from "lodash";
 /**
@@ -32,6 +33,7 @@ export const EditPetitionForm = (props) => {
     setCrimHistReport,
     addCaseToPetition,
     setDoneEditing,
+    setServiceAgenciesOnPetition,
   } = props;
 
   const {
@@ -47,21 +49,40 @@ export const EditPetitionForm = (props) => {
   const caseIds = cases ? Object.keys(cases) : [];
 
   const [newCaseDocketNumber, setNewCaseDocketNumber] = useState("");
+  const [newServiceAgency, setNewServiceAgency] = useState("");
 
   // State hook to control the value of the new docket number to be added to this petition.
   const handleNewCaseDocketNumChange = (e) => {
     setNewCaseDocketNumber(e.target.value);
   };
 
+  const handleEditNewServiceAgency = (e) => {
+    setNewServiceAgency(e.target.value);
+  };
+
+  const handleAddNewServiceAgency = (e) => {
+    e.preventDefault();
+    const newServiceAgencies = petition.service_agencies
+      ? Array.from(new Set([...petition.service_agencies, newServiceAgency]))
+      : [newServiceAgency];
+    setServiceAgenciesOnPetition(newServiceAgencies);
+  };
+
+  const handleDeleteServiceAgency = (agencyToDelete) => {
+    return (e) => {
+      e.preventDefault();
+      const newServiceAgencies = petition.service_agencies.filter((s) => {
+        return s !== agencyToDelete;
+      });
+      setServiceAgenciesOnPetition(newServiceAgencies);
+    };
+  };
+
   // Dispatch action to copy a case from crecord into Petition state.
   const handleAddCaseToPetition = (e) => {
     e.preventDefault();
-    console.log("handling add case button");
     const caseInfo = cases[newCaseDocketNumber];
-    console.log(caseInfo);
     const chargesToAdd = pick(charges, caseInfo.charges);
-    console.log(chargesToAdd);
-    console.log("now dispatching.");
     addCaseToPetition(newCaseDocketNumber, caseInfo, chargesToAdd);
     setNewCaseDocketNumber("");
   };
@@ -201,6 +222,34 @@ export const EditPetitionForm = (props) => {
             })}
           </ul>
         </div>
+        <h4>Service Agencies</h4>
+        <div>
+          <TextField
+            label="Service Agency"
+            value={newServiceAgency}
+            onChange={handleEditNewServiceAgency}
+          ></TextField>
+          <Button onClick={handleAddNewServiceAgency}>
+            Add new service agency
+          </Button>
+          {petition.service_agencies ? (
+            <ul>
+              {petition.service_agencies.map((agency) => {
+                return (
+                  <li key={agency}>
+                    {" "}
+                    {agency}{" "}
+                    <Button onClick={handleDeleteServiceAgency(agency)}>
+                      Delete
+                    </Button>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <></>
+          )}
+        </div>
         <Button
           onClick={handleAddCaseToPetition}
           disabled={newCaseDocketNumber === ""}
@@ -285,6 +334,9 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     },
     addCaseToPetition: (caseId, caseInfo, chargeInfo) => {
       dispatch(newCaseForPetition(petitionId, caseId, caseInfo, chargeInfo));
+    },
+    setServiceAgenciesOnPetition: (serviceAgencies) => {
+      dispatch(setServiceAgenciesOnPetition(petitionId, serviceAgencies));
     },
     setDoneEditing: () => {
       dispatch(setPetitionToEdit(null));

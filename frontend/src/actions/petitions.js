@@ -9,6 +9,8 @@ export const UPDATE_PETITION = "UPDATE_PETITION";
 export const NEW_CASE_FOR_PETITION = "NEW_CASE_FOR_PETITION";
 export const SET_PETITION_TO_EDIT = "SET_PETITION_TO_EDIT";
 export const DELETE_PETITION = "DELETE_PETITION";
+export const SET_SERVICE_AGENCIES_ON_PETITION =
+  "SET_SERVICE_AGENCIES_ON_PETITION";
 
 /** An action to add a new petition to the application state */
 export const newPetition = (petition) => {
@@ -36,6 +38,13 @@ export const newCaseForPetition = (
   return {
     type: NEW_CASE_FOR_PETITION,
     payload: { petitionId, caseId, caseDefaults, chargeInfo },
+  };
+};
+
+export const setServiceAgenciesOnPetition = (petitionId, serviceAgencies) => {
+  return {
+    type: SET_SERVICE_AGENCIES_ON_PETITION,
+    payload: { petitionId, serviceAgencies },
   };
 };
 
